@@ -4,8 +4,8 @@
 *.pydevproject
 .metadata
 .gradle
-bin/
-tmp/
+*/bin/
+*/tmp/
 *.tmp
 *.bak
 *.swp
@@ -45,8 +45,8 @@ local.properties
 *.class
 
 # Generated files
-bin/
-gen/
+*/bin/
+*/gen/
 
 # Gradle files
 .gradle/
