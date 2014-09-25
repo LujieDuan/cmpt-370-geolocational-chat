@@ -4,5 +4,6 @@
     <string name="app_name">Geolocational Chat</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-
+	<string name="team_name">Code Runners</string>
+    
 </resources>
