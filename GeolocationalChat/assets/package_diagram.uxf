@@ -67,7 +67,7 @@ logic</panel_attributes>
     </coordinates>
     <panel_attributes>mainScreen
 --
-#MainActivity
+-MainActivity
 #CreateInboxItem
 #NewChatCreator
 bg=gray
@@ -107,8 +107,8 @@ fg=red</panel_attributes>
     <type>com.umlet.element.Package</type>
     <coordinates>
       <x>780</x>
-      <y>510</y>
-      <w>160</w>
+      <y>500</y>
+      <w>170</w>
       <h>170</h>
     </coordinates>
     <panel_attributes>dataTypes
@@ -159,10 +159,10 @@ fg=red</panel_attributes>
       <x>540</x>
       <y>540</y>
       <w>260</w>
-      <h>110</h>
+      <h>100</h>
     </coordinates>
     <panel_attributes>lt=&lt;.</panel_attributes>
-    <additional_attributes>240;90;30;30</additional_attributes>
+    <additional_attributes>240;80;30;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
@@ -341,24 +341,24 @@ fg=red</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>1050</x>
+      <x>1070</x>
       <y>630</y>
-      <w>160</w>
+      <w>140</w>
       <h>120</h>
     </coordinates>
     <panel_attributes>lt=&lt;.</panel_attributes>
-    <additional_attributes>140;100;30;30</additional_attributes>
+    <additional_attributes>120;100;30;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
       <x>870</x>
       <y>430</y>
-      <w>50</w>
-      <h>120</h>
+      <w>60</w>
+      <h>110</h>
     </coordinates>
     <panel_attributes>lt=&lt;.</panel_attributes>
-    <additional_attributes>30;100;30;30</additional_attributes>
+    <additional_attributes>40;90;30;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Package</type>
@@ -461,12 +461,12 @@ fg=red</panel_attributes>
     <type>com.umlet.element.Relation</type>
     <coordinates>
       <x>690</x>
-      <y>650</y>
-      <w>160</w>
-      <h>140</h>
+      <y>640</y>
+      <w>170</w>
+      <h>150</h>
     </coordinates>
     <panel_attributes>lt=&lt;.</panel_attributes>
-    <additional_attributes>140;30;30;120</additional_attributes>
+    <additional_attributes>150;30;30;130</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Class</type>
@@ -542,13 +542,13 @@ fg=red</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>910</x>
+      <x>920</x>
       <y>280</y>
-      <w>140</w>
-      <h>320</h>
+      <w>130</w>
+      <h>310</h>
     </coordinates>
     <panel_attributes>lt=&lt;.</panel_attributes>
-    <additional_attributes>30;300;120;160;40;30</additional_attributes>
+    <additional_attributes>30;290;110;160;30;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
