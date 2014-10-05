@@ -11,6 +11,7 @@
 *.swp
 *~.nib
 local.properties
+project.properties
 .settings/
 .loadpath
 
@@ -37,7 +38,6 @@ local.properties
 # Built application files
 *.apk
 *.ap_
-appcompat_v7/
 
 # Files for the Dalvik VM
 *.dex
@@ -46,8 +46,8 @@ appcompat_v7/
 *.class
 
 # Generated files
-*/bin/
-*/gen/
+bin/
+gen/
 
 # Gradle files
 .gradle/
