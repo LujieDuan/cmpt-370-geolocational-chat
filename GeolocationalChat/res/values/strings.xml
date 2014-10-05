@@ -5,6 +5,11 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 	<string name="team_name">Code Runners</string>
-	<string name="reply">Reply</string>
+	<string name="inbox_name">Name</string>
+	<string name="inbox_post">Post</string>
+	<string name="inbox_distance">Distance</string>
+	<string name="inbox_time">Time</string>
+	<string name="inbox_replies">Replies</string>
+	
     
 </resources>
