@@ -1,8 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-    
+    android:layout_height="wrap_content"
+    android:baselineAligned="false"
+    android:orientation="horizontal"
+    android:padding="10dp" >
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="0.90"
+        android:baselineAligned="false"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/inbox_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/inbox_name"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#000000"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/inbox_post"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:text="@string/inbox_post"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#555555" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.09"
+        android:baselineAligned="false"
+        android:orientation="vertical"
+        android:paddingLeft="10dp" >
+
+        <TextView
+            android:id="@+id/inbox_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@string/inbox_time"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#bbbbbb"
+            android:textStyle="italic" />
+
+        <TextView
+            android:id="@+id/inbox_replies"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@string/inbox_replies"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#bbbbbb"
+            android:textStyle="italic" />
+
+        <TextView
+            android:id="@+id/inbox_distance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="@string/inbox_distance"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#bbbbbb"
+            android:textStyle="italic" />
+    </LinearLayout>
 
 </LinearLayout>
