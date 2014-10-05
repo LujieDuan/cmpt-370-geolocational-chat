@@ -1,5 +1,6 @@
 package mainScreen;
 
+import chatScreen.ChatScreen;
 import coderunners.geolocationalchat.R;
 import android.os.Bundle;
 import android.os.Handler;
@@ -7,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.app.ListActivity;
+import android.content.Intent;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -64,6 +66,17 @@ public class MainActivity extends ListActivity {
     		"500m away", 
     		"500m away", 
     		"500m away" };
+    int[] chatIds = new int[] {
+    		1,
+    		2,
+    		3,
+    		4,
+    		5,
+    		6,
+    		7,
+    		8,
+    		9
+    };
 	
     ArrayAdapter<String> adapter;
     
@@ -96,10 +109,15 @@ public class MainActivity extends ListActivity {
         });
     }
     
+    
+    
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-      String item = (String) getListAdapter().getItem(position);
-      Toast.makeText(this, item + " selected", Toast.LENGTH_LONG).show();
+//      String item = (String) getListAdapter().getItem(position);
+//      Toast.makeText(this, item + " selected", Toast.LENGTH_LONG).show();
+    	
+    	Intent chatScreenIntent = new Intent(MainActivity.this, ChatScreen.class);
+    	startActivity(chatScreenIntent);
     }
 
     @Override

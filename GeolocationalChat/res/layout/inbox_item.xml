@@ -5,6 +5,7 @@
     android:baselineAligned="false"
     android:orientation="horizontal"
     android:padding="10dp" >
+    <!-- android:onClick="createChat"  -->
 
     <LinearLayout
         android:layout_width="0dp"
