@@ -11,7 +11,6 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.Toast;
 
 
 public class MainActivity extends ListActivity {
