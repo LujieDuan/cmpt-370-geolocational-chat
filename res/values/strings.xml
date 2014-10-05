@@ -11,6 +11,6 @@
 	<string name="inbox_time">Time</string>
 	<string name="inbox_replies">Replies</string>
 	<string name="message_prompt">type a message</string>
-	
+	<string name="send_message">send</string>
     
 </resources>

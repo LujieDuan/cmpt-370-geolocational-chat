@@ -22,7 +22,7 @@
  		       android:layout_gravity="top"
  		       android:linksClickable="true"
  		       android:onClick="sendMessage"
- 		       android:text="send" />
+ 		       android:text="@string/send_message" />
  		   
  		   <EditText
       	       android:id="@+id/EditText"
