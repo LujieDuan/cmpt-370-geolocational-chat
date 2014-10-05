@@ -1,8 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/chattingScreen"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:orientation="vertical" >
-    
 
-</LinearLayout>
+    <RelativeLayout android:id="@+id/sendView" 
+        android:orientation="horizontal"
+        android:layout_width="wrap_content" 
+        android:layout_height="wrap_content" 
+        android:layout_alignParentBottom="true">
+
+            
+ 		   <Button
+ 		       android:id="@+id/SendButton"
+ 		       android:layout_width="wrap_content"
+ 		       android:layout_height="wrap_content"
+ 		       android:layout_alignParentRight="true"
+ 		       android:layout_gravity="top"
+ 		       android:linksClickable="true"
+ 		       android:onClick="sendClickman"
+ 		       android:text="send" />
+ 		   
+ 		   <EditText
+      	       android:id="@+id/EditText"
+      	       android:layout_width="fill_parent"
+      	       android:layout_height="wrap_content"
+      	       android:text="type a message"
+      	       android:layout_toLeftOf="@+id/SendButton" >
+
+           </EditText>
+         </RelativeLayout>
+ 		   
+ 		 <ListView
+		    android:id="@+id/listview"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_alignParentTop="true"
+		    android:layout_above="@id/sendView"/> 
+		    
+</RelativeLayout>
