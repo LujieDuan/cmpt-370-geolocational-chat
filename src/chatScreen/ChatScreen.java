@@ -45,12 +45,12 @@ public class ChatScreen extends Activity
 	{
 		EditText editText = (EditText) findViewById(R.id.EditText);
 		String message = editText.getText().toString().trim();
+		editText.setText("");
 		if(!message.equals(""))
 		{
 			valueList.add(new String[] {"Me", message, "just now, 0m"} );
 			adapter.notifyDataSetChanged();
 		}
-		editText.setText("");
 	}
 
 	public class MySimpleArrayAdapter extends ArrayAdapter<String[]> {

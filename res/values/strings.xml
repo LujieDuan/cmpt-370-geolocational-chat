@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Geolocational Chat</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">Local Messenger</string>
+    <string name="team_name">Code Runners</string>
     <string name="action_settings">Settings</string>
-	<string name="team_name">Code Runners</string>
 	<string name="inbox_name">Name</string>
 	<string name="inbox_post">Post</string>
 	<string name="inbox_distance">Distance</string>
 	<string name="inbox_time">Time</string>
 	<string name="inbox_replies">Replies</string>
-	<string name="message_prompt">type a message</string>
-	<string name="send_message">send</string>
+	<string name="message_prompt">Type a message&#8230;</string>
+	<string name="button_send">Send</string>
     
 </resources>
