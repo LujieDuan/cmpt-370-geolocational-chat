@@ -1,4 +1,4 @@
-package chatScreen;
+package screen.chat;
 
 import java.util.ArrayList;
 
@@ -14,7 +14,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import coderunners.geolocationalchat.R;
 
-public class ChatScreen extends Activity
+public class ChatActivity extends Activity
 {
 	ArrayList<String[]> valueList = new ArrayList<String[]>();	  
 	  
@@ -23,7 +23,6 @@ public class ChatScreen extends Activity
 	@Override
 	  protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 		
 		valueList.add(new String[] { "Mike", "Programming Contest on weekend!", "3 hours ago, 200m"} );
 		valueList.add(new String[] {"Tom","I will be there!", "2 hours ago, 10m"} );
@@ -59,7 +58,7 @@ public class ChatScreen extends Activity
 		private final ArrayList<String[]> values;
 
 		public MySimpleArrayAdapter(Context context, ArrayList<String[]> values) {
-			super(context, R.layout.chat_bubble, values);
+			super(context, R.layout.chat_bubble_me, values);
 			this.context = context;
 		    this.values = values;
 		}
@@ -68,26 +67,23 @@ public class ChatScreen extends Activity
 		public View getView(int position, View convertView, ViewGroup parent) {
 			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		    
-			View rowView = inflater.inflate(R.layout.chat_bubble, parent, false);
+			View rowView;
 			
-		    if(values.get(position)[0] == "Me"){
-			    TextView textViewMessage = (TextView) rowView.findViewById(R.id.textViewMessage);
-			    TextView textViewTimeLocation = (TextView) rowView.findViewById(R.id.timeAndLocation);
-			    TextView textViewName = (TextView) rowView.findViewById(R.id.textViewMe);
-		    	textViewMessage.setText("      " + values.get(position)[1]);
-		    	textViewTimeLocation.setText(values.get(position)[2]);
-		    	textViewName.setText(values.get(position)[0]);
-		    	textViewMessage.setBackgroundResource(R.drawable.chat_bubble_invert);
-		    }else{
-			    TextView textViewMessage = (TextView) rowView.findViewById(R.id.textViewMessage);
-			    TextView textViewTimeLocation = (TextView) rowView.findViewById(R.id.timeAndLocation);
-			    TextView textViewName = (TextView) rowView.findViewById(R.id.textViewName);
-		    	textViewMessage.setText("      " + values.get(position)[1]);
-		    	textViewTimeLocation.setText(values.get(position)[2]);
-		    	textViewName.setText(values.get(position)[0]);
-		    }
-		    
-		
+			if(values.get(position)[0].equals("Me"))
+			{
+				rowView = inflater.inflate(R.layout.chat_bubble_me, parent, false);
+			}
+			else
+			{
+				rowView = inflater.inflate(R.layout.chat_bubble_them, parent, false);
+			}
+				
+			TextView textViewMessage = (TextView) rowView.findViewById(R.id.textViewMessage);
+			TextView textViewTimeLocation = (TextView) rowView.findViewById(R.id.timeAndLocation);
+			TextView textViewName = (TextView) rowView.findViewById(R.id.textViewName);
+			textViewMessage.setText(values.get(position)[1]);
+			textViewTimeLocation.setText(values.get(position)[2]);
+			textViewName.setText(values.get(position)[0]);
 
 		    return rowView;
 		  }

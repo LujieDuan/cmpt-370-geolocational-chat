@@ -1,6 +1,6 @@
-package mainScreen;
+package screen.inbox;
 
-import chatScreen.ChatScreen;
+import screen.chat.ChatActivity;
 import coderunners.geolocationalchat.R;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,7 +13,7 @@ import android.view.View;
 import android.widget.ListView;
 
 
-public class MainActivity extends ListActivity {
+public class InboxActivity extends ListActivity {
 
 	
 	String[] names = new String[] { 
@@ -115,7 +115,7 @@ public class MainActivity extends ListActivity {
 //      String item = (String) getListAdapter().getItem(position);
 //      Toast.makeText(this, item + " selected", Toast.LENGTH_LONG).show();
     	
-    	Intent chatScreenIntent = new Intent(MainActivity.this, ChatScreen.class);
+    	Intent chatScreenIntent = new Intent(InboxActivity.this, ChatActivity.class);
     	startActivity(chatScreenIntent);
     }
 
