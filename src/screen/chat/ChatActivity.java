@@ -63,9 +63,9 @@ public class ChatActivity extends Activity
 				valueList.add(new ChatItem ("Me", message, "just now", "0m") );
 			}
 			adapter.notifyDataSetChanged();
+			
+			listView.smoothScrollToPosition(listView.getBottom());
 		}
-		
-		listView.smoothScrollToPosition(listView.getBottom());
 	}
 
 	public class MySimpleArrayAdapter extends ArrayAdapter<ChatItem> {
