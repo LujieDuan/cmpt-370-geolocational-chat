@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?> 
 <shape xmlns:android="http://schemas.android.com/apk/res/android"> 
-    <solid android:color="#ff2b3c"/>    
+    <solid android:color="@color/chat_me_background"/>    
 
     <padding android:left="1dp"
              android:top="1dp"
@@ -8,8 +8,5 @@
              android:bottom="1dp"
              /> 
 
-    <corners android:bottomRightRadius="15dp" 
-        	android:bottomLeftRadius="15dp" 
-    		android:topLeftRadius="15dp" 
-    		android:topRightRadius="15dp"/> 
+    <corners android:radius="15dp"/> 
 </shape>
