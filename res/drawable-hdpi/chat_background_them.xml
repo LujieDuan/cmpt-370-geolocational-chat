@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?> 
 <shape xmlns:android="http://schemas.android.com/apk/res/android"> 
-    <solid android:color="#d9d9d9"/>    
+    <solid android:color="@color/chat_them_background"/>    
 
     <padding android:left="1dp"
              android:top="1dp"
