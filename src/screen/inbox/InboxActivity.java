@@ -5,13 +5,11 @@ import java.util.ArrayList;
 import org.joda.time.DateTime;
 
 import screen.chat.ChatActivity;
-import screen.map.MapActivity;
 import coderunners.geolocationalchat.R;
 import data.chat.ChatMessage;
 import data.chat.ChatSummary;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;

@@ -1,9 +1,9 @@
 package screen.chat;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
-import com.google.android.gms.maps.model.LatLng;
+
+
 
 import android.app.Activity;
 import android.content.Context;
@@ -22,7 +22,6 @@ import data.chat.Chat;
 import data.chat.ChatItem;
 import data.chat.ChatMessage;
 
-import org.joda.*;
 import org.joda.time.DateTime;
 
 public class ChatActivity extends Activity
