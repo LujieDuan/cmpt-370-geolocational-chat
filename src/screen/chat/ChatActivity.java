@@ -1,9 +1,13 @@
 package screen.chat;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import android.app.Activity;
 import android.content.Context;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,10 +18,16 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import coderunners.geolocationalchat.R;
+import data.chat.Chat;
+import data.chat.ChatItem;
+import data.chat.ChatMessage;
+
+import org.joda.*;
+import org.joda.time.DateTime;
 
 public class ChatActivity extends Activity
 {
-	ArrayList<ChatItem> valueList = new ArrayList<ChatItem>();	  
+    Chat chat = new Chat();
 	  
 	MySimpleArrayAdapter adapter;
 	  
@@ -25,19 +35,20 @@ public class ChatActivity extends Activity
 	  protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		valueList.add(new ChatItem("Mike", "Programming Contest on weekend!", "3 hours ago", "200m") );
-		valueList.add(new ChatItem("Tom","I will be there!", "2 hours ago", "10m") );
-		valueList.add(new ChatItem("Doris" ,"Looking forward!~", "2 hours ago", "15m") );
-		valueList.add(new ChatItem("Will", "Nice:-", "2 hours ago", "50m") );
-		valueList.add(new ChatItem("Anthony", "How much is the ticket?", "1 hour ago", "400m") );
-		valueList.add(new ChatItem("Me", "On what platform?", "1 hour ago", "0m") );
-		valueList.add(new ChatItem("William van der Kamp", "Windows I think", " just now", "200m") );
+		chat.addMessages(
+		    new ChatMessage("Mike", "Mike's ID", "Programming contest this weekend!", new Location(""), new DateTime()),
+		    new ChatMessage("Tom", "Tom's ID", "I will be there!", new Location(""), new DateTime()),
+		    new ChatMessage("Doris", "Doris' ID", "Looking forward!~", new Location(""), new DateTime()),
+		    new ChatMessage("Will", "Will's ID", "Nice:-", new Location(""), new DateTime()),
+		    new ChatMessage("Anthony", "Anthony's ID", "How much is the ticket?", new Location(""), new DateTime()),
+		    new ChatMessage("Me", "My ID", "On what platform?", new Location(""), new DateTime()),
+		    new ChatMessage("Will", "Will's ID", "Windows I think", new Location(""), new DateTime()));
 		
 	    setContentView(R.layout.chat_screen);
 
 	    final ListView listView = (ListView) findViewById(R.id.listview);
 
-	    adapter = new MySimpleArrayAdapter(this, valueList);
+	    adapter = new MySimpleArrayAdapter(this, chat.chatItems);
 	    listView.setAdapter(adapter);
 	  }
 	
@@ -52,16 +63,17 @@ public class ChatActivity extends Activity
 		editText.setText("");
 		if(!message.equals(""))
 		{
-			if(valueList.get(valueList.size() - 1).name.equals("Me"))
-			{
-				valueList.get(valueList.size() - 1).messages.add(message);
-				valueList.get(valueList.size() - 1).time = "just now";
-				valueList.get(valueList.size() - 1).distance = "0m";
-			}
-			else
-			{
-				valueList.add(new ChatItem ("Me", message, "just now", "0m") );
-			}
+		    chat.addMessages(new ChatMessage("Me", "My ID", message, new Location(""), new DateTime()));
+//			if(valueList.get(valueList.size() - 1).name.equals("Me"))
+//			{
+//				valueList.get(valueList.size() - 1).messages.add(message);
+//				valueList.get(valueList.size() - 1).time = "just now";
+//				valueList.get(valueList.size() - 1).distance = "0m";
+//			}
+//			else
+//			{
+//				valueList.add(new ChatItem ("Me", message, "just now", "0m") );
+//			}
 			adapter.notifyDataSetChanged();
 			
 			listView.smoothScrollToPosition(listView.getBottom());
@@ -84,9 +96,9 @@ public class ChatActivity extends Activity
 			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			
 			View itemView;
-						
+			
 			//TODO: Should check by Phone ID rather than name
-			if(values.get(position).name.equals("Me"))
+			if(values.get(position).getId().equals("My ID"))
 			{
 				itemView = inflater.inflate(R.layout.chat_item_me, parent, false);
 				LinearLayout bubbleList = (LinearLayout) itemView.findViewById(R.id.chat_bubble_list);
@@ -94,7 +106,7 @@ public class ChatActivity extends Activity
 				{
 					View bubbleView = inflater.inflate(R.layout.chat_bubble_me, parent, false);
 					TextView textViewMessage = (TextView) bubbleView.findViewById(R.id.textViewMessage);
-					textViewMessage.setText(values.get(position).messages.get(i));
+					textViewMessage.setText(values.get(position).getMessage(i));
 					bubbleList.addView(bubbleView);
 				}
 			}
@@ -106,17 +118,21 @@ public class ChatActivity extends Activity
 				{
 					View bubbleView = inflater.inflate(R.layout.chat_bubble_them, parent, false);
 					TextView textViewMessage = (TextView) bubbleView.findViewById(R.id.textViewMessage);
-					textViewMessage.setText(values.get(position).messages.get(i));
+					textViewMessage.setText(values.get(position).getMessage(i));
 					bubbleList.addView(bubbleView);
 				}
 			}
 			
 			TextView textViewName = (TextView) itemView.findViewById(R.id.textViewName);	
-			textViewName.setText(values.get(position).name);
-			
+			textViewName.setText(values.get(position).getName());
 			TextView textViewTimeLocation = (TextView) itemView.findViewById(R.id.timeAndLocation);
-			textViewTimeLocation.setText(values.get(position).time + ", " + values.get(position).distance);
-				
+			
+			Location location = new Location("");
+			location.setLatitude(0);
+			location.setLongitude(0);
+			
+			textViewTimeLocation.setText(values.get(position).getTimeString(new DateTime()) + ", " + values.get(position).getDistanceString(location));
+			
 			return itemView;
 		}
 		
