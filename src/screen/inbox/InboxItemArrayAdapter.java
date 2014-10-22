@@ -1,4 +1,4 @@
-package mainScreen;
+package screen.inbox;
 
 import coderunners.geolocationalchat.R;
 import android.content.Context;

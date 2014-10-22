@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayout1"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal" >
+    
+    <LinearLayout
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:layout_weight="0.20"
+	    android:orientation="vertical"
+	    android:paddingTop="10dp"
+	    android:paddingLeft="10dp" >
+    
+	    <TextView
+	        android:id="@+id/textViewName"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:paddingLeft="7dp"
+	        android:text="name" />
+
+        <LinearLayout
+		    android:id="@+id/chat_bubble_list"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:orientation="vertical" /> 
+
+	    <TextView
+	        android:id="@+id/timeAndLocation"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:ellipsize="marquee"
+	        android:paddingLeft="7dp"
+	        android:text="time and distance"
+	        android:textColor="#a7a7a7"
+	        android:textSize="12sp" />
+
+	</LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="0.80" >
+    </RelativeLayout>
+
+</LinearLayout>
