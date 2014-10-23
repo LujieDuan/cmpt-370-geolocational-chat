@@ -5,6 +5,7 @@ import org.joda.time.Days;
 import org.joda.time.Hours;
 import org.joda.time.Minutes;
 import org.joda.time.Months;
+import org.joda.time.Seconds;
 import org.joda.time.Years;
 
 import android.location.Location;
@@ -32,6 +33,7 @@ public class ChatMessage {
     int days = Days.daysBetween(time, currTime).getDays(); 
     int hours = Hours.hoursBetween(time, currTime).getHours(); 
     int minutes = Minutes.minutesBetween(time, currTime).getMinutes(); 
+    int seconds = Seconds.secondsBetween(time, currTime).getSeconds(); 
     
     String str = "";
     
@@ -50,6 +52,7 @@ public class ChatMessage {
     else if(minutes > 0) 
       if(minutes == 1) str = minutes + " minute ago";
       else str = minutes + " minutes ago";
+    else if(seconds > 10) str = "less than a minute ago";
     else str = "just now";
        
     return str;
