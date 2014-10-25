@@ -10,6 +10,7 @@ import data.chat.ChatMessage;
 import data.chat.ChatSummary;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -95,25 +96,24 @@ public class InboxActivity extends ListActivity {
     	chatSummaries.add(new ChatSummary(new ChatMessage("Josh Heinrichs", "Josh's ID", "Anyone up for a game of ultimate frisbee?", new Location(""), new DateTime()), 40, 40));
     	chatSummaries.add(new ChatSummary(new ChatMessage("Josh Heinrichs", "Josh's ID", "Anyone up for a game of ultimate frisbee?", new Location(""), new DateTime()), 40, 40));
     	chatSummaries.add(new ChatSummary(new ChatMessage("Josh Heinrichs", "Josh's ID", "Anyone up for a game of ultimate frisbee?", new Location(""), new DateTime()), 40, 40));
-        
+    	chatSummaries.add(new ChatSummary(new ChatMessage("Josh Heinrichs", "Josh's ID", "Anyone up for a game of ultimate frisbee?", new Location(""), new DateTime()), 40, 40));
+    	chatSummaries.add(new ChatSummary(new ChatMessage("Josh Heinrichs", "Josh's ID", "Anyone up for a game of ultimate frisbee?", new Location(""), new DateTime()), 40, 40));
+    	chatSummaries.add(new ChatSummary(new ChatMessage("Josh Heinrichs", "Josh's ID", "Anyone up for a game of ultimate frisbee?", new Location(""), new DateTime()), 40, 40));
+    	chatSummaries.add(new ChatSummary(new ChatMessage("Josh Heinrichs", "Josh's ID", "Anyone up for a game of ultimate frisbee?", new Location(""), new DateTime()), 40, 40));
+    	chatSummaries.add(new ChatSummary(new ChatMessage("Josh Heinrichs", "Josh's ID", "Anyone up for a game of ultimate frisbee?", new Location(""), new DateTime()), 40, 40));
+    	chatSummaries.add(new ChatSummary(new ChatMessage("Josh Heinrichs", "Josh's ID", "Anyone up for a game of ultimate frisbee?", new Location(""), new DateTime()), 40, 40));
+    	chatSummaries.add(new ChatSummary(new ChatMessage("Josh Heinrichs", "Josh's ID", "Anyone up for a game of ultimate frisbee?", new Location(""), new DateTime()), 40, 40));
+    	
         adapter = new InboxItemArrayAdapter(this, chatSummaries);
         setListAdapter(adapter);
-        
+//        
 //        final Handler handler = new Handler();
 //        handler.post(new Runnable(){
-//        	
 //        	@Override
 //        	public void run() {
-//        		
-//        		if(names[0].equals("Josh Heinrichs"))
-//        			names[0] = "hello";
-//        		else
-//        			names[0] = "Josh Heinrichs";
-//        		
+//        	    if InboxActivity.
 //        		adapter.notifyDataSetChanged();
-//        		
 //        		handler.postDelayed(this,  1000);
-//        		
 //        	}
 //        });
     }
