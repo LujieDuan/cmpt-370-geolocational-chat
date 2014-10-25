@@ -2,10 +2,8 @@ package screen.inbox;
 
 import java.util.ArrayList;
 
-import org.joda.time.DateTime;
-
 import coderunners.geolocationalchat.R;
-import data.chat.ChatSummary;
+import data.inbox.ChatSummaryForInbox;
 import android.content.Context;
 import android.location.Location;
 import android.view.LayoutInflater;
@@ -14,12 +12,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class InboxItemArrayAdapter extends ArrayAdapter<ChatSummary> {
+public class InboxItemArrayAdapter extends ArrayAdapter<ChatSummaryForInbox> {
   
   private final Context context;
-  private ArrayList<ChatSummary> chatSummaries;
+  private ArrayList<ChatSummaryForInbox> chatSummaries;
 
-  public InboxItemArrayAdapter(Context context, ArrayList<ChatSummary> chatSummaries) {
+  public InboxItemArrayAdapter(Context context, ArrayList<ChatSummaryForInbox> chatSummaries) {
     super(context, R.layout.inbox_item, chatSummaries);
     this.context = context;
     this.chatSummaries = chatSummaries;
@@ -31,7 +29,7 @@ public class InboxItemArrayAdapter extends ArrayAdapter<ChatSummary> {
     
     View rowView = inflater.inflate(R.layout.inbox_item, parent, false);
     
-    ChatSummary chatSummary = chatSummaries.get(position);
+    ChatSummaryForInbox chatSummary = chatSummaries.get(position);
     
     TextView textViewName = (TextView) rowView.findViewById(R.id.inbox_name);
     TextView textViewPost = (TextView) rowView.findViewById(R.id.inbox_post);
@@ -41,11 +39,11 @@ public class InboxItemArrayAdapter extends ArrayAdapter<ChatSummary> {
     
     Location location = new Location("");
     
-    textViewName.setText(chatSummary.chatMessage.name);
-    textViewPost.setText(chatSummary.chatMessage.message);
-    textViewTime.setText(chatSummary.chatMessage.getTimeString(new DateTime()));
+    textViewName.setText(chatSummary.creatorUserName);
+    textViewPost.setText(chatSummary.title);
+    textViewTime.setText(chatSummary.latestMessageTime.toString());
     textViewReplies.setText(chatSummary.numMessages + "replies");
-    textViewDistance.setText(chatSummary.chatMessage.getDistanceString(location));
+    textViewDistance.setText(chatSummary.getDistanceString(location));
     
     return rowView;
   }

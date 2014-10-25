@@ -6,8 +6,7 @@ import org.joda.time.DateTime;
 
 import screen.chat.ChatActivity;
 import coderunners.geolocationalchat.R;
-import data.chat.ChatMessage;
-import data.chat.ChatSummary;
+import data.inbox.ChatSummaryForInbox;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.Menu;
@@ -83,18 +82,18 @@ public class InboxActivity extends ListActivity {
 //    		9
 //    };
 	
-    ArrayAdapter<ChatSummary> adapter;
+    ArrayAdapter<ChatSummaryForInbox> adapter;
     
-    ArrayList<ChatSummary> chatSummaries = new ArrayList<ChatSummary>();
+    ArrayList<ChatSummaryForInbox> chatSummaries = new ArrayList<ChatSummaryForInbox>();
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     	
     	super.onCreate(savedInstanceState);
     	
-    	chatSummaries.add(new ChatSummary(new ChatMessage("Josh Heinrichs", "Josh's ID", "Anyone up for a game of ultimate frisbee?", new Location(""), new DateTime()), 40, 40));
-    	chatSummaries.add(new ChatSummary(new ChatMessage("Josh Heinrichs", "Josh's ID", "Anyone up for a game of ultimate frisbee?", new Location(""), new DateTime()), 40, 40));
-    	chatSummaries.add(new ChatSummary(new ChatMessage("Josh Heinrichs", "Josh's ID", "Anyone up for a game of ultimate frisbee?", new Location(""), new DateTime()), 40, 40));
+    	chatSummaries.add(new ChatSummaryForInbox("Massage Needed",  new Location(""), new String[]{"massage"}, "chatId","Josh", 40, 40, new DateTime()));
+    	chatSummaries.add(new ChatSummaryForInbox("Massage Needed",  new Location(""), new String[]{"massage"}, "chatId","Josh", 40, 40, new DateTime()));
+    	chatSummaries.add(new ChatSummaryForInbox("Massage Needed",  new Location(""), new String[]{"massage"}, "chatId","Josh", 40, 40, new DateTime()));
         
         adapter = new InboxItemArrayAdapter(this, chatSummaries);
         setListAdapter(adapter);
