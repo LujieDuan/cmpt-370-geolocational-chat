@@ -1,8 +1,10 @@
 package comm;
 
+import org.apache.http.params.BasicHttpParams;
+
 import android.location.Location;
 
-public class TaskParams_GetInbox
+public class TaskParams_GetInbox extends HttpGetParams
 {
 	/** the current location of the phone, as calculated when this constructor is called.*/
 	public Location curPhoneLocation;
@@ -22,4 +24,18 @@ public class TaskParams_GetInbox
 		this.curPhoneLocation = curPhoneLocation;
 		this.tags = tags;
 	}
+
+	@Override
+	public BasicHttpParams getHttpParamsForm()
+	{
+		BasicHttpParams params = new BasicHttpParams();
+		
+		params.setDoubleParameter("curPhoneLat", curPhoneLocation.getLatitude());
+		params.setDoubleParameter("curPhoneLong", curPhoneLocation.getLongitude());
+		params.setParameter("tags", tags);
+		
+		return params;
+	}
+	
+	
 }

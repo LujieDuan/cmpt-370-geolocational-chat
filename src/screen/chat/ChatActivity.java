@@ -1,10 +1,6 @@
 package screen.chat;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URI;
 import java.util.ArrayList;
 
 
@@ -19,10 +15,12 @@ import java.util.ArrayList;
 
 
 
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,40 +33,30 @@ import android.widget.ListView;
 import android.widget.TextView;
 import coderunners.geolocationalchat.R;
 import data.chat.Chat;
+import data.chat.ChatId;
 import data.chat.ChatItem;
 import data.chat.ChatMessageFromDb;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.joda.time.DateTime;
 import org.json.JSONException;
 
 import com.google.gson.Gson;
 
 import comm.HttpRequest;
-import comm.TaskParams_GetInbox;
 import comm.TaskParams_GetNewMessages;
 
 public class ChatActivity extends Activity
 {
-	private static final URI GET_NEW_MESSAGES_URI = null;
+	private static final String GET_NEW_MESSAGES_URI = "http://cmpt370duan.byethost10.com/get_user_name.php";
 	
-	private static Chat chat = new Chat();
+	private static Chat chat;
 	  
 	private static MySimpleArrayAdapter adapter;
 	  
 	@Override
 	  protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+		chat = new Chat();
 		chat.addMessages(
 		    new ChatMessageFromDb("Programming contest this weekend!", "Mike's ID", "Mike",1, new DateTime()),
 		    new ChatMessageFromDb( "I will be there!","Tom's ID","Tom", 2, new DateTime()),
@@ -84,6 +72,10 @@ public class ChatActivity extends Activity
 
 	    adapter = new MySimpleArrayAdapter(this, chat.chatItems);
 	    listView.setAdapter(adapter);
+	    
+	    ScheduledThreadPoolExecutor chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
+	    
+	    chatUpdateScheduler.scheduleWithFixedDelay(new GetNewMessagesTask(), 0, 5, TimeUnit.SECONDS);
 	  }
 	
 	public void sendMessage(View v)
@@ -172,42 +164,32 @@ public class ChatActivity extends Activity
 		
 	} 
 	
-	private class GetNewMessagesTask extends AsyncTask<Void, Void, Void> 
+	private class GetNewMessagesTask implements Runnable 
 	{
 		private ChatMessageFromDb[] newChatMessages = null;
-
-		@Override
-		protected Void doInBackground(Void... params) 
-		{
-			String chatCreatorId = "";
-			DateTime chatTimeId = null;
-			int latestMessageId = -1;
-			TaskParams_GetNewMessages sendParams = new TaskParams_GetNewMessages(chatCreatorId, chatTimeId, latestMessageId);
+		
+	    @Override
+	    public void run() 
+	    {
+	    	ChatId chatId = new ChatId("123456789012345", new DateTime(2014,10,25,16,46,29));
+			
+			int lastMessageId = 0;
+			TaskParams_GetNewMessages sendParams = new TaskParams_GetNewMessages(chatId, lastMessageId);
 			
 			Gson gson = new Gson(); 
-			String json = gson.toJson(sendParams);
+//			String json = gson.toJson(sendParams);
 			
 			String responseString = "";
 			try {
-				responseString = HttpRequest.getResult(json, GET_NEW_MESSAGES_URI);
+				responseString = HttpRequest.get(sendParams, GET_NEW_MESSAGES_URI);
 				
 				newChatMessages = gson.fromJson(responseString, ChatMessageFromDb[].class);
 			} catch (JSONException | IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				Log.e("dbConnect", e.toString());
 			}
-			
-			return null;
-		}
-//	    protected void onProgressUpdate(Integer... progress) {
-//	        setProgressPercent(progress[0]);
-//	    }
-	//
-	    protected void onPostExecute(Long result) 
-	    {
-	    	chat.addMessages(newChatMessages);
-	    	adapter.notifyDataSetChanged();
+			chat.addMessages(newChatMessages);
+			adapter.notifyDataSetChanged();
 	    }
-
 	}
 } 

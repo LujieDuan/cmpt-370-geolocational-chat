@@ -1,18 +1,30 @@
 package comm;
 
-import org.joda.time.DateTime;
+import org.apache.http.params.BasicHttpParams;
+
+import data.chat.ChatId;
 
 
-public class TaskParams_GetNewMessages 
+
+public class TaskParams_GetNewMessages extends HttpGetParams
 {
-	public String chatCreatorId;
-	public DateTime chatTimeId;
-	public int latestMessageId;
+	public ChatId chatId;
+	public int lastMessageId;
 	
-	public TaskParams_GetNewMessages(String chatCreatorId, DateTime chatTimeId, int latestMessageId) 
+	public TaskParams_GetNewMessages(ChatId chatId, int latestMessageId) 
 	{
-		this.chatCreatorId = chatCreatorId;
-		this.chatTimeId = chatTimeId;
-		this.latestMessageId = latestMessageId;
+		this.chatId = chatId;
+		this.lastMessageId = latestMessageId;
+	}
+	
+	public BasicHttpParams getHttpParamsForm()
+	{
+		BasicHttpParams params = new BasicHttpParams();
+		
+		params.setParameter("userId", chatId.userId);
+		params.setParameter("timeId", chatId.getTimeIdString());
+		params.setIntParameter("lastMessageId", lastMessageId);
+		
+		return params;
 	}
 }

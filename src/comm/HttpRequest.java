@@ -4,13 +4,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URI;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
@@ -24,34 +23,36 @@ public class HttpRequest
 {
 	public static final int TIMEOUT_MILLISEC = 10000;
 	
-	public static String getResult(String jsonString, URI uri) throws JSONException, ClientProtocolException, IOException 
+//	public static String post(HttpPostEntity entity, String uri)
+//	{
+//		StringEntity se = new StringEntity();
+//	    se.setContentEncoding("UTF-8");
+//	    se.setContentType("application/json");
+//	}
+	public static String get(HttpGetParams params, String uri) throws JSONException, ClientProtocolException, IOException 
 	{
-	    HttpParams httpParams = new BasicHttpParams();
+	    HttpParams httpParams = params.getHttpParamsForm();
+	   
 	    HttpConnectionParams.setConnectionTimeout(httpParams, TIMEOUT_MILLISEC);
 	    HttpConnectionParams.setSoTimeout(httpParams, TIMEOUT_MILLISEC);
 	    HttpClient client = new DefaultHttpClient(httpParams);
-	    HttpPost request = new HttpPost(uri); 
+	    HttpGet request = new HttpGet(uri); 
 
-	    request.setHeader( "Content-Type", "application/json" );         
+//	    request.setHeader("Content-Type", "application/json");         
 
-	    Log.i("sent json", jsonString);
-
-	    StringEntity se = new StringEntity(jsonString);
-
-	    se.setContentEncoding("UTF-8");
-	    se.setContentType("application/json");
-
-	    request.setEntity(se);      
-
+	    request.setParams(httpParams);
+	    
+	    Log.d("dbConnect", "trying");
 	    HttpResponse response = client.execute(request); 
-
+	    Log.i("dbConnect","send request: " + request.toString());
+	   
 	    HttpEntity entity = response.getEntity();
 	    InputStream is = entity.getContent();
 	    String _response = convertStreamToString(is);
-	    Log.i("received json", jsonString);
+	    Log.i("dbConnect", "respond json: " + _response);
 	    
 	    // Check if server response is valid code          
-	    Log.i("reply code", Integer.toString(response.getStatusLine().getStatusCode()));
+	    Log.i("dbConnect", "reply code: " + Integer.toString(response.getStatusLine().getStatusCode()));
 	    
 	    return _response;
 	}

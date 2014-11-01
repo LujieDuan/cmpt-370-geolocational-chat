@@ -6,6 +6,7 @@ import org.joda.time.DateTime;
 
 import screen.chat.ChatActivity;
 import coderunners.geolocationalchat.R;
+import data.chat.ChatId;
 import data.inbox.ChatSummaryForInbox;
 import android.location.Location;
 import android.os.Bundle;
@@ -91,9 +92,9 @@ public class InboxActivity extends ListActivity {
     	
     	super.onCreate(savedInstanceState);
     	
-    	chatSummaries.add(new ChatSummaryForInbox("Massage Needed",  new Location(""), new String[]{"massage"}, "", null,"Josh", 40, 40, new DateTime()));
-    	chatSummaries.add(new ChatSummaryForInbox("Massage Needed",  new Location(""), new String[]{"massage"}, "", null,"Josh", 40, 40, new DateTime()));
-    	chatSummaries.add(new ChatSummaryForInbox("Massage Needed",  new Location(""), new String[]{"massage"}, "", null,"Josh", 40, 40, new DateTime()));
+    	chatSummaries.add(new ChatSummaryForInbox("Massage Needed",  new Location(""), new String[]{"massage"}, new ChatId("", null),"Josh", 40, 40, new DateTime()));
+    	chatSummaries.add(new ChatSummaryForInbox("Massage Needed",  new Location(""), new String[]{"massage"}, new ChatId("", null),"Josh", 40, 40, new DateTime()));
+    	chatSummaries.add(new ChatSummaryForInbox("Massage Needed",  new Location(""), new String[]{"massage"}, new ChatId("", null),"Josh", 40, 40, new DateTime()));
         
         adapter = new InboxItemArrayAdapter(this, chatSummaries);
         setListAdapter(adapter);

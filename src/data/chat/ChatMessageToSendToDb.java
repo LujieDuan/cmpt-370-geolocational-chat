@@ -2,12 +2,12 @@ package data.chat;
 
 public class ChatMessageToSendToDb extends ChatMessage 
 {
-	public String timeId;
+	public ChatId chatId;
 	
-	public ChatMessageToSendToDb(String message, String userId, String timeId) 
+	public ChatMessageToSendToDb(String message, String userId, ChatId chatId) 
 	{
 		super(message, userId);
 		
-		this.timeId = timeId;
+		this.chatId = chatId;
 	}
 }

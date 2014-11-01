@@ -35,8 +35,6 @@ public class GetInboxTask extends AsyncTask<Void, Integer, Integer>
 		Gson gson = new Gson(); 
 		String json = gson.toJson(sendParams);
 		
-
-		
         return 0;
 	}
 //    protected void onProgressUpdate(Integer... progress) {
