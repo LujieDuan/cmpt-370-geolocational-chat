@@ -91,9 +91,9 @@ public class InboxActivity extends ListActivity {
     	
     	super.onCreate(savedInstanceState);
     	
-    	chatSummaries.add(new ChatSummaryForInbox("Massage Needed",  new Location(""), new String[]{"massage"}, "chatId","Josh", 40, 40, new DateTime()));
-    	chatSummaries.add(new ChatSummaryForInbox("Massage Needed",  new Location(""), new String[]{"massage"}, "chatId","Josh", 40, 40, new DateTime()));
-    	chatSummaries.add(new ChatSummaryForInbox("Massage Needed",  new Location(""), new String[]{"massage"}, "chatId","Josh", 40, 40, new DateTime()));
+    	chatSummaries.add(new ChatSummaryForInbox("Massage Needed",  new Location(""), new String[]{"massage"}, "", null,"Josh", 40, 40, new DateTime()));
+    	chatSummaries.add(new ChatSummaryForInbox("Massage Needed",  new Location(""), new String[]{"massage"}, "", null,"Josh", 40, 40, new DateTime()));
+    	chatSummaries.add(new ChatSummaryForInbox("Massage Needed",  new Location(""), new String[]{"massage"}, "", null,"Josh", 40, 40, new DateTime()));
         
         adapter = new InboxItemArrayAdapter(this, chatSummaries);
         setListAdapter(adapter);

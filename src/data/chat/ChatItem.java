@@ -2,20 +2,19 @@ package data.chat;
 
 import java.util.ArrayList;
 import org.joda.time.DateTime;
-import android.location.Location;
 
 /**
- * This object represents a set of {@link ChatMessage ChatMessages} that have
+ * This object represents a set of {@link ChatMessageFromDb ChatMessages} that have
  * been sent by a single from a similar time and location. This allows messages
  * to be grouped togethor when displayed.
  */
 public class ChatItem {
 
-    public ArrayList<ChatMessage> messages = new ArrayList<ChatMessage>();
+    public ArrayList<ChatMessageFromDb> messages = new ArrayList<ChatMessageFromDb>();
   
-    public ChatItem(ChatMessage... chatMessages)
+    public ChatItem(ChatMessageFromDb... chatMessages)
     {
-      for(ChatMessage message: chatMessages)
+      for(ChatMessageFromDb message: chatMessages)
       {
         addMessage(message);
       }
@@ -23,28 +22,18 @@ public class ChatItem {
     
 	public String getName()
 	{
-	  return messages.get(0).name;
+	  return messages.get(0).creatorUserName;
 	}
 	
-	public String getId()
+	public String getUserId()
 	{
-	  return messages.get(0).id;
+		return messages.get(0).userId;
 	}
 	
 	public String getMessage(int i)
 	{
 	  return messages.get(i).message;
 	}
-	
-	public Location getLocation()
-    {
-      return messages.get(messages.size() - 1).location;
-    }
-	
-	public String getDistanceString(Location currLocation)
-    {
-      return messages.get(messages.size() - 1).getDistanceString(currLocation);
-    }
 	
 	public DateTime getTime()
     {
@@ -56,12 +45,12 @@ public class ChatItem {
 	  return messages.get(messages.size() - 1).getTimeString(currTime);
 	}
 	
-	public boolean isAddable(ChatMessage chatMessage)
+	public boolean isAddable(ChatMessageFromDb chatMessage)
 	{
-	  return messages.isEmpty() || messages.get(0).id.equals(chatMessage.id);
+	  return messages.isEmpty() || messages.get(0).userId.equals(chatMessage.userId);
 	}
 	
-	public void addMessage(ChatMessage chatMessage)
+	public void addMessage(ChatMessageFromDb chatMessage)
 	{
 	  if(!isAddable(chatMessage))
 	  {

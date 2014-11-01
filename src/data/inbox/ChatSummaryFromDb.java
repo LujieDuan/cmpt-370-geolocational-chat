@@ -1,10 +1,13 @@
 package data.inbox;
 
+import org.joda.time.DateTime;
+
 import android.location.Location;
 
 public class ChatSummaryFromDb extends ChatSummary 
 {
-	public String chatId;
+	public String userId;
+	public DateTime timeId;
 	public String creatorUserName;
 	
 	/**
@@ -12,15 +15,16 @@ public class ChatSummaryFromDb extends ChatSummary
 	 * @param title the title of the chat
 	 * @param location the location of the chat
 	 * @param tags all tags associated with the chat (to help filtering)
-	 * @param chatId String chatId, as assigned by the database.
+	 * @param chatId as assigned by the database.
 	 * @param creatorUserName the alias of the one who created the chat
 	 */
 	public ChatSummaryFromDb(String title, Location location, String[] tags, 
-			String chatId, String creatorUserName) 
+			String userId, DateTime timeId, String creatorUserName) 
 	{
 		super(title, location, tags);
 		
-		this.chatId = chatId;
+		this.userId = userId;
+		this.timeId = timeId;
 		this.creatorUserName = creatorUserName;
 	}
 

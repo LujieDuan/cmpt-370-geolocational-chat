@@ -1,6 +1,20 @@
 package screen.chat;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
 import java.util.ArrayList;
+
+
+
+
+
+
+
+
+
 
 
 
@@ -8,7 +22,9 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,28 +36,47 @@ import android.widget.TextView;
 import coderunners.geolocationalchat.R;
 import data.chat.Chat;
 import data.chat.ChatItem;
-import data.chat.ChatMessage;
+import data.chat.ChatMessageFromDb;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.joda.time.DateTime;
+import org.json.JSONException;
+
+import com.google.gson.Gson;
+
+import comm.HttpRequest;
+import comm.TaskParams_GetInbox;
+import comm.TaskParams_GetNewMessages;
 
 public class ChatActivity extends Activity
 {
-    Chat chat = new Chat();
+	private static final URI GET_NEW_MESSAGES_URI = null;
+	
+	private static Chat chat = new Chat();
 	  
-	MySimpleArrayAdapter adapter;
+	private static MySimpleArrayAdapter adapter;
 	  
 	@Override
 	  protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		chat.addMessages(
-		    new ChatMessage("Mike", "Mike's ID", "Programming contest this weekend!", new Location(""), new DateTime()),
-		    new ChatMessage("Tom", "Tom's ID", "I will be there!", new Location(""), new DateTime()),
-		    new ChatMessage("Doris", "Doris' ID", "Looking forward!~", new Location(""), new DateTime()),
-		    new ChatMessage("Will", "Will's ID", "Nice:-", new Location(""), new DateTime()),
-		    new ChatMessage("Anthony", "Anthony's ID", "How much is the ticket?", new Location(""), new DateTime()),
-		    new ChatMessage("Me", "My ID", "On what platform?", new Location(""), new DateTime()),
-		    new ChatMessage("Will", "Will's ID", "Windows I think", new Location(""), new DateTime()));
+		    new ChatMessageFromDb("Programming contest this weekend!", "Mike's ID", "Mike",1, new DateTime()),
+		    new ChatMessageFromDb( "I will be there!","Tom's ID","Tom", 2, new DateTime()),
+		    new ChatMessageFromDb( "Looking forward!~","Doris' ID","Doris",  3, new DateTime()),
+		    new ChatMessageFromDb( "Nice:-", "Will's ID","Will", 4, new DateTime()),
+		    new ChatMessageFromDb("How much is the ticket?","Anthony's ID", "Anthony", 5 , new DateTime()),
+		    new ChatMessageFromDb("On what platform?", "My ID", "Me", 6, new DateTime()),
+		    new ChatMessageFromDb("Windows I think","Will's ID", "Will",  7, new DateTime()));
 		
 	    setContentView(R.layout.chat_screen);
 
@@ -62,7 +97,7 @@ public class ChatActivity extends Activity
 		editText.setText("");
 		if(!message.equals(""))
 		{
-		    chat.addMessages(new ChatMessage("Me", "My ID", message, new Location(""), new DateTime()));
+		    chat.addMessages(new ChatMessageFromDb(message,"My ID","Me", 8, new DateTime()));
 //			if(valueList.get(valueList.size() - 1).name.equals("Me"))
 //			{
 //				valueList.get(valueList.size() - 1).messages.add(message);
@@ -97,7 +132,7 @@ public class ChatActivity extends Activity
 			View itemView;
 			
 			//TODO: Should check by Phone ID rather than name
-			if(values.get(position).getId().equals("My ID"))
+			if(values.get(position).getUserId().equals("My ID"))
 			{
 				itemView = inflater.inflate(R.layout.chat_item_me, parent, false);
 				LinearLayout bubbleList = (LinearLayout) itemView.findViewById(R.id.chat_bubble_list);
@@ -130,11 +165,49 @@ public class ChatActivity extends Activity
 			location.setLatitude(0);
 			location.setLongitude(0);
 			
-			textViewTimeLocation.setText(values.get(position).getTimeString(new DateTime()) + ", " + values.get(position).getDistanceString(location));
+			textViewTimeLocation.setText(values.get(position).getTimeString(new DateTime()));
 			
 			return itemView;
 		}
 		
 	} 
+	
+	private class GetNewMessagesTask extends AsyncTask<Void, Void, Void> 
+	{
+		private ChatMessageFromDb[] newChatMessages = null;
 
+		@Override
+		protected Void doInBackground(Void... params) 
+		{
+			String chatCreatorId = "";
+			DateTime chatTimeId = null;
+			int latestMessageId = -1;
+			TaskParams_GetNewMessages sendParams = new TaskParams_GetNewMessages(chatCreatorId, chatTimeId, latestMessageId);
+			
+			Gson gson = new Gson(); 
+			String json = gson.toJson(sendParams);
+			
+			String responseString = "";
+			try {
+				responseString = HttpRequest.getResult(json, GET_NEW_MESSAGES_URI);
+				
+				newChatMessages = gson.fromJson(responseString, ChatMessageFromDb[].class);
+			} catch (JSONException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			return null;
+		}
+//	    protected void onProgressUpdate(Integer... progress) {
+//	        setProgressPercent(progress[0]);
+//	    }
+	//
+	    protected void onPostExecute(Long result) 
+	    {
+	    	chat.addMessages(newChatMessages);
+	    	adapter.notifyDataSetChanged();
+	    }
+
+	}
 } 

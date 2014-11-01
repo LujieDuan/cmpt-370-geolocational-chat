@@ -1,9 +1,13 @@
 package comm;
 
+import data.chat.ChatMessageToSendToDb;
+
 public class TaskParams_SendNewMessage {
 
-	public TaskParams_SendNewMessage() {
-		// TODO Auto-generated constructor stub
+	public ChatMessageToSendToDb newChatMessage;
+	
+	public TaskParams_SendNewMessage(ChatMessageToSendToDb newChatMessage) {
+		this.newChatMessage = newChatMessage;
 	}
 
 }
