@@ -1,15 +1,28 @@
 package screen.inbox;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.joda.time.DateTime;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
+import comm.HttpRequest;
+import comm.TaskParams_GetInbox;
+import comm.TaskParams_SendNewChat;
 import screen.chat.ChatActivity;
 import coderunners.geolocationalchat.R;
 import data.chat.ChatId;
-import data.inbox.ChatSummaryForInbox;
+import data.inbox.ChatSummaryForScreen;
+import data.newChatCreation.ChatSummaryToDb;
 import android.location.Location;
 import android.os.Bundle;
+import android.provider.Settings.Secure;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -82,23 +95,31 @@ public class InboxActivity extends ListActivity {
 //    		8,
 //    		9
 //    };
+	public static String DEVICE_ID;
+	public static final String USER_NAME = "John";
 	
-    ArrayAdapter<ChatSummaryForInbox> adapter;
+	private static final String GET_INBOX_URI = "someUri"; 
+	private static final String SEND_NEW_CHAT_URI = "someOtherUri"; 
+	
+    private static ArrayAdapter<ChatSummaryForScreen> adapter;
     
-    ArrayList<ChatSummaryForInbox> chatSummaries = new ArrayList<ChatSummaryForInbox>();
+    private static ArrayList<ChatSummaryForScreen> chatSummaries = new ArrayList<ChatSummaryForScreen>();
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     	
     	super.onCreate(savedInstanceState);
+    	DEVICE_ID = Secure.getString(getBaseContext().getContentResolver(), Secure.ANDROID_ID);
     	
-    	chatSummaries.add(new ChatSummaryForInbox("Massage Needed",  new Location(""), new String[]{"massage"}, new ChatId("", null),"Josh", 40, 40, new DateTime()));
-    	chatSummaries.add(new ChatSummaryForInbox("Massage Needed",  new Location(""), new String[]{"massage"}, new ChatId("", null),"Josh", 40, 40, new DateTime()));
-    	chatSummaries.add(new ChatSummaryForInbox("Massage Needed",  new Location(""), new String[]{"massage"}, new ChatId("", null),"Josh", 40, 40, new DateTime()));
+    	chatSummaries.add(new ChatSummaryForScreen("Massage Needed",  new Location(""), new String[]{"massage"}, new ChatId("", null),"Josh", 40, 40, new DateTime()));
+    	chatSummaries.add(new ChatSummaryForScreen("Massage Needed",  new Location(""), new String[]{"massage"}, new ChatId("", null),"Josh", 40, 40, new DateTime()));
+    	chatSummaries.add(new ChatSummaryForScreen("Massage Needed",  new Location(""), new String[]{"massage"}, new ChatId("", null),"Josh", 40, 40, new DateTime()));
         
         adapter = new InboxItemArrayAdapter(this, chatSummaries);
         setListAdapter(adapter);
         
+	    ScheduledThreadPoolExecutor chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
+	    chatUpdateScheduler.scheduleWithFixedDelay(new GetInboxTask(), 0, 30, TimeUnit.SECONDS);
 //        final Handler handler = new Handler();
 //        handler.post(new Runnable(){
 //        	
@@ -146,5 +167,51 @@ public class InboxActivity extends ListActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    
+    private class GetInboxTask implements Runnable 
+	{
+		private ChatSummaryForScreen[] newChatSummaries = null;
+		
+	    @Override
+	    public void run() 
+	    {
+	    	Location l = new Location("");
+			String[] tags = {""};
+			TaskParams_GetInbox sendParams = new TaskParams_GetInbox(l, tags);
+			
+			Gson gson = new Gson(); 
+			
+			String responseString = "";
+			try {
+				responseString = HttpRequest.get(sendParams, GET_INBOX_URI);
+				newChatSummaries = gson.fromJson(responseString, ChatSummaryForScreen[].class);
+			} catch (IOException | JsonSyntaxException e) {
+				e.printStackTrace();
+				Log.e("dbConnect", e.toString());
+			}
+			
+			chatSummaries = new ArrayList<ChatSummaryForScreen>(Arrays.asList(newChatSummaries));
+			adapter.notifyDataSetChanged();
+	    }
+	}
+    
+    //This may have to go in the "new chat screen"
+    private class SendNewChatTask implements Runnable
+    {
+    	 @Override
+ 	    public void run() 
+ 	    {
+ 	    	ChatSummaryToDb c = new ChatSummaryToDb(
+ 	    			"new chat title", new Location(""), new String[]{""}, "creator user id", "first message", 100, new DateTime());
+ 			TaskParams_SendNewChat sendEntity = new TaskParams_SendNewChat(c);
+ 			
+ 			try {
+ 				HttpRequest.put(sendEntity, SEND_NEW_CHAT_URI);
+ 			} catch (IOException e) {
+ 				e.printStackTrace();
+ 				Log.e("dbConnect", e.toString());
+ 			}
+ 	    }
     }
 }

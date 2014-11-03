@@ -6,7 +6,7 @@ import org.joda.time.DateTime;
 
 import data.inbox.ChatSummary;
 
-public class ChatSummaryToSendToDb extends ChatSummary 
+public class ChatSummaryToDb extends ChatSummary 
 {
 	public String creatorUserId;
 	public String firstMessage;
@@ -24,7 +24,7 @@ public class ChatSummaryToSendToDb extends ChatSummary
 	 * @param range int representing the range in meters of visibility for the new chat.
 	 * @param maxEndTime DateTime representing the maximum time that will pass before this chat is deleted.
 	 */
-	public ChatSummaryToSendToDb(String title, Location location, String[] tags, 
+	public ChatSummaryToDb(String title, Location location, String[] tags, 
 			String creatorUserId, String firstMessage, int range, DateTime maxEndTime)
 	{
 		super(title, location, tags);

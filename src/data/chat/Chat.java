@@ -7,9 +7,9 @@ public class Chat
 {	
 	public ArrayList<ChatItem> chatItems = new ArrayList<ChatItem>();
 
-	public void addMessages(ChatMessageFromDb... chatMessages)
+	public void addMessages(ChatMessageForScreen... chatMessages)
 	{
-		for(ChatMessageFromDb message : chatMessages)
+		for(ChatMessageForScreen message : chatMessages)
 		{
 			if(!chatItems.isEmpty() && chatItems.get(chatItems.size() - 1).isAddable(message))
 			{

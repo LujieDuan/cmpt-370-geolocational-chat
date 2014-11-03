@@ -35,36 +35,48 @@ import coderunners.geolocationalchat.R;
 import data.chat.Chat;
 import data.chat.ChatId;
 import data.chat.ChatItem;
-import data.chat.ChatMessageFromDb;
+import data.chat.ChatMessageForScreen;
+import data.chat.ChatMessageToDb;
+import data.chat.ChatMessagesForScreen;
 
 import org.joda.time.DateTime;
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
+
+import screen.inbox.InboxActivity;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 
+import comm.DateTimeDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetNewMessages;
+import comm.TaskParams_SendNewMessage;
 
 public class ChatActivity extends Activity
 {
-	private static final String GET_NEW_MESSAGES_URI = "http://cmpt370duan.byethost10.com/get_user_name.php";
+	private static final String GET_NEW_MESSAGES_URI = "http://cmpt370duan.byethost10.com/getmess.php";
+	private static final String SEND_NEW_MESSAGE_URI = "someKindaUri";
+	private static final String TAG_SUCCESS = "success";
+	private static final String TAG_MESSAGE_ARRAY = "messages";
 	
-	private static Chat chat;
-	  
+	private static final int FAKE_MESSAGE_ID = -1;
+	private Chat chat = new Chat();  
 	private static MySimpleArrayAdapter adapter;
 	  
 	@Override
 	  protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		chat = new Chat();
-		chat.addMessages(
-		    new ChatMessageFromDb("Programming contest this weekend!", "Mike's ID", "Mike",1, new DateTime()),
-		    new ChatMessageFromDb( "I will be there!","Tom's ID","Tom", 2, new DateTime()),
-		    new ChatMessageFromDb( "Looking forward!~","Doris' ID","Doris",  3, new DateTime()),
-		    new ChatMessageFromDb( "Nice:-", "Will's ID","Will", 4, new DateTime()),
-		    new ChatMessageFromDb("How much is the ticket?","Anthony's ID", "Anthony", 5 , new DateTime()),
-		    new ChatMessageFromDb("On what platform?", "My ID", "Me", 6, new DateTime()),
-		    new ChatMessageFromDb("Windows I think","Will's ID", "Will",  7, new DateTime()));
+//		chat.addMessages(
+//		    new ChatMessageForScreen("Programming contest this weekend!", "Mike's ID", "Mike",1, new DateTime()),
+//		    new ChatMessageForScreen( "I will be there!","Tom's ID","Tom", 2, new DateTime()),
+//		    new ChatMessageForScreen( "Looking forward!~","Doris' ID","Doris",  3, new DateTime()),
+//		    new ChatMessageForScreen( "Nice:-", "Will's ID","Will", 4, new DateTime()),
+//		    new ChatMessageForScreen("How much is the ticket?","Anthony's ID", "Anthony", 5 , new DateTime()),
+//		    new ChatMessageForScreen("On what platform?", "My ID", "Me", 6, new DateTime()),
+//		    new ChatMessageForScreen("Windows I think","Will's ID", "Will",  7, new DateTime()));
 		
 	    setContentView(R.layout.chat_screen);
 
@@ -74,22 +86,22 @@ public class ChatActivity extends Activity
 	    listView.setAdapter(adapter);
 	    
 	    ScheduledThreadPoolExecutor chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
-	    
 	    chatUpdateScheduler.scheduleWithFixedDelay(new GetNewMessagesTask(), 0, 5, TimeUnit.SECONDS);
 	  }
 	
 	public void sendMessage(View v)
-	{
-		View parentView = (View) v.getParent();
-		parentView = (View) parentView.getParent();
-		ListView listView = (ListView) parentView.findViewById(R.id.listview);
-		
+	{	
 		EditText editText = (EditText) findViewById(R.id.EditText);
 		String message = editText.getText().toString().trim();
 		editText.setText("");
 		if(!message.equals(""))
 		{
-		    chat.addMessages(new ChatMessageFromDb(message,"My ID","Me", 8, new DateTime()));
+			chat.addMessages(new ChatMessageForScreen(message,InboxActivity.DEVICE_ID,InboxActivity.USER_NAME, FAKE_MESSAGE_ID, new DateTime()));
+			onChatUpdated();
+			
+			Thread sendMessageThread = new Thread(new SendNewMessageTask());
+			sendMessageThread.run();
+			
 //			if(valueList.get(valueList.size() - 1).name.equals("Me"))
 //			{
 //				valueList.get(valueList.size() - 1).messages.add(message);
@@ -100,9 +112,7 @@ public class ChatActivity extends Activity
 //			{
 //				valueList.add(new ChatItem ("Me", message, "just now", "0m") );
 //			}
-			adapter.notifyDataSetChanged();
 			
-			listView.smoothScrollToPosition(listView.getBottom());
 		}
 	}
 
@@ -164,32 +174,83 @@ public class ChatActivity extends Activity
 		
 	} 
 	
+	private void onChatUpdated()
+	{
+		
+		adapter.notifyDataSetChanged();
+		
+		ListView listView = (ListView) findViewById(R.id.listview);
+		listView.smoothScrollToPosition(listView.getBottom());
+	}
+	
 	private class GetNewMessagesTask implements Runnable 
 	{
-		private ChatMessageFromDb[] newChatMessages = null;
-		
 	    @Override
 	    public void run() 
 	    {
 	    	ChatId chatId = new ChatId("123456789012345", new DateTime(2014,10,25,16,46,29));
-			
-			int lastMessageId = 0;
+	    	int lastMessageId = -1;
+	    	if (chat.chatItems.size() > 0)
+	    	{	
+	    		ArrayList<ChatMessageForScreen> messages = chat.chatItems.get(chat.chatItems.size() - 1).messages;
+	    		lastMessageId = messages.get(messages.size() - 1).messageId;
+	    	}
+	    	
 			TaskParams_GetNewMessages sendParams = new TaskParams_GetNewMessages(chatId, lastMessageId);
 			
-			Gson gson = new Gson(); 
-//			String json = gson.toJson(sendParams);
 			
 			String responseString = "";
 			try {
 				responseString = HttpRequest.get(sendParams, GET_NEW_MESSAGES_URI);
+				JSONObject responseJson = new JSONObject(responseString);
 				
-				newChatMessages = gson.fromJson(responseString, ChatMessageFromDb[].class);
-			} catch (JSONException | IOException e) {
+				if (responseJson.getInt(TAG_SUCCESS) == 1)
+				{
+					JSONArray messages = responseJson.getJSONArray(TAG_MESSAGE_ARRAY);
+					
+					Log.d("dbConnect", "messages: " + messages);
+					Log.d("dbConnect", "trying to convert json...");
+					GsonBuilder gsonBuilder = new GsonBuilder(); 
+					gsonBuilder.registerTypeAdapter(DateTime.class, new DateTimeDeserializer());
+				    Gson gson = gsonBuilder.create();
+				    ChatMessageForScreen[] newChatMessages = gson.fromJson(responseString, ChatMessagesForScreen.class).messages;
+					Log.d("dbConnect", "new chat messages: " + newChatMessages.toString());
+					
+					chat.addMessages(newChatMessages);
+					runOnUiThread(new Runnable() {
+
+		                @Override
+		                public void run() {
+		                    onChatUpdated();
+		                }
+		            });
+				}
+				
+			} catch (IOException | JsonSyntaxException e) {
+				e.printStackTrace();
+				Log.e("dbConnect", e.toString());
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    }
+	}
+	
+	private class SendNewMessageTask implements Runnable 
+	{	
+	    @Override
+	    public void run() 
+	    {
+	    	ChatMessageToDb c = new ChatMessageToDb(
+	    			"new message contents", "My ID", new ChatId("chat creator's Id", new DateTime()));
+			TaskParams_SendNewMessage sendEntity = new TaskParams_SendNewMessage(c);
+			
+			try {
+				HttpRequest.put(sendEntity, SEND_NEW_MESSAGE_URI);
+			} catch (IOException e) {
 				e.printStackTrace();
 				Log.e("dbConnect", e.toString());
 			}
-			chat.addMessages(newChatMessages);
-			adapter.notifyDataSetChanged();
 	    }
 	}
 } 

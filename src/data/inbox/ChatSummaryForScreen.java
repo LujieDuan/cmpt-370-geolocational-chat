@@ -1,13 +1,18 @@
 package data.inbox;
 
 
+import org.joda.time.DateTime;
+
 import data.chat.ChatId;
 import android.location.Location;
 
-public class ChatSummaryFromDb extends ChatSummary 
+public class ChatSummaryForScreen extends ChatSummary 
 {
 	public ChatId chatId;
 	public String creatorUserName;
+	public int numMessages;
+	public DateTime lastMessageTime;
+	public int numMessagesRead = 0;
 	
 	/**
 	 * Create a new chat summary, containing all the info necessary for an inbox item in the inbox UI.
@@ -17,13 +22,17 @@ public class ChatSummaryFromDb extends ChatSummary
 	 * @param chatId as assigned by the database.
 	 * @param creatorUserName the alias of the one who created the chat
 	 */
-	public ChatSummaryFromDb(String title, Location location, String[] tags, 
-			ChatId chatId, String creatorUserName) 
+	public ChatSummaryForScreen(String title, Location location, String[] tags, 
+			ChatId chatId, String creatorUserName, int numMessages, int numMessagesRead, DateTime lastMessageTime) 
 	{
 		super(title, location, tags);
 		
 		this.chatId = chatId;
 		this.creatorUserName = creatorUserName;
+		this.numMessages = numMessages;
+		this.numMessagesRead = numMessagesRead;
+		this.lastMessageTime = lastMessageTime;
+		
 	}
 
 }

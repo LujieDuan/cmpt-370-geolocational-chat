@@ -1,6 +1,10 @@
 package comm;
 
-import org.apache.http.params.BasicHttpParams;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.message.BasicNameValuePair;
 
 import data.chat.ChatId;
 
@@ -17,14 +21,14 @@ public class TaskParams_GetNewMessages extends HttpGetParams
 		this.lastMessageId = latestMessageId;
 	}
 	
-	public BasicHttpParams getHttpParamsForm()
+	public String getHttpStringForm()
 	{
-		BasicHttpParams params = new BasicHttpParams();
-		
-		params.setParameter("userId", chatId.userId);
-		params.setParameter("timeId", chatId.getTimeIdString());
-		params.setIntParameter("lastMessageId", lastMessageId);
-		
-		return params;
+		List<BasicNameValuePair> params = new LinkedList<BasicNameValuePair>();
+
+	    params.add(new BasicNameValuePair("userId", chatId.userId));
+	    params.add(new BasicNameValuePair("timeId", chatId.getTimeIdString()));
+		params.add(new BasicNameValuePair("lastMessageId", Integer.toString(lastMessageId)));
+	
+		return URLEncodedUtils.format(params, "utf-8");
 	}
 }

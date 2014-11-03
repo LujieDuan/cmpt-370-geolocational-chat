@@ -3,7 +3,7 @@ package screen.inbox;
 import java.util.ArrayList;
 
 import coderunners.geolocationalchat.R;
-import data.inbox.ChatSummaryForInbox;
+import data.inbox.ChatSummaryForScreen;
 import android.content.Context;
 import android.location.Location;
 import android.view.LayoutInflater;
@@ -12,12 +12,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class InboxItemArrayAdapter extends ArrayAdapter<ChatSummaryForInbox> {
+public class InboxItemArrayAdapter extends ArrayAdapter<ChatSummaryForScreen> {
   
   private final Context context;
-  private ArrayList<ChatSummaryForInbox> chatSummaries;
+  private ArrayList<ChatSummaryForScreen> chatSummaries;
 
-  public InboxItemArrayAdapter(Context context, ArrayList<ChatSummaryForInbox> chatSummaries) {
+  public InboxItemArrayAdapter(Context context, ArrayList<ChatSummaryForScreen> chatSummaries) {
     super(context, R.layout.inbox_item, chatSummaries);
     this.context = context;
     this.chatSummaries = chatSummaries;
@@ -29,7 +29,7 @@ public class InboxItemArrayAdapter extends ArrayAdapter<ChatSummaryForInbox> {
     
     View rowView = inflater.inflate(R.layout.inbox_item, parent, false);
     
-    ChatSummaryForInbox chatSummary = chatSummaries.get(position);
+    ChatSummaryForScreen chatSummary = chatSummaries.get(position);
     
     TextView textViewName = (TextView) rowView.findViewById(R.id.inbox_name);
     TextView textViewPost = (TextView) rowView.findViewById(R.id.inbox_post);
@@ -41,7 +41,7 @@ public class InboxItemArrayAdapter extends ArrayAdapter<ChatSummaryForInbox> {
     
     textViewName.setText(chatSummary.creatorUserName);
     textViewPost.setText(chatSummary.title);
-    textViewTime.setText(chatSummary.latestMessageTime.toString());
+    textViewTime.setText(chatSummary.lastMessageTime.toString());
     textViewReplies.setText(chatSummary.numMessages + "replies");
     textViewDistance.setText(chatSummary.getDistanceString(location));
     

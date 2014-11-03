@@ -1,6 +1,10 @@
 package comm;
 
-import org.apache.http.params.BasicHttpParams;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.message.BasicNameValuePair;
 
 import android.location.Location;
 
@@ -26,16 +30,14 @@ public class TaskParams_GetInbox extends HttpGetParams
 	}
 
 	@Override
-	public BasicHttpParams getHttpParamsForm()
+	public String getHttpStringForm()
 	{
-		BasicHttpParams params = new BasicHttpParams();
-		
-		params.setDoubleParameter("curPhoneLat", curPhoneLocation.getLatitude());
-		params.setDoubleParameter("curPhoneLong", curPhoneLocation.getLongitude());
-		params.setParameter("tags", tags);
-		
-		return params;
+		List<BasicNameValuePair> params = new LinkedList<BasicNameValuePair>();
+
+	    params.add(new BasicNameValuePair("curPhoneLat", Double.toString(curPhoneLocation.getLatitude())));
+	    params.add(new BasicNameValuePair("curPhoneLong", Double.toString(curPhoneLocation.getLongitude())));
+		params.add(new BasicNameValuePair("tags", tags.toString()));
+	
+		return URLEncodedUtils.format(params, "utf-8");
 	}
-	
-	
 }

@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import org.joda.time.DateTime;
 
 /**
- * This object represents a set of {@link ChatMessageFromDb ChatMessages} that have
+ * This object represents a set of {@link ChatMessageForScreen ChatMessages} that have
  * been sent by a single from a similar time and location. This allows messages
  * to be grouped togethor when displayed.
  */
 public class ChatItem {
 
-    public ArrayList<ChatMessageFromDb> messages = new ArrayList<ChatMessageFromDb>();
+    public ArrayList<ChatMessageForScreen> messages = new ArrayList<ChatMessageForScreen>();
   
-    public ChatItem(ChatMessageFromDb... chatMessages)
+    public ChatItem(ChatMessageForScreen... chatMessages)
     {
-      for(ChatMessageFromDb message: chatMessages)
+      for(ChatMessageForScreen message: chatMessages)
       {
         addMessage(message);
       }
@@ -22,7 +22,7 @@ public class ChatItem {
     
 	public String getName()
 	{
-	  return messages.get(0).creatorUserName;
+	  return messages.get(0).userName;
 	}
 	
 	public String getUserId()
@@ -45,12 +45,12 @@ public class ChatItem {
 	  return messages.get(messages.size() - 1).getTimeString(currTime);
 	}
 	
-	public boolean isAddable(ChatMessageFromDb chatMessage)
+	public boolean isAddable(ChatMessageForScreen chatMessage)
 	{
 	  return messages.isEmpty() || messages.get(0).userId.equals(chatMessage.userId);
 	}
 	
-	public void addMessage(ChatMessageFromDb chatMessage)
+	public void addMessage(ChatMessageForScreen chatMessage)
 	{
 	  if(!isAddable(chatMessage))
 	  {

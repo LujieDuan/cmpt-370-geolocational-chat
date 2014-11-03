@@ -2,6 +2,8 @@ package data.chat;
 
 import org.joda.time.DateTime;
 
+import comm.HttpRequest;
+
 public class ChatId {
 	
 	public String userId;
@@ -14,6 +16,6 @@ public class ChatId {
 	
 	public String getTimeIdString()
 	{
-		return timeId.toString("yyyy-MM-dd HH:mm:ss");
+		return timeId.toString(HttpRequest.DATETIME_FORMAT);
 	}
 }
