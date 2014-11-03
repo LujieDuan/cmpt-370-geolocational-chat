@@ -8,7 +8,7 @@ import com.google.gson.Gson;
 
 import data.newChatCreation.ChatSummaryToDb;
 
-public class TaskParams_SendNewChat extends HttpPutEntity
+public class TaskParams_SendNewChat extends HttpPostEntity
 {
 	public ChatSummaryToDb newChatSummary;
 	
@@ -18,7 +18,7 @@ public class TaskParams_SendNewChat extends HttpPutEntity
 	}
 
 	@Override
-	public StringEntity asStringEntity() {
+	public StringEntity asJsonStringEntity() {
 		Gson gson = new Gson();
 
 		String jsonString = gson.toJson(newChatSummary);

@@ -2,15 +2,17 @@ package screen.inbox;
 
 import java.util.ArrayList;
 
-import coderunners.geolocationalchat.R;
-import data.inbox.ChatSummaryForScreen;
 import android.content.Context;
-import android.location.Location;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import coderunners.geolocationalchat.R;
+
+import com.google.android.gms.maps.model.LatLng;
+
+import data.inbox.ChatSummaryForScreen;
 
 public class InboxItemArrayAdapter extends ArrayAdapter<ChatSummaryForScreen> {
   
@@ -37,7 +39,7 @@ public class InboxItemArrayAdapter extends ArrayAdapter<ChatSummaryForScreen> {
     TextView textViewReplies = (TextView) rowView.findViewById(R.id.inbox_replies);
     TextView textViewDistance = (TextView) rowView.findViewById(R.id.inbox_distance);
     
-    Location location = new Location("");
+    LatLng location = new LatLng(InboxActivity.LAT, InboxActivity.LONG);
     
     textViewName.setText(chatSummary.creatorUserName);
     textViewPost.setText(chatSummary.title);

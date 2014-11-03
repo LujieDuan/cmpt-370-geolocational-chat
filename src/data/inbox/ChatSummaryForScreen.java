@@ -3,13 +3,14 @@ package data.inbox;
 
 import org.joda.time.DateTime;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import data.chat.ChatId;
-import android.location.Location;
 
 public class ChatSummaryForScreen extends ChatSummary 
 {
 	public ChatId chatId;
-	public String creatorUserName;
+	public String creatorUserName = "Todd";
 	public int numMessages;
 	public DateTime lastMessageTime;
 	public int numMessagesRead = 0;
@@ -22,7 +23,7 @@ public class ChatSummaryForScreen extends ChatSummary
 	 * @param chatId as assigned by the database.
 	 * @param creatorUserName the alias of the one who created the chat
 	 */
-	public ChatSummaryForScreen(String title, Location location, String[] tags, 
+	public ChatSummaryForScreen(String title, LatLng location, String[] tags, 
 			ChatId chatId, String creatorUserName, int numMessages, int numMessagesRead, DateTime lastMessageTime) 
 	{
 		super(title, location, tags);

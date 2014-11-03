@@ -25,7 +25,7 @@ public class TaskParams_GetNewMessages extends HttpGetParams
 	{
 		List<BasicNameValuePair> params = new LinkedList<BasicNameValuePair>();
 
-	    params.add(new BasicNameValuePair("userId", chatId.userId));
+	    params.add(new BasicNameValuePair("creatorId", chatId.creatorId));
 	    params.add(new BasicNameValuePair("timeId", chatId.getTimeIdString()));
 		params.add(new BasicNameValuePair("lastMessageId", Integer.toString(lastMessageId)));
 	

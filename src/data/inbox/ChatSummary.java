@@ -1,12 +1,13 @@
 package data.inbox;
 
-import android.location.Location;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.annotations.Expose;
 
 public class ChatSummary
 {
 	public String title;
-	public Location location;
-	public String[] tags;
+	public LatLng location;
+	public String[] tags = {""};
 	
 	/**
 	 * Create a new chat summary, containing all the info necessary for an inbox item in the inbox UI.
@@ -14,16 +15,15 @@ public class ChatSummary
 	 * @param location the location of the chat
 	 * @param tags all tags associated with the chat (to help filtering)
 	 */
-	public ChatSummary(String title, Location location, String[] tags)
+	public ChatSummary(String title, LatLng location, String[] tags)
 	{
 		this.title = title;
 		this.location = location;
 		this.tags = tags;
 	}
 
-	public String getDistanceString(Location currLocation)
+	public String getDistanceString(LatLng currLocation)
 	{    
-		float distance = currLocation.distanceTo(location);
-		return distance + "m away";
+		return "50m away";
 	}
 }

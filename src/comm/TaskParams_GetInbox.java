@@ -8,10 +8,12 @@ import org.apache.http.message.BasicNameValuePair;
 
 import android.location.Location;
 
+import com.google.android.gms.maps.model.LatLng;
+
 public class TaskParams_GetInbox extends HttpGetParams
 {
 	/** the current location of the phone, as calculated when this constructor is called.*/
-	public Location curPhoneLocation;
+	public LatLng curPhoneLocation;
 	
 	/** string array. This will filter the chats which are received by the database,
 	 * so that each received chat includes at least one of these tags. */
@@ -23,7 +25,7 @@ public class TaskParams_GetInbox extends HttpGetParams
 	 * @param tags string array. This will filter the chats which are received by the database,
 	 * so that each received chat includes at least one of these tags.
 	 */
-	public TaskParams_GetInbox(Location curPhoneLocation, String[] tags)
+	public TaskParams_GetInbox(LatLng curPhoneLocation, String[] tags)
 	{
 		this.curPhoneLocation = curPhoneLocation;
 		this.tags = tags;
@@ -34,8 +36,8 @@ public class TaskParams_GetInbox extends HttpGetParams
 	{
 		List<BasicNameValuePair> params = new LinkedList<BasicNameValuePair>();
 
-	    params.add(new BasicNameValuePair("curPhoneLat", Double.toString(curPhoneLocation.getLatitude())));
-	    params.add(new BasicNameValuePair("curPhoneLong", Double.toString(curPhoneLocation.getLongitude())));
+	    params.add(new BasicNameValuePair("latitude", Double.toString(curPhoneLocation.latitude)));
+	    params.add(new BasicNameValuePair("longitude", Double.toString(curPhoneLocation.longitude)));
 		params.add(new BasicNameValuePair("tags", tags.toString()));
 	
 		return URLEncodedUtils.format(params, "utf-8");

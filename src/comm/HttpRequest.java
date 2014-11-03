@@ -10,7 +10,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -24,16 +24,16 @@ public class HttpRequest
 	public static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	public static final int TIMEOUT_MILLISEC = 10000;
 
-	public static String put(HttpPutEntity entity, String uri) throws ClientProtocolException, IOException
+	public static String post(HttpPostEntity entity, String uri) throws ClientProtocolException, IOException
 	{
-		StringEntity se = entity.asStringEntity();
+		StringEntity se = entity.asJsonStringEntity();
 		se.setContentEncoding("UTF-8");
 		se.setContentType("application/json");
 
-		HttpPut request = new HttpPut(uri);
-
+		HttpPost request = new HttpPost(uri);
 		request.setEntity(se);
-
+		
+		Log.d("dbConnect", "request entity: " + request.getEntity().toString());
 		return executeRequest(request);
 	}
 

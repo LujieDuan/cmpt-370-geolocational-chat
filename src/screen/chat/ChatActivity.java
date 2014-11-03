@@ -2,25 +2,20 @@ package screen.chat;
 
 import java.io.IOException;
 import java.util.ArrayList;
-
-
-
-
-
-
-
-
-
-
-
-
-
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.joda.time.DateTime;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import screen.inbox.InboxActivity;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,6 +27,15 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import coderunners.geolocationalchat.R;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import comm.DateTimeDeserializer;
+import comm.HttpRequest;
+import comm.TaskParams_GetNewMessages;
+import comm.TaskParams_SendNewMessage;
+
 import data.chat.Chat;
 import data.chat.ChatId;
 import data.chat.ChatItem;
@@ -39,47 +43,27 @@ import data.chat.ChatMessageForScreen;
 import data.chat.ChatMessageToDb;
 import data.chat.ChatMessagesForScreen;
 
-import org.joda.time.DateTime;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import screen.inbox.InboxActivity;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
-
-import comm.DateTimeDeserializer;
-import comm.HttpRequest;
-import comm.TaskParams_GetNewMessages;
-import comm.TaskParams_SendNewMessage;
-
 public class ChatActivity extends Activity
 {
 	private static final String GET_NEW_MESSAGES_URI = "http://cmpt370duan.byethost10.com/getmess.php";
-	private static final String SEND_NEW_MESSAGE_URI = "someKindaUri";
-	private static final String TAG_SUCCESS = "success";
+	private static final String SEND_NEW_MESSAGE_URI = "http://cmpt370duan.byethost10.com/create_message.php";
 	private static final String TAG_MESSAGE_ARRAY = "messages";
 	
 	private static final int FAKE_MESSAGE_ID = -1;
 	private Chat chat = new Chat();  
+	private ChatId chatId;
 	private static MySimpleArrayAdapter adapter;
 	  
 	@Override
 	  protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-//		chat.addMessages(
-//		    new ChatMessageForScreen("Programming contest this weekend!", "Mike's ID", "Mike",1, new DateTime()),
-//		    new ChatMessageForScreen( "I will be there!","Tom's ID","Tom", 2, new DateTime()),
-//		    new ChatMessageForScreen( "Looking forward!~","Doris' ID","Doris",  3, new DateTime()),
-//		    new ChatMessageForScreen( "Nice:-", "Will's ID","Will", 4, new DateTime()),
-//		    new ChatMessageForScreen("How much is the ticket?","Anthony's ID", "Anthony", 5 , new DateTime()),
-//		    new ChatMessageForScreen("On what platform?", "My ID", "Me", 6, new DateTime()),
-//		    new ChatMessageForScreen("Windows I think","Will's ID", "Will",  7, new DateTime()));
 		
 	    setContentView(R.layout.chat_screen);
-
+	    
+	    chatId = getIntent().getExtras().getParcelable(InboxActivity.CHATID_STRING);
+	    
+	    Log.d("intents", "chatId2: " + chatId.toString());
+	    
 	    final ListView listView = (ListView) findViewById(R.id.listview);
 
 	    adapter = new MySimpleArrayAdapter(this, chat.chatItems);
@@ -96,11 +80,10 @@ public class ChatActivity extends Activity
 		editText.setText("");
 		if(!message.equals(""))
 		{
-			chat.addMessages(new ChatMessageForScreen(message,InboxActivity.DEVICE_ID,InboxActivity.USER_NAME, FAKE_MESSAGE_ID, new DateTime()));
-			onChatUpdated();
-			
-			Thread sendMessageThread = new Thread(new SendNewMessageTask());
-			sendMessageThread.run();
+//			chat.addMessages(new ChatMessageForScreen(message,InboxActivity.DEVICE_ID,InboxActivity.USER_NAME, FAKE_MESSAGE_ID, new DateTime()));
+//			onChatUpdated();
+		
+			new SendNewMessageTask().execute(new ChatMessageToDb(message, InboxActivity.DEVICE_ID, chatId));
 			
 //			if(valueList.get(valueList.size() - 1).name.equals("Me"))
 //			{
@@ -134,7 +117,7 @@ public class ChatActivity extends Activity
 			View itemView;
 			
 			//TODO: Should check by Phone ID rather than name
-			if(values.get(position).getUserId().equals("My ID"))
+			if(values.get(position).getUserId().equals(InboxActivity.DEVICE_ID))
 			{
 				itemView = inflater.inflate(R.layout.chat_item_me, parent, false);
 				LinearLayout bubbleList = (LinearLayout) itemView.findViewById(R.id.chat_bubble_list);
@@ -188,7 +171,6 @@ public class ChatActivity extends Activity
 	    @Override
 	    public void run() 
 	    {
-	    	ChatId chatId = new ChatId("123456789012345", new DateTime(2014,10,25,16,46,29));
 	    	int lastMessageId = -1;
 	    	if (chat.chatItems.size() > 0)
 	    	{	
@@ -198,13 +180,11 @@ public class ChatActivity extends Activity
 	    	
 			TaskParams_GetNewMessages sendParams = new TaskParams_GetNewMessages(chatId, lastMessageId);
 			
-			
-			String responseString = "";
 			try {
-				responseString = HttpRequest.get(sendParams, GET_NEW_MESSAGES_URI);
+				String responseString = HttpRequest.get(sendParams, GET_NEW_MESSAGES_URI);
 				JSONObject responseJson = new JSONObject(responseString);
 				
-				if (responseJson.getInt(TAG_SUCCESS) == 1)
+				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) == 1)
 				{
 					JSONArray messages = responseJson.getJSONArray(TAG_MESSAGE_ARRAY);
 					
@@ -236,21 +216,20 @@ public class ChatActivity extends Activity
 	    }
 	}
 	
-	private class SendNewMessageTask implements Runnable 
+	private class SendNewMessageTask extends AsyncTask<ChatMessageToDb, Void, Void>
 	{	
-	    @Override
-	    public void run() 
-	    {
-	    	ChatMessageToDb c = new ChatMessageToDb(
-	    			"new message contents", "My ID", new ChatId("chat creator's Id", new DateTime()));
-			TaskParams_SendNewMessage sendEntity = new TaskParams_SendNewMessage(c);
+		@Override
+		protected Void doInBackground(ChatMessageToDb... params) {
+			TaskParams_SendNewMessage sendEntity = new TaskParams_SendNewMessage(params[0]);
 			
 			try {
-				HttpRequest.put(sendEntity, SEND_NEW_MESSAGE_URI);
+				HttpRequest.post(sendEntity, SEND_NEW_MESSAGE_URI);
 			} catch (IOException e) {
 				e.printStackTrace();
 				Log.e("dbConnect", e.toString());
 			}
-	    }
+			
+			return null;
+		}
 	}
 } 

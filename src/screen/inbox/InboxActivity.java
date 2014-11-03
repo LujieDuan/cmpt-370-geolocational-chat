@@ -7,100 +7,52 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.joda.time.DateTime;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-
-import comm.HttpRequest;
-import comm.TaskParams_GetInbox;
-import comm.TaskParams_SendNewChat;
 import screen.chat.ChatActivity;
-import coderunners.geolocationalchat.R;
-import data.chat.ChatId;
-import data.inbox.ChatSummaryForScreen;
-import data.newChatCreation.ChatSummaryToDb;
-import android.location.Location;
+import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings.Secure;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
-import android.app.ListActivity;
-import android.content.Intent;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import coderunners.geolocationalchat.R;
+
+import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import comm.ChatSummariesForScreenDeserializer;
+import comm.HttpRequest;
+import comm.TaskParams_GetInbox;
+import comm.TaskParams_SendNewChat;
+
+import data.chat.ChatId;
+import data.inbox.ChatSummariesForScreen;
+import data.inbox.ChatSummaryForScreen;
+import data.newChatCreation.ChatSummaryToDb;
 
 
 public class InboxActivity extends ListActivity {
-
 	
-//	String[] names = new String[] { 
-//    		"Josh Heinrichs", 
-//    		"Karen Janzen", 
-//    		"William van der Kamp", 
-//    		"ASSU", 
-//    		"Josh Heinrichs", 
-//    		"Josh Heinrichs", 
-//    		"Josh Heinrichs", 
-//    		"Josh Heinrichs" };
-//    String[] posts = new String[] { 
-//    		"Anyone up for a game of ultimate frisbee?", 
-//    		"Anyone want to meet for coffee?", 
-//    		"Can anyone give me a ride to the university? Hard to get to class without busses available.", 
-//    		"Free burgers outside!", 
-//    		"I just found a great deal at Staples!", 
-//    		"Anyone up for a game of ultimate frisbee?", 
-//    		"Anyone up for a game of ultimate frisbee?", 
-//    		"Anyone up for a game of ultimate frisbee?", 
-//    		"Anyone up for a game of ultimate frisbee?", };
-//    String[] times = new String[] { 
-//    		"2 hours ago", 
-//    		"30 minutes ago", 
-//    		"2 hours ago", 
-//    		"2 hours ago", 
-//    		"2 hours ago", 
-//    		"2 hours ago", 
-//    		"2 hours ago", 
-//    		"2 hours ago", 
-//    		"2 hours ago" };
-//    String[] replies = new String[] { 
-//    		"2 replies", 
-//    		"0 replies", 
-//    		"2 replies", 
-//    		"2 replies", 
-//    		"2 replies", 
-//    		"2 replies", 
-//    		"2 replies", 
-//    		"2 replies", 
-//    		"2 replies" };
-//    String[] distances = new String[] { 
-//    		"500m away", 
-//    		"2km away", 
-//    		"500m away", 
-//    		"500m away", 
-//    		"500m away", 
-//    		"500m away", 
-//    		"500m away", 
-//    		"500m away", 
-//    		"500m away" };
-//    int[] chatIds = new int[] {
-//    		1,
-//    		2,
-//    		3,
-//    		4,
-//    		5,
-//    		6,
-//    		7,
-//    		8,
-//    		9
-//    };
 	public static String DEVICE_ID;
-	public static final String USER_NAME = "John";
+	public static String USER_NAME = "John";
 	
-	private static final String GET_INBOX_URI = "someUri"; 
-	private static final String SEND_NEW_CHAT_URI = "someOtherUri"; 
+	private static final String GET_INBOX_URI = "http://cmpt370duan.byethost10.com/getchs.php"; 
+	private static final String SEND_NEW_CHAT_URI = "someOtherUri";
+	public static final String TAG_SUCCESS = "success";
+	private static final String TAG_CHATSUMMARY_ARRAY = "chats"; 
 	
+	public static final String CHATID_STRING = "chatId";
+	
+	static double LONG = 25;
+	static double LAT = 50;
     private static ArrayAdapter<ChatSummaryForScreen> adapter;
     
     private static ArrayList<ChatSummaryForScreen> chatSummaries = new ArrayList<ChatSummaryForScreen>();
@@ -111,9 +63,9 @@ public class InboxActivity extends ListActivity {
     	super.onCreate(savedInstanceState);
     	DEVICE_ID = Secure.getString(getBaseContext().getContentResolver(), Secure.ANDROID_ID);
     	
-    	chatSummaries.add(new ChatSummaryForScreen("Massage Needed",  new Location(""), new String[]{"massage"}, new ChatId("", null),"Josh", 40, 40, new DateTime()));
-    	chatSummaries.add(new ChatSummaryForScreen("Massage Needed",  new Location(""), new String[]{"massage"}, new ChatId("", null),"Josh", 40, 40, new DateTime()));
-    	chatSummaries.add(new ChatSummaryForScreen("Massage Needed",  new Location(""), new String[]{"massage"}, new ChatId("", null),"Josh", 40, 40, new DateTime()));
+//    	chatSummaries.add(new ChatSummaryForScreen("Massage Needed",  new LatLng(LAT,LONG), new String[]{"massage"}, new ChatId("", null),"Josh", 40, 40, new DateTime()));
+//    	chatSummaries.add(new ChatSummaryForScreen("Massage Needed",  new LatLng(LAT,LONG), new String[]{"massage"}, new ChatId("", null),"Josh", 40, 40, new DateTime()));
+//    	chatSummaries.add(new ChatSummaryForScreen("Massage Needed",  new LatLng(LAT,LONG), new String[]{"massage"}, new ChatId("", null),"Josh", 40, 40, new DateTime()));
         
         adapter = new InboxItemArrayAdapter(this, chatSummaries);
         setListAdapter(adapter);
@@ -147,6 +99,9 @@ public class InboxActivity extends ListActivity {
 //      Toast.makeText(this, item + " selected", Toast.LENGTH_LONG).show();
     	
     	Intent chatScreenIntent = new Intent(InboxActivity.this, ChatActivity.class);
+    	ChatId curChatId = chatSummaries.get(position).chatId;
+    	Log.d("intents", "chatId1: " + curChatId.toString());
+    	chatScreenIntent.putExtra(CHATID_STRING,curChatId);
     	startActivity(chatScreenIntent);
     }
 
@@ -171,28 +126,60 @@ public class InboxActivity extends ListActivity {
     
     private class GetInboxTask implements Runnable 
 	{
-		private ChatSummaryForScreen[] newChatSummaries = null;
-		
 	    @Override
 	    public void run() 
 	    {
-	    	Location l = new Location("");
+	    	LatLng l = new LatLng(LAT,LONG);
 			String[] tags = {""};
 			TaskParams_GetInbox sendParams = new TaskParams_GetInbox(l, tags);
-			
-			Gson gson = new Gson(); 
-			
-			String responseString = "";
 			try {
-				responseString = HttpRequest.get(sendParams, GET_INBOX_URI);
-				newChatSummaries = gson.fromJson(responseString, ChatSummaryForScreen[].class);
+				String responseString = HttpRequest.get(sendParams, GET_INBOX_URI);
+				JSONObject responseJson = new JSONObject(responseString);
+				if (responseJson.getInt(TAG_SUCCESS) == 1)
+				{
+					JSONArray summaries = responseJson.getJSONArray(TAG_CHATSUMMARY_ARRAY);
+					
+					Log.d("dbConnect", "chat summaries: " + summaries);
+					Log.d("dbConnect", "trying to convert json...");
+					GsonBuilder gsonBuilder = new GsonBuilder();
+//					gsonBuilder.registerTypeAdapter(ChatId.class, new ChatIdDeserializer());
+//					gsonBuilder.registerTypeAdapter(LatLng.class, new LatLngDeserializer());
+					gsonBuilder.registerTypeAdapter(ChatSummariesForScreen.class, new ChatSummariesForScreenDeserializer());
+					Gson gson = gsonBuilder.create();
+				    ChatSummaryForScreen[] newChatSummaries = gson.fromJson(responseString, ChatSummariesForScreen.class).chats;
+					
+				    Log.d("dbConnect", "new chat summaries title one: " + newChatSummaries[0].title);
+					
+				    for (int i = 0; i < newChatSummaries.length; i++)
+				    {
+				    	if (newChatSummaries[i].chatId == null)
+				    		Log.d("dbConnect", "null chatId!");
+				    	if (newChatSummaries[i].location == null)
+				    		Log.d("dbConnect", "null location!");
+//				    	Log.d("intents", "chatId0: " + newChatSummaries[i].chatId.toString());
+				    }
+				    ArrayList<ChatSummaryForScreen> newChatSummariesList = new ArrayList<ChatSummaryForScreen>(Arrays.asList(newChatSummaries));
+				    chatSummaries.clear();
+				    chatSummaries.addAll(newChatSummariesList);
+				    
+				    
+//					adapter.notifyDataSetChanged();
+					runOnUiThread(new Runnable() {
+
+		                @Override
+		                public void run() {
+		                	Log.d("dbConnect", "notifying...");
+		                	adapter.notifyDataSetChanged();
+		                }
+		            });
+				}
 			} catch (IOException | JsonSyntaxException e) {
 				e.printStackTrace();
 				Log.e("dbConnect", e.toString());
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			
-			chatSummaries = new ArrayList<ChatSummaryForScreen>(Arrays.asList(newChatSummaries));
-			adapter.notifyDataSetChanged();
 	    }
 	}
     
@@ -203,11 +190,11 @@ public class InboxActivity extends ListActivity {
  	    public void run() 
  	    {
  	    	ChatSummaryToDb c = new ChatSummaryToDb(
- 	    			"new chat title", new Location(""), new String[]{""}, "creator user id", "first message", 100, new DateTime());
+ 	    			"new chat title", new LatLng(LAT,LONG), new String[]{""}, "creator user id", "first message", 100, new DateTime());
  			TaskParams_SendNewChat sendEntity = new TaskParams_SendNewChat(c);
  			
  			try {
- 				HttpRequest.put(sendEntity, SEND_NEW_CHAT_URI);
+ 				HttpRequest.post(sendEntity, SEND_NEW_CHAT_URI);
  			} catch (IOException e) {
  				e.printStackTrace();
  				Log.e("dbConnect", e.toString());

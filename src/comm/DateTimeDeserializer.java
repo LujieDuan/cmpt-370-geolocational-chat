@@ -20,5 +20,4 @@ public class DateTimeDeserializer implements JsonDeserializer<DateTime>
 		DateTimeFormatter formatter = DateTimeFormat.forPattern(HttpRequest.DATETIME_FORMAT);
 		return formatter.parseDateTime(json.getAsString());
 	}
-
 }
