@@ -6,8 +6,6 @@ import java.util.List;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 
-import android.location.Location;
-
 import com.google.android.gms.maps.model.LatLng;
 
 public class TaskParams_GetInbox extends HttpGetParams

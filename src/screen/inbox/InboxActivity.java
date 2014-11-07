@@ -15,7 +15,6 @@ import screen.chat.ChatActivity;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Settings.Secure;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,11 +27,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+
 import comm.ChatSummariesForScreenDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetInbox;
 import comm.TaskParams_SendNewChat;
-
 import data.chat.ChatId;
 import data.inbox.ChatSummariesForScreen;
 import data.inbox.ChatSummaryForScreen;
@@ -49,59 +48,38 @@ public class InboxActivity extends ListActivity {
 	public static final String TAG_SUCCESS = "success";
 	private static final String TAG_CHATSUMMARY_ARRAY = "chats"; 
 	
-	public static final String CHATID_STRING = "chatId";
-	
 	static double LONG = 25;
 	static double LAT = 50;
-    private static ArrayAdapter<ChatSummaryForScreen> adapter;
+	
+	private static final int GET_INBOX_DELAY_SECONDS = 30;
+	
+    private ArrayAdapter<ChatSummaryForScreen> adapter;
     
-    private static ArrayList<ChatSummaryForScreen> chatSummaries = new ArrayList<ChatSummaryForScreen>();
+    private ArrayList<ChatSummaryForScreen> chatSummaries = new ArrayList<ChatSummaryForScreen>();
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     	
     	super.onCreate(savedInstanceState);
-    	DEVICE_ID = Secure.getString(getBaseContext().getContentResolver(), Secure.ANDROID_ID);
-    	
-//    	chatSummaries.add(new ChatSummaryForScreen("Massage Needed",  new LatLng(LAT,LONG), new String[]{"massage"}, new ChatId("", null),"Josh", 40, 40, new DateTime()));
-//    	chatSummaries.add(new ChatSummaryForScreen("Massage Needed",  new LatLng(LAT,LONG), new String[]{"massage"}, new ChatId("", null),"Josh", 40, 40, new DateTime()));
-//    	chatSummaries.add(new ChatSummaryForScreen("Massage Needed",  new LatLng(LAT,LONG), new String[]{"massage"}, new ChatId("", null),"Josh", 40, 40, new DateTime()));
-        
+    	//TODO change this back.
+//    	DEVICE_ID = Secure.getString(getBaseContext().getContentResolver(), Secure.ANDROID_ID);
+    	DEVICE_ID = "markerId";
+
         adapter = new InboxItemArrayAdapter(this, chatSummaries);
         setListAdapter(adapter);
         
 	    ScheduledThreadPoolExecutor chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
-	    chatUpdateScheduler.scheduleWithFixedDelay(new GetInboxTask(), 0, 30, TimeUnit.SECONDS);
-//        final Handler handler = new Handler();
-//        handler.post(new Runnable(){
-//        	
-//        	@Override
-//        	public void run() {
-//        		
-//        		if(names[0].equals("Josh Heinrichs"))
-//        			names[0] = "hello";
-//        		else
-//        			names[0] = "Josh Heinrichs";
-//        		
-//        		adapter.notifyDataSetChanged();
-//        		
-//        		handler.postDelayed(this,  1000);
-//        		
-//        	}
-//        });
+	    chatUpdateScheduler.scheduleWithFixedDelay(new GetInboxTask(), 0, GET_INBOX_DELAY_SECONDS, TimeUnit.SECONDS);
     }
     
     
     
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-//      String item = (String) getListAdapter().getItem(position);
-//      Toast.makeText(this, item + " selected", Toast.LENGTH_LONG).show();
-    	
     	Intent chatScreenIntent = new Intent(InboxActivity.this, ChatActivity.class);
     	ChatId curChatId = chatSummaries.get(position).chatId;
     	Log.d("intents", "chatId1: " + curChatId.toString());
-    	chatScreenIntent.putExtra(CHATID_STRING,curChatId);
+    	chatScreenIntent.putExtra(ChatActivity.CHATID_STRING,curChatId);
     	startActivity(chatScreenIntent);
     }
 
@@ -129,6 +107,7 @@ public class InboxActivity extends ListActivity {
 	    @Override
 	    public void run() 
 	    {
+	    	//TODO change these to be the actual location and tags, when those elements have been implemented.
 	    	LatLng l = new LatLng(LAT,LONG);
 			String[] tags = {""};
 			TaskParams_GetInbox sendParams = new TaskParams_GetInbox(l, tags);
@@ -142,33 +121,20 @@ public class InboxActivity extends ListActivity {
 					Log.d("dbConnect", "chat summaries: " + summaries);
 					Log.d("dbConnect", "trying to convert json...");
 					GsonBuilder gsonBuilder = new GsonBuilder();
-//					gsonBuilder.registerTypeAdapter(ChatId.class, new ChatIdDeserializer());
-//					gsonBuilder.registerTypeAdapter(LatLng.class, new LatLngDeserializer());
 					gsonBuilder.registerTypeAdapter(ChatSummariesForScreen.class, new ChatSummariesForScreenDeserializer());
 					Gson gson = gsonBuilder.create();
 				    ChatSummaryForScreen[] newChatSummaries = gson.fromJson(responseString, ChatSummariesForScreen.class).chats;
 					
 				    Log.d("dbConnect", "new chat summaries title one: " + newChatSummaries[0].title);
-					
-				    for (int i = 0; i < newChatSummaries.length; i++)
-				    {
-				    	if (newChatSummaries[i].chatId == null)
-				    		Log.d("dbConnect", "null chatId!");
-				    	if (newChatSummaries[i].location == null)
-				    		Log.d("dbConnect", "null location!");
-//				    	Log.d("intents", "chatId0: " + newChatSummaries[i].chatId.toString());
-				    }
+				    
 				    ArrayList<ChatSummaryForScreen> newChatSummariesList = new ArrayList<ChatSummaryForScreen>(Arrays.asList(newChatSummaries));
 				    chatSummaries.clear();
 				    chatSummaries.addAll(newChatSummariesList);
 				    
-				    
-//					adapter.notifyDataSetChanged();
 					runOnUiThread(new Runnable() {
 
 		                @Override
 		                public void run() {
-		                	Log.d("dbConnect", "notifying...");
 		                	adapter.notifyDataSetChanged();
 		                }
 		            });
@@ -184,9 +150,11 @@ public class InboxActivity extends ListActivity {
 	}
     
     //This may have to go in the "new chat screen"
-    private class SendNewChatTask implements Runnable
+    //TODO finish implementing this.
+    @SuppressWarnings("unused")
+	private class SendNewChatTask implements Runnable
     {
-    	 @Override
+    	@Override
  	    public void run() 
  	    {
  	    	ChatSummaryToDb c = new ChatSummaryToDb(

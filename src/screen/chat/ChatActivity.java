@@ -13,7 +13,6 @@ import org.json.JSONObject;
 import screen.inbox.InboxActivity;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,16 +25,17 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import coderunners.geolocationalchat.R;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+
 import comm.DateTimeDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetNewMessages;
 import comm.TaskParams_SendNewMessage;
-
 import data.chat.Chat;
 import data.chat.ChatId;
 import data.chat.ChatItem;
@@ -48,19 +48,23 @@ public class ChatActivity extends Activity
 	private static final String GET_NEW_MESSAGES_URI = "http://cmpt370duan.byethost10.com/getmess.php";
 	private static final String SEND_NEW_MESSAGE_URI = "http://cmpt370duan.byethost10.com/create_message.php";
 	private static final String TAG_MESSAGE_ARRAY = "messages";
+	public static final String CHATID_STRING = "chatId";
 	
-	private static final int FAKE_MESSAGE_ID = -1;
 	private Chat chat = new Chat();  
 	private ChatId chatId;
-	private static MySimpleArrayAdapter adapter;
-	  
+	private MySimpleArrayAdapter adapter;
+	
+	private static final int NUM_RETRY_ATTEMPTS = 1;
+	private static final int GET_MESSAGES_DELAY_SEC = 5;
+	
+	private ScheduledThreadPoolExecutor chatUpdateScheduler;
 	@Override
 	  protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 	    setContentView(R.layout.chat_screen);
 	    
-	    chatId = getIntent().getExtras().getParcelable(InboxActivity.CHATID_STRING);
+	    chatId = getIntent().getExtras().getParcelable(CHATID_STRING);
 	    
 	    Log.d("intents", "chatId2: " + chatId.toString());
 	    
@@ -69,8 +73,8 @@ public class ChatActivity extends Activity
 	    adapter = new MySimpleArrayAdapter(this, chat.chatItems);
 	    listView.setAdapter(adapter);
 	    
-	    ScheduledThreadPoolExecutor chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
-	    chatUpdateScheduler.scheduleWithFixedDelay(new GetNewMessagesTask(), 0, 5, TimeUnit.SECONDS);
+	    chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
+	    chatUpdateScheduler.scheduleWithFixedDelay(new GetNewMessagesTask(), 0, GET_MESSAGES_DELAY_SEC, TimeUnit.SECONDS);
 	  }
 	
 	public void sendMessage(View v)
@@ -80,22 +84,11 @@ public class ChatActivity extends Activity
 		editText.setText("");
 		if(!message.equals(""))
 		{
+			//TODO implement a dummy message, for immediate viewing.
 //			chat.addMessages(new ChatMessageForScreen(message,InboxActivity.DEVICE_ID,InboxActivity.USER_NAME, FAKE_MESSAGE_ID, new DateTime()));
 //			onChatUpdated();
 		
 			new SendNewMessageTask().execute(new ChatMessageToDb(message, InboxActivity.DEVICE_ID, chatId));
-			
-//			if(valueList.get(valueList.size() - 1).name.equals("Me"))
-//			{
-//				valueList.get(valueList.size() - 1).messages.add(message);
-//				valueList.get(valueList.size() - 1).time = "just now";
-//				valueList.get(valueList.size() - 1).distance = "0m";
-//			}
-//			else
-//			{
-//				valueList.add(new ChatItem ("Me", message, "just now", "0m") );
-//			}
-			
 		}
 	}
 
@@ -159,11 +152,18 @@ public class ChatActivity extends Activity
 	
 	private void onChatUpdated()
 	{
-		
 		adapter.notifyDataSetChanged();
 		
 		ListView listView = (ListView) findViewById(R.id.listview);
 		listView.smoothScrollToPosition(listView.getBottom());
+	}
+	
+	//TODO implement this properly.
+	@Override
+	public void onBackPressed() 
+	{
+		chatUpdateScheduler.shutdownNow();
+		ChatActivity.super.onBackPressed();
 	}
 	
 	private class GetNewMessagesTask implements Runnable 
@@ -180,6 +180,7 @@ public class ChatActivity extends Activity
 	    	
 			TaskParams_GetNewMessages sendParams = new TaskParams_GetNewMessages(chatId, lastMessageId);
 			
+			int retryCount = 0;
 			try {
 				String responseString = HttpRequest.get(sendParams, GET_NEW_MESSAGES_URI);
 				JSONObject responseJson = new JSONObject(responseString);
@@ -208,7 +209,15 @@ public class ChatActivity extends Activity
 				
 			} catch (IOException | JsonSyntaxException e) {
 				e.printStackTrace();
-				Log.e("dbConnect", e.toString());
+				
+				retryCount++;
+				Log.e("dbConnect", e.toString() + "\nretry count: " + retryCount);
+				if (retryCount >= NUM_RETRY_ATTEMPTS)
+				{
+					Toast.makeText(ChatActivity.this, 
+							"Unable to receive messages; server timed out.\nPlease try again later.", 
+							Toast.LENGTH_LONG).show();
+				}
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -222,13 +231,28 @@ public class ChatActivity extends Activity
 		protected Void doInBackground(ChatMessageToDb... params) {
 			TaskParams_SendNewMessage sendEntity = new TaskParams_SendNewMessage(params[0]);
 			
+			int retryCount = 0;
 			try {
 				HttpRequest.post(sendEntity, SEND_NEW_MESSAGE_URI);
 			} catch (IOException e) {
 				e.printStackTrace();
-				Log.e("dbConnect", e.toString());
+				
+				retryCount++;
+				Log.e("dbConnect", e.toString() + "\nretry count: " + retryCount);
+				if (retryCount >= NUM_RETRY_ATTEMPTS)
+				{
+					runOnUiThread(new Runnable() {
+		                @Override
+		                public void run() {
+		                	Toast.makeText(ChatActivity.this, 
+		                			"Unable to send message; server timed out.\nPlease try again later.", 
+		                			Toast.LENGTH_LONG).show();
+		                }
+		            });
+				}
 			}
 			
+			//TODO immediately get new messages.
 			return null;
 		}
 	}

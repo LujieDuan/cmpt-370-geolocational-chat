@@ -3,7 +3,6 @@ package comm;
 import java.io.UnsupportedEncodingException;
 
 import org.apache.http.entity.StringEntity;
-import org.joda.time.DateTime;
 
 import android.util.Log;
 

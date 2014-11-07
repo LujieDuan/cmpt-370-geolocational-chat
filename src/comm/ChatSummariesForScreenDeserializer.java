@@ -30,16 +30,13 @@ public class ChatSummariesForScreenDeserializer implements
 		Log.d("dbConnect","reached big deserializer");
 		JsonObject obj = arg0.getAsJsonObject();
 		JsonArray arr = obj.getAsJsonArray("chats");
-//		public ChatSummaryForScreen(String title, LatLng location, String[] tags, 
-//				ChatId chatId, String creatorUserName, int numMessages, int numMessagesRead, DateTime lastMessageTime) 
 		
 		ChatSummaryForScreen[] chats = new ChatSummaryForScreen[arr.size()];
 		Log.d("dbConnect", "array size: " + arr.size());
-		int i = 0;
 		
 		Iterator<JsonElement> iter = arr.iterator();
 		
-		while (iter.hasNext())
+		for (int i = 0; iter.hasNext(); i++)
 		{
 			Log.d("dbConnect", "reached while loop");
 			JsonObject innerObj = iter.next().getAsJsonObject();
@@ -68,7 +65,6 @@ public class ChatSummariesForScreenDeserializer implements
 			
 			chats[i] = new ChatSummaryForScreen(title, location, tags, chatId, 
 					creatorUserName, numMessages, numMessagesRead, lastMessageTime); 
-			i++;
 		}
 		
 		return new ChatSummariesForScreen(chats);
