@@ -13,7 +13,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import screen.chat.ChatActivity;
+import screen.chatCreation.ChatCreationActivity;
 import screen.inbox.InboxActivity;
+import screen.settings.SettingsActivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -28,6 +30,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -58,7 +61,7 @@ import data.inbox.ChatSummariesForScreen;
 import data.inbox.ChatSummaryForScreen;
 import data.newChatCreation.ChatSummaryToDb;
 
-public class MapActivity extends Activity {
+public class MapActivity extends ActionBarActivity {
 
 	static HashMap<String, ChatSummaryForScreen> chatSummaryMap = new HashMap<String, ChatSummaryForScreen>();
 	
@@ -145,7 +148,16 @@ public class MapActivity extends Activity {
 
 	@Override
 	  public boolean onOptionsItemSelected(MenuItem item) {
-	    return true;
+	    switch (item.getItemId())
+	    {
+	      case R.id.action_chat_creation:
+	        startActivity(new Intent(getApplicationContext(), ChatCreationActivity.class));
+	        break;
+	      case R.id.action_settings:
+	        startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
+	        break;
+	    }
+	    return super.onOptionsItemSelected(item);
 	  }
 	
 	@Override

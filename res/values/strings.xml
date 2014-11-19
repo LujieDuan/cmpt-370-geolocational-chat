@@ -4,6 +4,7 @@
     <string name="app_name">Local Messenger</string>
     <string name="team_name">Code Runners</string>
     <string name="action_settings">Settings</string>
+    <string name="action_create_chat">Create a Chat</string>
 	<string name="inbox_name">Name</string>
 	<string name="inbox_post">Post</string>
 	<string name="inbox_distance">Distance</string>

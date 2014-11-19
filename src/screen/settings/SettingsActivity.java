@@ -1,13 +1,13 @@
 package screen.settings;
 
 import coderunners.geolocationalchat.R;
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class SettingsActivity extends Activity {
+public class SettingsActivity extends ActionBarActivity {
 
   //TODO: Limited name size?
   public static final int MAX_NAME_LENGTH = Integer.MAX_VALUE;
