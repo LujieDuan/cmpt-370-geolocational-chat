@@ -30,6 +30,9 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Display;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
 import coderunners.geolocationalchat.R;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -133,6 +136,18 @@ public class MapActivity extends Activity {
 		return chatSummaries;
 	}
 
+	@Override
+	  public boolean onCreateOptionsMenu(Menu menu) {
+	    // Inflate the menu; this adds items to the action bar if it is present.
+	    getMenuInflater().inflate(R.menu.main, menu);
+	    return true;
+	  }
+
+	@Override
+	  public boolean onOptionsItemSelected(MenuItem item) {
+	    return true;
+	  }
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
