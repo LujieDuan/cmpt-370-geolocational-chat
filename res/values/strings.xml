@@ -9,7 +9,16 @@
 	<string name="inbox_distance">Distance</string>
 	<string name="inbox_time">Time</string>
 	<string name="inbox_replies">Replies</string>
-	<string name="message_prompt">Type a message&#8230;</string>
+	<string name="message_prompt">Enter a message&#8230;</string>
+	<string name="title_prompt">Enter a title&#8230;</string>
+	<string name="name_prompt">Enter a name&#8230;</string>
 	<string name="button_send">Send</string>
-    
+    <string name="button_submit">Submit</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="title">Title</string>
+    <string name="message">Message</string>
+    <string name="name">Name</string>
+    <string name="settings_title">Settings</string>
+    <string name="chat_creation_title">Create a Chat</string>
+	
 </resources>
