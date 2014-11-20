@@ -80,7 +80,7 @@ public class ChatCreationActivity extends ActionBarActivity {
 		{
 		  CheckBox checkBox = new CheckBox(getApplicationContext());
 		  checkBox.setText(tags.get(i));
-		  checkBox.setTextColor(getResources().getColor(R.color.abc_secondary_text_material_light));
+		  checkBox.setTextColor(getResources().getColor(R.color.abc_primary_text_material_light));
 		  checkBox.setButtonDrawable(id);
 		  tagsList.addView(checkBox);
 		}

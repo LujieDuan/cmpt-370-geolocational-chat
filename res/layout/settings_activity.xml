@@ -86,7 +86,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:clickable="false"
+                android:enabled="false"
                 android:text="@string/notification_created" />
             
             <RadioButton
@@ -95,7 +95,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:clickable="false"
+                android:enabled="false"
                 android:text="@string/notification_replied" />
             
             <RadioButton
@@ -104,7 +104,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:clickable="false"
+                android:enabled="false"
                 android:text="@string/notification_read" />
             
             <RadioButton
@@ -113,7 +113,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:clickable="false"
+                android:enabled="false"
                 android:text="@string/notification_all" />
             
         </LinearLayout>
