@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import org.joda.time.DateTime;
 
 /**
- * This object represents a set of {@link ChatMessageForScreen ChatMessages} that have
- * been sent by a single from a similar time and location. This allows messages
- * to be grouped togethor when displayed.
+ * This object represents a set of {@link ChatMessageForScreen ChatMessages} 
+ * that have been sent by a single from a similar time and location. This allows 
+ * messages to be grouped together when displayed.
  */
 public class ChatItem {
 
@@ -18,6 +18,16 @@ public class ChatItem {
       {
         addMessage(message);
       }
+    }
+    
+    public int numMessages()
+    {
+      return messages.size();
+    }
+    
+    public ChatMessageForScreen getChatMessageForScreen(int i)
+    {
+      return messages.get(i);
     }
     
 	public String getName()
