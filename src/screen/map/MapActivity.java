@@ -531,30 +531,25 @@ public class MapActivity extends ActionBarActivity {
 			}
 		}
 	}
-	
+
 	private class GetTagsTask extends AsyncTask<Void, Void, Void>
 	{
 		@Override
 		protected Void doInBackground(Void... params) {
 			try {
 				String responseString = HttpRequest.get(null, GET_TAGS_URI);
-//				JSONObject responseJson = new JSONObject(responseString);
-//				
-//				if (responseJson.getInt(TAG_SUCCESS) == 1)
-//				{
-					Gson gson = new Gson();
-					tags = gson.fromJson(responseString, String[].class);
-					
-					Log.d("dbConnect", "received tags. First tag: " + tags[0]);
-//				}
+
+				Gson gson = new Gson();
+				tags = gson.fromJson(responseString, String[].class);
+
+				Log.d("dbConnect", "received tags. First tag: " + tags[0]);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
-			
 			return null;
 		}
-		
+
 	}
 }
