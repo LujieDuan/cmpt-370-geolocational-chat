@@ -69,7 +69,7 @@ public class ChatActivity extends ActionBarActivity
 	    
 	    final ListView listView = (ListView) findViewById(R.id.listview);
 
-	    adapter = new MySimpleArrayAdapter(this, chat.chatItems);
+	    adapter = new MySimpleArrayAdapter(this, chat.getChatItems());
 	    listView.setAdapter(adapter);
 	    
 	    chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
@@ -170,10 +170,9 @@ public class ChatActivity extends ActionBarActivity
 	    public void run() 
 	    {
 	    	int lastMessageId = -1;
-	    	if (chat.chatItems.size() > 0)
-	    	{	
-	    		ArrayList<ChatMessageForScreen> messages = chat.chatItems.get(chat.chatItems.size() - 1).messages;
-	    		lastMessageId = messages.get(messages.size() - 1).messageId;
+	    	if (chat.numMessages() > 0)
+	    	{		    		
+	    		lastMessageId = chat.getChatMessageForScreen(chat.numMessages() - 1).messageId;
 	    	}
 	    	
 			TaskParams_GetNewMessages sendParams = new TaskParams_GetNewMessages(chatId, lastMessageId);

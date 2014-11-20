@@ -61,6 +61,61 @@
                 android:ems="10"
                 android:inputType="textMultiLine" />
             
+            <TextView
+	            android:id="@+id/textView2"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_marginLeft="16dp"
+	            android:layout_marginRight="16dp"
+	            android:layout_marginTop="14dp"
+	            android:text="@string/notifications"
+	            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <RadioButton
+                android:id="@+id/radioButton_notification_none"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:checked="true"
+                android:text="@string/notification_none" />
+
+            <RadioButton
+                android:id="@+id/radioButton_notification_created"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:enabled="false"
+                android:text="@string/notification_created" />
+            
+            <RadioButton
+                android:id="@+id/radioButton_notification_replied"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:enabled="false"
+                android:text="@string/notification_replied" />
+            
+            <RadioButton
+                android:id="@+id/radioButton_notification_read"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:enabled="false"
+                android:text="@string/notification_read" />
+            
+            <RadioButton
+                android:id="@+id/radioButton_notification_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:enabled="false"
+                android:text="@string/notification_all" />
+            
         </LinearLayout>
         
     </ScrollView>

@@ -21,4 +21,40 @@ public class Chat
 			}
 		}
 	}
+	
+	public ArrayList<ChatItem> getChatItems()
+	{
+	  return chatItems;
+	}
+	
+	/**
+	 * Returns the number of messages within the chat
+	 */
+	public int numMessages()
+	{
+	  int numMessages = 0;
+	  for(int i=0; i<chatItems.size(); i++)
+	  {
+	    numMessages += chatItems.get(i).numMessages();
+	  }
+	  return numMessages;
+	}
+	
+	/**
+	 * Returns the ith {@link ChatMessageForScreen} within the chat
+	 * @param i Index number of the message to be returned
+	 */
+	public ChatMessageForScreen getChatMessageForScreen(int i)
+	{
+	  int j = 0;
+	  int k = 0;
+	  
+	  while(j + chatItems.get(k).numMessages() < i)
+	  {
+	    j += chatItems.get(k).numMessages();
+	    k += 1;
+	  }
+	  
+	  return chatItems.get(k).getChatMessageForScreen(i - j);
+	}
 }

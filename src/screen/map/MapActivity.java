@@ -169,7 +169,7 @@ public class MapActivity extends ActionBarActivity {
 		
 		if (userName.isEmpty())
 		{
-			USER_ID_AND_NAME = new UserIdNamePair(deviceId, deviceId);
+			USER_ID_AND_NAME = new UserIdNamePair(deviceId, "Anonymous");
 			new SettingsActivity.SendNewUserNameTask().execute(USER_ID_AND_NAME);
 		}
 		else
