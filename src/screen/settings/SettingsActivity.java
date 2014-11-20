@@ -45,8 +45,7 @@ public class SettingsActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.settings_activity);
 		EditText editName = (EditText) findViewById(R.id.edit_name);
-		//TODO: Get user's name;
-		editName.setHint("Anonymous");
+		editName.setHint(MapActivity.USER_ID_AND_NAME.userName);
 	}
 
 	/**
