@@ -2,7 +2,6 @@ package screen.map;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -16,6 +15,7 @@ import screen.chat.ChatActivity;
 import screen.inbox.InboxActivity;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -28,11 +28,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.provider.Settings.Secure;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 import coderunners.geolocationalchat.R;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -48,34 +48,31 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-
 import comm.ChatSummariesForScreenDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetInbox;
-import comm.TaskParams_SendNewChat;
+
+import data.UserIdNamePair;
 import data.chat.ChatId;
 import data.inbox.ChatSummariesForScreen;
 import data.inbox.ChatSummaryForScreen;
-import data.newChatCreation.ChatSummaryToDb;
 
 public class MapActivity extends Activity {
 
 	static HashMap<String, ChatSummaryForScreen> chatSummaryMap = new HashMap<String, ChatSummaryForScreen>();
 	
+	public static final String SETTINGS_FILE_NAME = "GeolocationalChatStoredSettings";
+
 	public static String DEVICE_ID;
 	public static String USER_NAME = "John";
+	public static UserIdNamePair USER_ID_AND_NAME;
 	
 	private static final String GET_INBOX_URI = "http://cmpt370duan.byethost10.com/getchs.php"; 
-	private static final String SEND_NEW_CHAT_URI = "someOtherUri";
 	public static final String TAG_SUCCESS = "success";
 	private static final String TAG_CHATSUMMARY_ARRAY = "chats"; 
 	
-	static double LONG = 25;
-	static double LAT = 50;
-	
 	private static final int GET_INBOX_DELAY_SECONDS = 30;
 	
-//	String selectedMarkerId = "";
 	Marker selectedMarker = null;
 	boolean selectionAvailable = true;
 	
@@ -152,6 +149,13 @@ public class MapActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.map_activity);
+		
+		SharedPreferences settings = getSharedPreferences(SETTINGS_FILE_NAME, 0);
+		boolean silent = settings.getBoolean("silentMode", false);
+		
+		String device_id = Secure.getString(getBaseContext().getContentResolver(), Secure.ANDROID_ID);
+    	USER_ID_AND_NAME = new UserIdNamePair(device_id, device_id);
+
 		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 		
 		map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(52.1310799, -106.6341388), 14));
@@ -437,7 +441,7 @@ public class MapActivity extends Activity {
 		public void run() 
 		{
 			//TODO change these to be the actual location and tags, when those elements have been implemented.
-			LatLng l = new LatLng(LAT,LONG);
+			LatLng l = new LatLng(InboxActivity.LAT,InboxActivity.LONG);
 			String[] tags = {""};
 			TaskParams_GetInbox sendParams = new TaskParams_GetInbox(l, tags);
 			try {
@@ -505,25 +509,4 @@ public class MapActivity extends Activity {
 			}
 		}
 	}
-	
-    //This may have to go in the "new chat screen"
-    //TODO finish implementing this.
-    @SuppressWarnings("unused")
-	private class SendNewChatTask implements Runnable
-    {
-    	@Override
- 	    public void run() 
- 	    {
- 	    	ChatSummaryToDb c = new ChatSummaryToDb(
- 	    			"new chat title", new LatLng(LAT,LONG), new String[]{""}, "creator user id", "first message", 100, new DateTime());
- 			TaskParams_SendNewChat sendEntity = new TaskParams_SendNewChat(c);
- 			
- 			try {
- 				HttpRequest.post(sendEntity, SEND_NEW_CHAT_URI);
- 			} catch (IOException e) {
- 				e.printStackTrace();
- 				Log.e("dbConnect", e.toString());
- 			}
- 	    }
-    }
 }

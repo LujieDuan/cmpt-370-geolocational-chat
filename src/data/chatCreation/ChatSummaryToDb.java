@@ -1,4 +1,4 @@
-package data.newChatCreation;
+package data.chatCreation;
 
 import org.joda.time.DateTime;
 
@@ -8,9 +8,8 @@ import data.inbox.ChatSummary;
 
 public class ChatSummaryToDb extends ChatSummary 
 {
-	public String creatorUserId;
+	public String userId;
 	public String firstMessage;
-	public int range;
 	public DateTime maxEndTime;
 	
 	/**
@@ -25,13 +24,12 @@ public class ChatSummaryToDb extends ChatSummary
 	 * @param maxEndTime DateTime representing the maximum time that will pass before this chat is deleted.
 	 */
 	public ChatSummaryToDb(String title, LatLng location, String[] tags, 
-			String creatorUserId, String firstMessage, int range, DateTime maxEndTime)
+			String creatorUserId, String firstMessage, DateTime maxEndTime)
 	{
 		super(title, location, tags);
 		
-		this.creatorUserId = creatorUserId;
+		this.userId = creatorUserId;
 		this.firstMessage = firstMessage;
-		this.range = range;
 		this.maxEndTime = maxEndTime;
 	}
 }

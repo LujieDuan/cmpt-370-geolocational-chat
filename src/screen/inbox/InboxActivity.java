@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,6 +14,7 @@ import screen.chat.ChatActivity;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings.Secure;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,25 +31,25 @@ import com.google.gson.JsonSyntaxException;
 import comm.ChatSummariesForScreenDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetInbox;
-import comm.TaskParams_SendNewChat;
+import data.UserIdNamePair;
 import data.chat.ChatId;
 import data.inbox.ChatSummariesForScreen;
 import data.inbox.ChatSummaryForScreen;
-import data.newChatCreation.ChatSummaryToDb;
 
 
 public class InboxActivity extends ListActivity {
 	
 	public static String DEVICE_ID;
 	public static String USER_NAME = "John";
+	public static UserIdNamePair USER_ID_AND_NAME;
 	
 	private static final String GET_INBOX_URI = "http://cmpt370duan.byethost10.com/getchs.php"; 
-	private static final String SEND_NEW_CHAT_URI = "someOtherUri";
+
 	public static final String TAG_SUCCESS = "success";
 	private static final String TAG_CHATSUMMARY_ARRAY = "chats"; 
 	
-	static double LONG = 25;
-	static double LAT = 50;
+	public static double LONG = 25;
+	public static double LAT = 50;
 	
 	private static final int GET_INBOX_DELAY_SECONDS = 30;
 	
@@ -62,9 +62,9 @@ public class InboxActivity extends ListActivity {
     	
     	super.onCreate(savedInstanceState);
     	//TODO change this back.
-//    	DEVICE_ID = Secure.getString(getBaseContext().getContentResolver(), Secure.ANDROID_ID);
-    	DEVICE_ID = "markerId";
-
+    	String device_id = Secure.getString(getBaseContext().getContentResolver(), Secure.ANDROID_ID);
+    	USER_ID_AND_NAME = new UserIdNamePair(device_id, device_id);
+    	
         adapter = new InboxItemArrayAdapter(this, chatSummaries);
         setListAdapter(adapter);
         
@@ -148,25 +148,4 @@ public class InboxActivity extends ListActivity {
 			}
 	    }
 	}
-    
-    //This may have to go in the "new chat screen"
-    //TODO finish implementing this.
-    @SuppressWarnings("unused")
-	private class SendNewChatTask implements Runnable
-    {
-    	@Override
- 	    public void run() 
- 	    {
- 	    	ChatSummaryToDb c = new ChatSummaryToDb(
- 	    			"new chat title", new LatLng(LAT,LONG), new String[]{""}, "creator user id", "first message", 100, new DateTime());
- 			TaskParams_SendNewChat sendEntity = new TaskParams_SendNewChat(c);
- 			
- 			try {
- 				HttpRequest.post(sendEntity, SEND_NEW_CHAT_URI);
- 			} catch (IOException e) {
- 				e.printStackTrace();
- 				Log.e("dbConnect", e.toString());
- 			}
- 	    }
-    }
 }

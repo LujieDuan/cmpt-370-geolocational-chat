@@ -11,6 +11,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -33,15 +34,28 @@ public class HttpRequest
 		HttpPost request = new HttpPost(uri);
 		request.setEntity(se);
 		
-		Log.d("dbConnect", "request entity: " + request.getEntity().toString());
+		Log.d("dbConnect", "http post entity: " + request.getEntity().toString());
 		return executeRequest(request);
 	}
+	
+	public static String put(HttpPutEntity entity, String uri) throws ClientProtocolException, IOException
+	{
+		StringEntity se = entity.asJsonStringEntity();
+		se.setContentEncoding("UTF-8");
+		se.setContentType("application/json");
 
+		HttpPut request = new HttpPut(uri);
+		request.setEntity(se);
+		
+		Log.d("dbConnect", "http put entity: " + request.getEntity().toString());
+		return executeRequest(request);
+	}
+	
 	public static String get(HttpGetParams params, String uri) throws ClientProtocolException, IOException 
 	{
 		uri += "?" + params.getHttpStringForm();
 		
-		Log.d("dbConnect", "full uri string: " + uri);
+		Log.d("dbConnect", "full http get uri string: " + uri);
 		HttpGet request = new HttpGet(uri);         
 	    return executeRequest(request);
 	}
