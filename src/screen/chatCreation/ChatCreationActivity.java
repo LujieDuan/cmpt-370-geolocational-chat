@@ -22,10 +22,33 @@ import comm.HttpRequest;
 import comm.TaskParams_SendNewChat;
 import data.chatCreation.ChatSummaryToDb;
 
+/**
+ * The chat creation activity can be used by the user to create a new chat at
+ * their current location, adding a title and an initial message. In the future
+ * we'd like to add additional options such as a time limit once we add more
+ * moderation tools for the user.
+ */
 public class ChatCreationActivity extends ActionBarActivity {
 
 	//TODO: Character limitations?
-	public static final int MAX_TITLE_LENGTH = Integer.MAX_VALUE;
+    /**
+     * Minimum length of a title that can be submitted by a user
+     */
+	public static final int MIN_TITLE_LENGTH = 1;
+	
+	/**
+	 * Maximum length of a title that can be submitted by a user
+	 */
+    public static final int MAX_TITLE_LENGTH = Integer.MAX_VALUE;
+	
+    /**
+     * Minimum length of a message that can be submitted by a user
+     */
+	public static final int MIN_MESSAGE_LENGTH = 1;
+	
+	/**
+	 * Maximum length of a message that can be submitted by a user
+	 */
 	public static final int MAX_MESSAGE_LENGTH = Integer.MAX_VALUE;
 
 	private static final String SEND_NEW_CHAT_URI = "http://cmpt370duan.byethost10.com/createch.php";
@@ -33,7 +56,6 @@ public class ChatCreationActivity extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.chat_creation_activity);
 	}
 
@@ -61,17 +83,17 @@ public class ChatCreationActivity extends ActionBarActivity {
 		String title = editTitle.getText().toString().trim();
 		String message = editMessage.getText().toString().trim();
 
-		if(title.isEmpty())
+		if(title.length() < MIN_TITLE_LENGTH)
 		{
-			Toast.makeText(getApplicationContext(), "Please enter a title", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), "Your title must be longer than " + MIN_TITLE_LENGTH + " characeters", Toast.LENGTH_LONG).show();
 		}
 		else if(title.length() > MAX_TITLE_LENGTH) 
 		{
 			Toast.makeText(getApplicationContext(), "Your title must be no longer than " + MAX_TITLE_LENGTH + " characters", Toast.LENGTH_LONG).show();
 		}
-		else if(message.isEmpty())
+		else if(message.length() < MIN_MESSAGE_LENGTH)
 		{
-			Toast.makeText(getApplicationContext(), "Please enter a message", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), "Your message must be longer than " + MIN_MESSAGE_LENGTH + " characters", Toast.LENGTH_LONG).show();
 		}
 		else if(message.length() > MAX_MESSAGE_LENGTH) 
 		{
@@ -79,8 +101,6 @@ public class ChatCreationActivity extends ActionBarActivity {
 		}
 		else
 		{
-			
-			
 			new SendNewChatTask().execute(new ChatSummaryToDb(
 					title, new LatLng(InboxActivity.LAT,InboxActivity.LONG), new String[]{"fake tag 1", "fake tag 2"}, MapActivity.USER_ID_AND_NAME.userId, message, new DateTime()));
 
