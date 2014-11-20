@@ -30,7 +30,7 @@ public class HttpRequest
 		StringEntity se = entity.asJsonStringEntity();
 		se.setContentEncoding("UTF-8");
 		se.setContentType("application/json");
-
+		
 		HttpPost request = new HttpPost(uri);
 		request.setEntity(se);
 		
@@ -53,7 +53,9 @@ public class HttpRequest
 	
 	public static String get(HttpGetParams params, String uri) throws ClientProtocolException, IOException 
 	{
-		uri += "?" + params.getHttpStringForm();
+		//Some requests don't need or use params.
+		if (params != null)
+			uri += "?" + params.getHttpStringForm();
 		
 		Log.d("dbConnect", "full http get uri string: " + uri);
 		HttpGet request = new HttpGet(uri);         
@@ -62,14 +64,14 @@ public class HttpRequest
 	
 	private static String executeRequest(HttpRequestBase request) throws ClientProtocolException, IOException
 	{
+		
 		HttpParams params = request.getParams();
 	    HttpConnectionParams.setConnectionTimeout(params, TIMEOUT_MILLISEC);
 	    HttpConnectionParams.setSoTimeout(params, TIMEOUT_MILLISEC);
 	    HttpClient client = new DefaultHttpClient(params);
 	    
-	    Log.d("dbConnect", "trying to execute request...");
+	    Log.i("dbConnect","sending http request: " + request.toString());
 	    HttpResponse response = client.execute(request); 
-	    Log.i("dbConnect","send request: " + request.toString());
 	   
 	    HttpEntity entity = response.getEntity();
 	    InputStream is = entity.getContent();

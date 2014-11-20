@@ -7,7 +7,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.joda.time.DateTime;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -50,34 +49,36 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+
 import comm.ChatSummariesForScreenDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetInbox;
-
-import data.UserIdNamePair;
 import data.chat.ChatId;
 import data.inbox.ChatSummariesForScreen;
 import data.inbox.ChatSummaryForScreen;
+import data.user.UserIdNamePair;
 
 public class MapActivity extends ActionBarActivity {
 
 	static HashMap<String, ChatSummaryForScreen> chatSummaryMap = new HashMap<String, ChatSummaryForScreen>();
-	
-	public static final String SETTINGS_FILE_NAME = "GeolocationalChatStoredSettings";
 
-	public static String DEVICE_ID;
-	public static String USER_NAME = "John";
+	public static final String SETTINGS_FILE_NAME = "GeolocationalChatStoredSettings";
+	public static final String SETTINGS_KEY_USER_NAME = "userName";
+
 	public static UserIdNamePair USER_ID_AND_NAME;
+
+	private static final String GET_INBOX_URI = "http://cmpt370duan.byethost10.com/getchs.php";
+	private static final String GET_TAGS_URI = "http://cmpt370duan.byethost10.com/getalltags.php";
 	
-	private static final String GET_INBOX_URI = "http://cmpt370duan.byethost10.com/getchs.php"; 
+	private String[] tags;
+	
 	public static final String TAG_SUCCESS = "success";
-	private static final String TAG_CHATSUMMARY_ARRAY = "chats"; 
-	
+
 	private static final int GET_INBOX_DELAY_SECONDS = 30;
-	
+
 	Marker selectedMarker = null;
 	boolean selectionAvailable = true;
-	
+
 	static GoogleMap map;
 	static ArrayList<Marker> markerList = new ArrayList<Marker>();
 	static final float triangleScreenSizeX = 0.05f;
@@ -125,72 +126,83 @@ public class MapActivity extends ActionBarActivity {
 		LatLng location = new LatLng(52.1310799,-106.6341388);
 
 		chatSummaries.add(new ChatSummaryForScreen("Anyone up for ultimate frisbee?", location, new String[]{"sports", "fun"},
-				new ChatId(InboxActivity.DEVICE_ID, new DateTime()),"Josh Heinrichs", 40, 40, new DateTime()));
+				new ChatId(MapActivity.USER_ID_AND_NAME.userId, new DateTime()),"Josh Heinrichs", 40, 40, new DateTime()));
 
 		location = new LatLng(52.1310799,-106.6241388);
 
 		chatSummaries.add(new ChatSummaryForScreen("Anyone up for MORE ultimate frisbee?", location, new String[]{"sports", "fun"},
-				new ChatId(InboxActivity.DEVICE_ID, new DateTime()),"Josh Heinrichs", 80, 40, new DateTime()));
+				new ChatId(MapActivity.USER_ID_AND_NAME.userId, new DateTime()),"Josh Heinrichs", 80, 40, new DateTime()));
 
 		return chatSummaries;
 	}
 
 	@Override
-	  public boolean onCreateOptionsMenu(Menu menu) {
-	    // Inflate the menu; this adds items to the action bar if it is present.
-	    getMenuInflater().inflate(R.menu.main, menu);
-	    return true;
-	  }
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
 
 	@Override
-	  public boolean onOptionsItemSelected(MenuItem item) {
-	    switch (item.getItemId())
-	    {
-	      case R.id.action_chat_creation:
-	        startActivity(new Intent(getApplicationContext(), ChatCreationActivity.class));
-	        break;
-	      case R.id.action_settings:
-	        startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
-	        break;
-	    }
-	    return super.onOptionsItemSelected(item);
-	  }
-	
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId())
+		{
+		case R.id.action_chat_creation:
+			startActivity(new Intent(getApplicationContext(), ChatCreationActivity.class));
+			break;
+		case R.id.action_settings:
+			startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
+			break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.map_activity);
-		
-		SharedPreferences settings = getSharedPreferences(SETTINGS_FILE_NAME, 0);
-		boolean silent = settings.getBoolean("silentMode", false);
-		
-		String device_id = Secure.getString(getBaseContext().getContentResolver(), Secure.ANDROID_ID);
-    	USER_ID_AND_NAME = new UserIdNamePair(device_id, device_id);
 
-		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+		String deviceId = Secure.getString(getBaseContext().getContentResolver(), Secure.ANDROID_ID);
+
+		SharedPreferences settings = getSharedPreferences(SETTINGS_FILE_NAME, MODE_PRIVATE);
+		String userName = settings.getString(SETTINGS_KEY_USER_NAME, "");
 		
+		if (userName.isEmpty())
+		{
+			USER_ID_AND_NAME = new UserIdNamePair(deviceId, deviceId);
+			new SettingsActivity.SendNewUserNameTask().execute(USER_ID_AND_NAME);
+		}
+		else
+		{
+			USER_ID_AND_NAME = new UserIdNamePair(deviceId, userName);
+		}
+		
+		new GetTagsTask().execute();
+		
+		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+
 		map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(52.1310799, -106.6341388), 14));
 
 		// draw user view distance
 		map.addCircle(new CircleOptions().center(new LatLng(52.1310799, -106.6341388)).radius(1000)
 				.strokeColor(Color.argb(60, 255, 40, 50)).strokeWidth(5)
 				.fillColor(Color.argb(30, 255, 40, 50)));
-		
+
 		// create markers
-//		for (int i = 0; i < chatSummaries.size(); i++) {
-//			ChatSummaryForScreen chatSummary = chatSummaries.get(i);
-//
-//			LatLng location = new LatLng(chatSummary.location.latitude, chatSummary.location.longitude); 
-//
-//			Marker marker =
-//					map.addMarker(new MarkerOptions()
-//					.icon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(chatSummary)))
-//					.anchor(0.5f, 1.0f) // Anchors the marker on the bottom left
-//					.position(location));
-//			chatSummaryMap.put(marker.getId(), chatSummary);
-//		}
-	    ScheduledThreadPoolExecutor chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
-	    chatUpdateScheduler.scheduleWithFixedDelay(new GetInboxTask(), 0, GET_INBOX_DELAY_SECONDS, TimeUnit.SECONDS);
+		//		for (int i = 0; i < chatSummaries.size(); i++) {
+		//			ChatSummaryForScreen chatSummary = chatSummaries.get(i);
+		//
+		//			LatLng location = new LatLng(chatSummary.location.latitude, chatSummary.location.longitude); 
+		//
+		//			Marker marker =
+		//					map.addMarker(new MarkerOptions()
+		//					.icon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(chatSummary)))
+		//					.anchor(0.5f, 1.0f) // Anchors the marker on the bottom left
+		//					.position(location));
+		//			chatSummaryMap.put(marker.getId(), chatSummary);
+		//		}
+		ScheduledThreadPoolExecutor chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
+		chatUpdateScheduler.scheduleWithFixedDelay(new GetInboxTask(), 0, GET_INBOX_DELAY_SECONDS, TimeUnit.SECONDS);
 
 		map.setOnMarkerClickListener(new OnMarkerClickListener() {
 			@Override
@@ -198,7 +210,7 @@ public class MapActivity extends ActionBarActivity {
 				if (selectedMarker != null && selectedMarker.getId().equals(marker.getId())) {
 					Intent chatScreenIntent = new Intent(MapActivity.this, ChatActivity.class);
 					ChatId curChatId = chatSummaryMap.get(marker.getId()).chatId;
-					Log.d("intents", "chatId1: " + curChatId.toString());
+
 					chatScreenIntent.putExtra(ChatActivity.CHATID_STRING,curChatId);
 					startActivity(chatScreenIntent);
 				} else if (selectionAvailable) {
@@ -285,7 +297,7 @@ public class MapActivity extends ActionBarActivity {
 			selectionAvailable = false;
 
 			Marker marker = markers[0];
-			
+
 			ChatSummaryForScreen chatSummary = chatSummaryMap.get(marker.getId());
 
 			long startTime = System.currentTimeMillis();
@@ -446,6 +458,18 @@ public class MapActivity extends ActionBarActivity {
 		});
 	}
 
+	@Override
+	protected void onStop(){
+		super.onStop();
+
+		SharedPreferences settings = getSharedPreferences(SETTINGS_FILE_NAME, MODE_PRIVATE);
+		SharedPreferences.Editor editor = settings.edit();
+		editor.putString(SETTINGS_KEY_USER_NAME, USER_ID_AND_NAME.userName);
+
+		editor.commit();
+	}
+
+
 	private class GetInboxTask implements Runnable 
 	{
 		@Override
@@ -458,39 +482,28 @@ public class MapActivity extends ActionBarActivity {
 			try {
 				String responseString = HttpRequest.get(sendParams, GET_INBOX_URI);
 				JSONObject responseJson = new JSONObject(responseString);
+
 				if (responseJson.getInt(TAG_SUCCESS) == 1)
 				{
-					JSONArray summaries = responseJson.getJSONArray(TAG_CHATSUMMARY_ARRAY);
-
-					Log.d("dbConnect", "chat summaries: " + summaries);
-					Log.d("dbConnect", "trying to convert json...");
 					GsonBuilder gsonBuilder = new GsonBuilder();
 					gsonBuilder.registerTypeAdapter(ChatSummariesForScreen.class, new ChatSummariesForScreenDeserializer());
 					Gson gson = gsonBuilder.create();
 					final ChatSummaryForScreen[] newChatSummaries = gson.fromJson(responseString, ChatSummariesForScreen.class).chats;
 
-					Log.d("dbConnect", "new chat summaries title one: " + newChatSummaries[0].title);
-
-//					ArrayList<ChatSummaryForScreen> newChatSummariesList = new ArrayList<ChatSummaryForScreen>(Arrays.asList(newChatSummaries));
-//					int numChats = newChatSummariesList.size();
-					
-//					map.clear();
-					
-					//					Log.d("dbConnect", "cleared map");
+					//TODO: Synchronize this clearing with the clicking on chats. 
 					chatSummaryMap.clear();
 					markerList.clear();
-					Log.d("dbConnect", "cleared summaries");
 					runOnUiThread(new Runnable() {
-						
+
 						@Override
 						public void run() {
 							for(int i=0; i<markerList.size(); i++)
 							{
 								markerList.get(i).remove();
-							}							
+							}
+
 							for (int i = 0; i < newChatSummaries.length; i++)
 							{
-								Log.d("dbConnect", "reached for loop");
 								ChatSummaryForScreen curChatSummary = newChatSummaries[i];
 
 								Marker marker =
@@ -498,20 +511,18 @@ public class MapActivity extends ActionBarActivity {
 										.icon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(curChatSummary)))
 										.anchor(0.5f, 1.0f) // Anchors the marker on the bottom left
 										.position(curChatSummary.location));
-								
+
 								markerList.add(marker);
-								
+
 								chatSummaryMap.put(marker.getId(), curChatSummary);
-
-								Log.d("dbConnect", "added chat to map");
-
-
-								Log.d("dbConnect", "added new marker " + i);
 							}
+
+							Log.d("dbConnect", "Cleared and replaced chat summaries, on the map screen.");
 						}
 					});
 				}
 			} catch (IOException | JsonSyntaxException e) {
+				//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.
 				e.printStackTrace();
 				Log.e("dbConnect", e.toString());
 			} catch (JSONException e) {
@@ -519,5 +530,31 @@ public class MapActivity extends ActionBarActivity {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	private class GetTagsTask extends AsyncTask<Void, Void, Void>
+	{
+		@Override
+		protected Void doInBackground(Void... params) {
+			try {
+				String responseString = HttpRequest.get(null, GET_TAGS_URI);
+//				JSONObject responseJson = new JSONObject(responseString);
+//				
+//				if (responseJson.getInt(TAG_SUCCESS) == 1)
+//				{
+					Gson gson = new Gson();
+					tags = gson.fromJson(responseString, String[].class);
+					
+					Log.d("dbConnect", "received tags. First tag: " + tags[0]);
+//				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			
+			return null;
+		}
+		
 	}
 }

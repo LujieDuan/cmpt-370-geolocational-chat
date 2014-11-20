@@ -8,9 +8,10 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
-import data.UserIdNamePair;
+import data.user.UserIdNamePair;
 
-public class TaskParams_SendNewUserName extends HttpPutEntity 
+//TODO: Change this back to extending HttpPutEntity, should the opportunity arise.
+public class TaskParams_SendNewUserName extends HttpPostEntity 
 {
 	public UserIdNamePair newUserIdNamePair;
 	
@@ -26,7 +27,7 @@ public class TaskParams_SendNewUserName extends HttpPutEntity
 
 		String jsonString = gson.toJson(newUserIdNamePair);
 		
-		Log.d("dbConnect", "send string: " + jsonString);
+		Log.d("dbConnect", "json string for new username to send: " + jsonString);
 		StringEntity se = null;
 		try {
 			se = new StringEntity(jsonString);

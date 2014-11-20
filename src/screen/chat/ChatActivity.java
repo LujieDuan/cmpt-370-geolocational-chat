@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import screen.inbox.InboxActivity;
+import screen.map.MapActivity;
 import android.content.Context;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -31,11 +32,11 @@ import coderunners.geolocationalchat.R;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+
 import comm.DateTimeDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetNewMessages;
 import comm.TaskParams_SendNewMessage;
-
 import data.chat.Chat;
 import data.chat.ChatId;
 import data.chat.ChatItem;
@@ -66,8 +67,6 @@ public class ChatActivity extends ActionBarActivity
 	    
 	    chatId = getIntent().getExtras().getParcelable(CHATID_STRING);
 	    
-	    Log.d("intents", "chatId2: " + chatId.toString());
-	    
 	    final ListView listView = (ListView) findViewById(R.id.listview);
 
 	    adapter = new MySimpleArrayAdapter(this, chat.chatItems);
@@ -85,10 +84,10 @@ public class ChatActivity extends ActionBarActivity
 		if(!message.equals(""))
 		{
 			//TODO implement a dummy message, for immediate viewing.
-//			chat.addMessages(new ChatMessageForScreen(message,InboxActivity.DEVICE_ID,InboxActivity.USER_NAME, FAKE_MESSAGE_ID, new DateTime()));
+//			chat.addMessages(new ChatMessageForScreen(message,MapActivity.USER_ID_AND_NAME.userId,MapActivity.USER_ID_AND_NAME.userName, FAKE_MESSAGE_ID, new DateTime()));
 //			onChatUpdated();
 		
-			new SendNewMessageTask().execute(new ChatMessageToDb(message, InboxActivity.DEVICE_ID, chatId));
+			new SendNewMessageTask().execute(new ChatMessageToDb(message, MapActivity.USER_ID_AND_NAME.userId, chatId));
 		}
 	}
 
@@ -109,8 +108,7 @@ public class ChatActivity extends ActionBarActivity
 			
 			View itemView;
 			
-			//TODO: Should check by Phone ID rather than name
-			if(values.get(position).getUserId().equals(InboxActivity.DEVICE_ID))
+			if(values.get(position).getUserId().equals(MapActivity.USER_ID_AND_NAME.userId))
 			{
 				itemView = inflater.inflate(R.layout.chat_item_me, parent, false);
 				LinearLayout bubbleList = (LinearLayout) itemView.findViewById(R.id.chat_bubble_list);
@@ -210,6 +208,7 @@ public class ChatActivity extends ActionBarActivity
 			} catch (IOException | JsonSyntaxException e) {
 				e.printStackTrace();
 				
+				//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.
 				retryCount++;
 				Log.e("dbConnect", e.toString() + "\nretry count: " + retryCount);
 				if (retryCount >= NUM_RETRY_ATTEMPTS)
@@ -237,6 +236,7 @@ public class ChatActivity extends ActionBarActivity
 			} catch (IOException e) {
 				e.printStackTrace();
 				
+				//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.
 				retryCount++;
 				Log.e("dbConnect", e.toString() + "\nretry count: " + retryCount);
 				if (retryCount >= NUM_RETRY_ATTEMPTS)

@@ -1,4 +1,4 @@
-package data;
+package data.user;
 
 public class UserIdNamePair 
 {

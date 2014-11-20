@@ -28,7 +28,7 @@ public class TaskParams_SendNewMessage extends HttpPostEntity {
 		
 		String jsonString = gson.toJson(newChatMessage);
 		
-		Log.d("dbConnect", "send string: " + jsonString);
+		Log.d("dbConnect", "json string for new message to send: " + jsonString);
 		StringEntity se = null;
 		try {
 			se = new StringEntity(jsonString);

@@ -27,18 +27,17 @@ public class ChatSummariesForScreenDeserializer implements
 	@Override
 	public ChatSummariesForScreen deserialize(JsonElement arg0, Type arg1,
 			JsonDeserializationContext arg2) throws JsonParseException {
-		Log.d("dbConnect","reached big deserializer");
+	
 		JsonObject obj = arg0.getAsJsonObject();
 		JsonArray arr = obj.getAsJsonArray("chats");
 		
 		ChatSummaryForScreen[] chats = new ChatSummaryForScreen[arr.size()];
-		Log.d("dbConnect", "array size: " + arr.size());
+		
 		
 		Iterator<JsonElement> iter = arr.iterator();
 		
 		for (int i = 0; iter.hasNext(); i++)
 		{
-			Log.d("dbConnect", "reached while loop");
 			JsonObject innerObj = iter.next().getAsJsonObject();
 			
 			String title = innerObj.get("title").getAsString();

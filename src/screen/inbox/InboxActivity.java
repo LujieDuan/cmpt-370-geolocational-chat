@@ -31,10 +31,10 @@ import com.google.gson.JsonSyntaxException;
 import comm.ChatSummariesForScreenDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetInbox;
-import data.UserIdNamePair;
 import data.chat.ChatId;
 import data.inbox.ChatSummariesForScreen;
 import data.inbox.ChatSummaryForScreen;
+import data.user.UserIdNamePair;
 
 
 public class InboxActivity extends ListActivity {

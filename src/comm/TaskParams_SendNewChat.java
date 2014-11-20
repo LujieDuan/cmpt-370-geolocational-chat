@@ -4,6 +4,8 @@ import java.io.UnsupportedEncodingException;
 
 import org.apache.http.entity.StringEntity;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -25,7 +27,8 @@ public class TaskParams_SendNewChat extends HttpPostEntity
 	    Gson gson = gsonBuilder.create();
 
 		String jsonString = gson.toJson(newChatSummary);
-
+		
+		Log.d("dbConnect","json string for new chat to send: " + jsonString);
 		StringEntity se = null;
 		try {
 			se = new StringEntity(jsonString);

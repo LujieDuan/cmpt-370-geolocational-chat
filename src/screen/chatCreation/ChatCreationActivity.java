@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.joda.time.DateTime;
 
 import screen.inbox.InboxActivity;
+import screen.map.MapActivity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -16,9 +17,9 @@ import android.widget.Toast;
 import coderunners.geolocationalchat.R;
 
 import com.google.android.gms.maps.model.LatLng;
+
 import comm.HttpRequest;
 import comm.TaskParams_SendNewChat;
-
 import data.chatCreation.ChatSummaryToDb;
 
 public class ChatCreationActivity extends ActionBarActivity {
@@ -27,7 +28,7 @@ public class ChatCreationActivity extends ActionBarActivity {
 	public static final int MAX_TITLE_LENGTH = Integer.MAX_VALUE;
 	public static final int MAX_MESSAGE_LENGTH = Integer.MAX_VALUE;
 
-	private static final String SEND_NEW_CHAT_URI = "someOtherUri";
+	private static final String SEND_NEW_CHAT_URI = "http://cmpt370duan.byethost10.com/createch.php";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -78,8 +79,10 @@ public class ChatCreationActivity extends ActionBarActivity {
 		}
 		else
 		{
+			
+			
 			new SendNewChatTask().execute(new ChatSummaryToDb(
-					"new chat title", new LatLng(InboxActivity.LAT,InboxActivity.LONG), new String[]{""}, "creator user id", "first message", new DateTime()));
+					title, new LatLng(InboxActivity.LAT,InboxActivity.LONG), new String[]{"fake tag 1", "fake tag 2"}, MapActivity.USER_ID_AND_NAME.userId, message, new DateTime()));
 
 			finish();
 		}
@@ -91,10 +94,11 @@ public class ChatCreationActivity extends ActionBarActivity {
 		protected Void doInBackground(ChatSummaryToDb... params) 
 		{
 			TaskParams_SendNewChat sendEntity = new TaskParams_SendNewChat(params[0]);
-
+			
 			try {
 				HttpRequest.post(sendEntity, SEND_NEW_CHAT_URI);
 			} catch (IOException e) {
+				//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.
 				e.printStackTrace();
 				Log.e("dbConnect", e.toString());
 			}
