@@ -18,8 +18,11 @@
     <string name="button_cancel">Cancel</string>
     <string name="title">Title</string>
     <string name="message">Message</string>
+    <string name="tags">Tags</string>
     <string name="name">Name</string>
     <string name="settings_title">Settings</string>
     <string name="chat_creation_title">Create a Chat</string>
+    <string name="end_time">End Time</string>
+    
 	
 </resources>

@@ -2,17 +2,21 @@ package screen.chatCreation;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.joda.time.DateTime;
 
 import screen.inbox.InboxActivity;
 import screen.map.MapActivity;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import coderunners.geolocationalchat.R;
 
@@ -53,10 +57,33 @@ public class ChatCreationActivity extends ActionBarActivity {
 
 	private static final String SEND_NEW_CHAT_URI = "http://cmpt370duan.byethost10.com/createch.php";
 
+	/**
+	 * Creates a new Chat Creation window.
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.chat_creation_activity);
+		
+		//TODO: Grab tags from database
+		ArrayList<String> tags = new ArrayList<String>();
+		tags.add("Sports");
+		tags.add("Event");
+		tags.add("Food");
+		tags.add("Games");
+		tags.add("Request");
+		
+		LinearLayout tagsList = (LinearLayout) findViewById(R.id.tags_list);
+		int id = Resources.getSystem().getIdentifier("btn_check_holo_light", "drawable", "android");
+		
+		for(int i=0; i<tags.size(); i++)
+		{
+		  CheckBox checkBox = new CheckBox(getApplicationContext());
+		  checkBox.setText(tags.get(i));
+		  checkBox.setTextColor(getResources().getColor(R.color.abc_secondary_text_material_light));
+		  checkBox.setButtonDrawable(id);
+		  tagsList.addView(checkBox);
+		}
 	}
 
 
