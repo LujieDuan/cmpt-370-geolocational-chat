@@ -11,11 +11,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import screen.inbox.InboxActivity;
-import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,11 +31,11 @@ import coderunners.geolocationalchat.R;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-
 import comm.DateTimeDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetNewMessages;
 import comm.TaskParams_SendNewMessage;
+
 import data.chat.Chat;
 import data.chat.ChatId;
 import data.chat.ChatItem;
@@ -43,7 +43,7 @@ import data.chat.ChatMessageForScreen;
 import data.chat.ChatMessageToDb;
 import data.chat.ChatMessagesForScreen;
 
-public class ChatActivity extends Activity
+public class ChatActivity extends ActionBarActivity
 {
 	private static final String GET_NEW_MESSAGES_URI = "http://cmpt370duan.byethost10.com/getmess.php";
 	private static final String SEND_NEW_MESSAGE_URI = "http://cmpt370duan.byethost10.com/create_message.php";

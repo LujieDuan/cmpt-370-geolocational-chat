@@ -24,11 +24,11 @@ public class ChatSummaryToDb extends ChatSummary
 	 * @param maxEndTime DateTime representing the maximum time that will pass before this chat is deleted.
 	 */
 	public ChatSummaryToDb(String title, LatLng location, String[] tags, 
-			String creatorUserId, String firstMessage, DateTime maxEndTime)
+			String userId, String firstMessage, DateTime maxEndTime)
 	{
 		super(title, location, tags);
 		
-		this.userId = creatorUserId;
+		this.userId = userId;
 		this.firstMessage = firstMessage;
 		this.maxEndTime = maxEndTime;
 	}

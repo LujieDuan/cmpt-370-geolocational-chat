@@ -1,13 +1,14 @@
 package screen.chatCreation;
 
+
 import java.io.IOException;
 
 import org.joda.time.DateTime;
 
 import screen.inbox.InboxActivity;
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -15,12 +16,12 @@ import android.widget.Toast;
 import coderunners.geolocationalchat.R;
 
 import com.google.android.gms.maps.model.LatLng;
-
 import comm.HttpRequest;
 import comm.TaskParams_SendNewChat;
+
 import data.chatCreation.ChatSummaryToDb;
 
-public class ChatCreationActivity extends Activity {
+public class ChatCreationActivity extends ActionBarActivity {
 
 	//TODO: Character limitations?
 	public static final int MAX_TITLE_LENGTH = Integer.MAX_VALUE;
