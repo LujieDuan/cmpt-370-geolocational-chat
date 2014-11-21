@@ -8,7 +8,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
-import data.user.UserIdNamePair;
+import data.global.UserIdNamePair;
 
 //TODO: Change this back to extending HttpPutEntity, should the opportunity arise.
 public class TaskParams_SendNewUserName extends HttpPostEntity 

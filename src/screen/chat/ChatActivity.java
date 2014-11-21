@@ -11,7 +11,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import screen.inbox.InboxActivity;
-import screen.map.MapActivity;
 import android.content.Context;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -32,17 +31,18 @@ import coderunners.geolocationalchat.R;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-
 import comm.DateTimeDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetNewMessages;
 import comm.TaskParams_SendNewMessage;
+
 import data.chat.Chat;
 import data.chat.ChatId;
 import data.chat.ChatItem;
 import data.chat.ChatMessageForScreen;
 import data.chat.ChatMessageToDb;
 import data.chat.ChatMessagesForScreen;
+import data.global.GlobalSettings;
 
 public class ChatActivity extends ActionBarActivity
 {
@@ -87,7 +87,7 @@ public class ChatActivity extends ActionBarActivity
 //			chat.addMessages(new ChatMessageForScreen(message,MapActivity.USER_ID_AND_NAME.userId,MapActivity.USER_ID_AND_NAME.userName, FAKE_MESSAGE_ID, new DateTime()));
 //			onChatUpdated();
 		
-			new SendNewMessageTask().execute(new ChatMessageToDb(message, MapActivity.USER_ID_AND_NAME.userId, chatId));
+			new SendNewMessageTask().execute(new ChatMessageToDb(message, GlobalSettings.userIdAndName.userId, chatId));
 		}
 	}
 
@@ -108,7 +108,7 @@ public class ChatActivity extends ActionBarActivity
 			
 			View itemView;
 			
-			if(values.get(position).getUserId().equals(MapActivity.USER_ID_AND_NAME.userId))
+			if(values.get(position).getUserId().equals(GlobalSettings.userIdAndName.userId))
 			{
 				itemView = inflater.inflate(R.layout.chat_item_me, parent, false);
 				LinearLayout bubbleList = (LinearLayout) itemView.findViewById(R.id.chat_bubble_list);
@@ -231,8 +231,18 @@ public class ChatActivity extends ActionBarActivity
 			
 			int retryCount = 0;
 			try {
-				HttpRequest.post(sendEntity, SEND_NEW_MESSAGE_URI);
-			} catch (IOException e) {
+				String responseString = HttpRequest.post(sendEntity, SEND_NEW_MESSAGE_URI);
+				JSONObject responseJson = new JSONObject(responseString);
+
+				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) == 1)
+				{
+					//TODO set user name here
+				}
+				else
+				{
+					//TODO make failure toast. 
+				}
+			} catch (IOException | JSONException e) {
 				e.printStackTrace();
 				
 				//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.

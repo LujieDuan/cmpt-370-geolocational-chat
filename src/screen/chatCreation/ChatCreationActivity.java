@@ -5,9 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.joda.time.DateTime;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import screen.inbox.InboxActivity;
-import screen.map.MapActivity;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import com.google.android.gms.maps.model.LatLng;
 import comm.HttpRequest;
 import comm.TaskParams_SendNewChat;
 import data.chatCreation.ChatSummaryToDb;
+import data.global.GlobalSettings;
 
 /**
  * The chat creation activity can be used by the user to create a new chat at
@@ -129,7 +131,7 @@ public class ChatCreationActivity extends ActionBarActivity {
 		else
 		{
 			new SendNewChatTask().execute(new ChatSummaryToDb(
-					title, new LatLng(InboxActivity.LAT,InboxActivity.LONG), new String[]{"fake tag 1", "fake tag 2"}, MapActivity.USER_ID_AND_NAME.userId, message, new DateTime()));
+					title, new LatLng(InboxActivity.LAT,InboxActivity.LONG), new String[]{"fake tag 1", "fake tag 2"}, GlobalSettings.userIdAndName.userId, message, new DateTime()));
 
 			finish();
 		}
@@ -143,8 +145,18 @@ public class ChatCreationActivity extends ActionBarActivity {
 			TaskParams_SendNewChat sendEntity = new TaskParams_SendNewChat(params[0]);
 			
 			try {
-				HttpRequest.post(sendEntity, SEND_NEW_CHAT_URI);
-			} catch (IOException e) {
+				String responseString = HttpRequest.post(sendEntity, SEND_NEW_CHAT_URI);
+				JSONObject responseJson = new JSONObject(responseString);
+
+				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) == 1)
+				{
+					//TODO set user name here
+				}
+				else
+				{
+					//TODO make failure toast. 
+				}
+			} catch (IOException | JSONException e) {
 				//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.
 				e.printStackTrace();
 				Log.e("dbConnect", e.toString());

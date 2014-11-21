@@ -49,14 +49,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-
 import comm.ChatSummariesForScreenDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetInbox;
+
 import data.chat.ChatId;
+import data.global.GlobalSettings;
+import data.global.UserIdNamePair;
 import data.inbox.ChatSummariesForScreen;
 import data.inbox.ChatSummaryForScreen;
-import data.user.UserIdNamePair;
 
 public class MapActivity extends ActionBarActivity {
 
@@ -65,12 +66,8 @@ public class MapActivity extends ActionBarActivity {
 	public static final String SETTINGS_FILE_NAME = "GeolocationalChatStoredSettings";
 	public static final String SETTINGS_KEY_USER_NAME = "userName";
 
-	public static UserIdNamePair USER_ID_AND_NAME;
-
 	private static final String GET_INBOX_URI = "http://cmpt370duan.byethost10.com/getchs.php";
 	private static final String GET_TAGS_URI = "http://cmpt370duan.byethost10.com/getalltags.php";
-	
-	private String[] tags;
 	
 	public static final String TAG_SUCCESS = "success";
 
@@ -126,12 +123,12 @@ public class MapActivity extends ActionBarActivity {
 		LatLng location = new LatLng(52.1310799,-106.6341388);
 
 		chatSummaries.add(new ChatSummaryForScreen("Anyone up for ultimate frisbee?", location, new String[]{"sports", "fun"},
-				new ChatId(MapActivity.USER_ID_AND_NAME.userId, new DateTime()),"Josh Heinrichs", 40, 40, new DateTime()));
+				new ChatId(GlobalSettings.userIdAndName.userId, new DateTime()),"Josh Heinrichs", 40, 40, new DateTime()));
 
 		location = new LatLng(52.1310799,-106.6241388);
 
 		chatSummaries.add(new ChatSummaryForScreen("Anyone up for MORE ultimate frisbee?", location, new String[]{"sports", "fun"},
-				new ChatId(MapActivity.USER_ID_AND_NAME.userId, new DateTime()),"Josh Heinrichs", 80, 40, new DateTime()));
+				new ChatId(GlobalSettings.userIdAndName.userId, new DateTime()),"Josh Heinrichs", 80, 40, new DateTime()));
 
 		return chatSummaries;
 	}
@@ -169,22 +166,23 @@ public class MapActivity extends ActionBarActivity {
 		
 		if (userName.isEmpty())
 		{
-			USER_ID_AND_NAME = new UserIdNamePair(deviceId, "Anonymous");
-			new SettingsActivity.SendNewUserNameTask().execute(USER_ID_AND_NAME);
+			//The SendNewUserNameTask changes the global userIdAndName for us.
+			new SettingsActivity.SendNewUserNameTask().execute(new UserIdNamePair(deviceId, deviceId));
 		}
 		else
 		{
-			USER_ID_AND_NAME = new UserIdNamePair(deviceId, userName);
+			GlobalSettings.userIdAndName = new UserIdNamePair(deviceId, userName);
 		}
 		
 		new GetTagsTask().execute();
 		
 		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-
-		map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(52.1310799, -106.6341388), 14));
+		
+		LatLng curPhoneLocation = GlobalSettings.curPhoneLocation;
+		map.moveCamera(CameraUpdateFactory.newLatLngZoom(curPhoneLocation, 14));
 
 		// draw user view distance
-		map.addCircle(new CircleOptions().center(new LatLng(52.1310799, -106.6341388)).radius(1000)
+		map.addCircle(new CircleOptions().center(curPhoneLocation).radius(1000)
 				.strokeColor(Color.argb(60, 255, 40, 50)).strokeWidth(5)
 				.fillColor(Color.argb(30, 255, 40, 50)));
 
@@ -464,8 +462,11 @@ public class MapActivity extends ActionBarActivity {
 
 		SharedPreferences settings = getSharedPreferences(SETTINGS_FILE_NAME, MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
-		editor.putString(SETTINGS_KEY_USER_NAME, USER_ID_AND_NAME.userName);
-
+		
+		UserIdNamePair userIdAndName = GlobalSettings.userIdAndName;
+		if (userIdAndName != null && !userIdAndName.userName.isEmpty())
+			editor.putString(SETTINGS_KEY_USER_NAME, GlobalSettings.userIdAndName.userName);
+			
 		editor.commit();
 	}
 
@@ -538,11 +539,12 @@ public class MapActivity extends ActionBarActivity {
 		protected Void doInBackground(Void... params) {
 			try {
 				String responseString = HttpRequest.get(null, GET_TAGS_URI);
-
+				
 				Gson gson = new Gson();
-				tags = gson.fromJson(responseString, String[].class);
-
-				Log.d("dbConnect", "received tags. First tag: " + tags[0]);
+				String[] newTags = gson.fromJson(responseString, String[].class);
+				GlobalSettings.tags = newTags;
+				
+				Log.d("dbConnect", "received tags. First tag: " + newTags[0]);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
