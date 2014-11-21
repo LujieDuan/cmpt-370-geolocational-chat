@@ -32,6 +32,7 @@ import android.os.SystemClock;
 import android.provider.Settings.Secure;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.util.MutableBoolean;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -64,7 +65,7 @@ import data.inbox.ChatSummaryForScreen;
 
 public class MapActivity extends ActionBarActivity {
 
-	static HashMap<String, ChatSummaryForScreen> chatSummaryMap = new HashMap<String, ChatSummaryForScreen>();
+	
 
 	public static final String SETTINGS_FILE_NAME = "GeolocationalChatStoredSettings";
 	public static final String SETTINGS_KEY_USER_NAME = "userName";
@@ -75,12 +76,17 @@ public class MapActivity extends ActionBarActivity {
 	public static final String TAG_SUCCESS = "success";
 
 	private static final int GET_INBOX_DELAY_SECONDS = 30;
-
+	
+	static GoogleMap map;
+	
+	Circle userCircle;
+    
 	Marker selectedMarker = null;
 	boolean selectionAvailable = true;
 
-	static GoogleMap map;
 	static ArrayList<Marker> markerList = new ArrayList<Marker>();
+	static HashMap<String, ChatSummaryForScreen> chatSummaryMap = new HashMap<String, ChatSummaryForScreen>();
+	
 	static final float triangleScreenSizeX = 0.05f;
 	static final float triangleScreenSizeY = (float) (triangleScreenSizeX * Math.sqrt(0.75));
 
@@ -90,78 +96,14 @@ public class MapActivity extends ActionBarActivity {
 	static final float bubbleSelectedScreenSizeX = 0.67f;
 	static final float bubbleSelectedScreenSizeY = 0.33f;
 
-	final int MARKER_UPDATE_INTERVAL = 2000; /* milliseconds */
+	final int MARKER_UPDATE_INTERVAL = 1000; 
 	Handler handler = new Handler();
-
-	Runnable updateMarker = new Runnable() {
-		@Override
-		public void run() {
-			selectionAvailable = false;
-
-			long startTime = System.currentTimeMillis();
-			long endTime = startTime + 1000;
-			long currTime;
-
-			do {
-				try {
-					Thread.sleep(33);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-
-				currTime = Math.min(System.currentTimeMillis(), endTime);
-				float percentElapsed = (currTime - startTime) / (endTime - startTime);
-
-				selectedMarker.setPosition(new LatLng(52.1310799, -106.6341388 + (-106.6341388 - -106.6241388) * percentElapsed));
-			} while (currTime < endTime);
-
-			selectionAvailable = true;
-		}
-	};
-
-	// TODO:
-	ArrayList<ChatSummaryForScreen> generateChatSummaries() {
-		ArrayList<ChatSummaryForScreen> chatSummaries = new ArrayList<ChatSummaryForScreen>();
-
-		LatLng location = new LatLng(52.1310799,-106.6341388);
-
-		chatSummaries.add(new ChatSummaryForScreen("Anyone up for ultimate frisbee?", location, new ArrayList<String>(Arrays.asList(new String[]{"sports", "fun"})),
-				new ChatId(GlobalSettings.userIdAndName.userId, new DateTime()),"Josh Heinrichs", 40, 40, new DateTime()));
-
-		location = new LatLng(52.1310799,-106.6241388);
-
-		chatSummaries.add(new ChatSummaryForScreen("Anyone up for MORE ultimate frisbee?", location, new ArrayList<String>(Arrays.asList(new String[]{"sports", "fun"})),
-				new ChatId(GlobalSettings.userIdAndName.userId, new DateTime()),"Josh Heinrichs", 80, 40, new DateTime()));
-
-		return chatSummaries;
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId())
-		{
-		case R.id.action_chat_creation:
-			startActivity(new Intent(getApplicationContext(), ChatCreationActivity.class));
-			break;
-		case R.id.action_settings:
-			startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
-			break;
-		}
-		return super.onOptionsItemSelected(item);
-	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.map_activity);
-
+		
 		String deviceId = Secure.getString(getBaseContext().getContentResolver(), Secure.ANDROID_ID);
 
 		SharedPreferences settings = getSharedPreferences(SETTINGS_FILE_NAME, MODE_PRIVATE);
@@ -182,21 +124,15 @@ public class MapActivity extends ActionBarActivity {
 		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 		
 		LatLng curPhoneLocation = GlobalSettings.curPhoneLocation;
+        
 		map.moveCamera(CameraUpdateFactory.newLatLngZoom(curPhoneLocation, 14));
 
-		// create markers
-		//		for (int i = 0; i < chatSummaries.size(); i++) {
-		//			ChatSummaryForScreen chatSummary = chatSummaries.get(i);
-		//
-		//			LatLng location = new LatLng(chatSummary.location.latitude, chatSummary.location.longitude); 
-		//
-		//			Marker marker =
-		//					map.addMarker(new MarkerOptions()
-		//					.icon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(chatSummary)))
-		//					.anchor(0.5f, 1.0f) // Anchors the marker on the bottom left
-		//					.position(location));
-		//			chatSummaryMap.put(marker.getId(), chatSummary);
-		//		}
+	    userCircle = 
+	        map.addCircle(new CircleOptions().radius(1000)
+	            .strokeColor(Color.argb(60, 255, 40, 50))
+	            .strokeWidth(5)
+	            .fillColor(Color.argb(30, 255, 40, 50)).center(new LatLng(52.1310799, -106.6341388)));
+		
 		ScheduledThreadPoolExecutor chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
 		chatUpdateScheduler.scheduleWithFixedDelay(new GetInboxTask(), 0, GET_INBOX_DELAY_SECONDS, TimeUnit.SECONDS);
 
@@ -228,7 +164,30 @@ public class MapActivity extends ActionBarActivity {
 			}
 
 		});
+		
+
 	}
+	
+	@Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId())
+        {
+        case R.id.action_chat_creation:
+            startActivity(new Intent(getApplicationContext(), ChatCreationActivity.class));
+            break;
+        case R.id.action_settings:
+            startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
+            break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
 	void deselectMarker() {
 		if (selectedMarker != null) {
@@ -286,92 +245,14 @@ public class MapActivity extends ActionBarActivity {
 		return image;
 	}
 
-	private class AnimateMarkerSelect extends AsyncTask<Marker, Void, Void> {
-
-		@Override
-		protected Void doInBackground(Marker... markers) {
-			selectionAvailable = false;
-
-			Marker marker = markers[0];
-
-			ChatSummaryForScreen chatSummary = chatSummaryMap.get(marker.getId());
-
-			long startTime = System.currentTimeMillis();
-			long endTime = startTime + 1000;
-			long currTime;
-
-			// TODO: Make size relative to screen size, add text, make formula for bubble size
-			Display display = getWindowManager().getDefaultDisplay();
-			Point screenSize = new Point();
-			display.getSize(screenSize);
-
-			// TODO: Instead of using screen.x, use smallest screen dim?
-			Point triangleSize =
-					new Point((int) (screenSize.x * triangleScreenSizeX),
-							(int) (screenSize.x * triangleScreenSizeY));
-
-			Point bubbleSizeInitial =
-					new Point((int) (screenSize.x * 0.20 + chatSummary.numMessages),
-							(int) (screenSize.x * 0.20 + chatSummary.numMessages));
-
-			do {
-				try {
-					Thread.sleep(33);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-
-				currTime = Math.min(System.currentTimeMillis(), endTime);
-				float percentElapsed = (currTime - startTime) / (endTime - startTime);
-
-				//        Point bubbleSize =
-				//            new Point(100 + (int) ((screenSize.x * 0.67 - 100) * percentElapsed),
-				//                100 + (int) ((screenSize.x * 0.33 - 100) * percentElapsed));
-				//
-				//        Bitmap image =
-				//            Bitmap.createBitmap(bubbleSize.x, bubbleSize.y + triangleSize.y / 2,
-				//                Bitmap.Config.ARGB_8888);
-				//
-				//        float radius = 50 - 30 * percentElapsed;
-				//        float[] radii = {radius, radius, radius, radius, radius, radius, radius, radius};
-				//        RoundfinalRectShape bubble = new RoundRectShape(radii, null, null);
-				//
-				//        bubble.resize(bubbleSize.x, bubbleSize.y);
-				//
-				//        Point trianglePosition =
-				//            new Point((int) (image.getWidth() / 2 - triangleSize.x / 2),
-				//                (int) (image.getHeight() - triangleSize.y));
-				//
-				//        Path triangle = new Path();
-				//        triangle.moveTo(trianglePosition.x, trianglePosition.y);
-				//        triangle.lineTo(trianglePosition.x + triangleSize.x, trianglePosition.y);
-				//        triangle.lineTo(trianglePosition.x + triangleSize.x * 0.5f, trianglePosition.y
-				//            + triangleSize.y);
-				//
-				//        Paint paint = new Paint();
-				//        paint.setAntiAlias(true);
-				//        paint.setColor(getResources().getColor(R.color.chat_me_background));
-				//
-				//        Canvas canvas = new Canvas(image);
-				//        bubble.draw(canvas, paint);
-				//        canvas.drawPath(triangle, paint);
-				//        marker.setIcon(BitmapDescriptorFactory.fromBitmap(image));
-
-				marker.setPosition(new LatLng(52.1310799, -106.6341388 + (-106.6341388 - -106.6241388) * percentElapsed));
-			} while (currTime < endTime);
-
-			selectionAvailable = true;
-			return null;
-		}
-	}
-
 	private class AnimateMarkerDeselect extends AsyncTask<String, Void, Void> {
 		@Override
 		protected Void doInBackground(String... markerIds) {
-			Marker marker = selectedMarker;
-
-			marker.setIcon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(chatSummaryMap.get(marker
-					.getId()))));
+			if(selectedMarker != null)
+			{
+  			  selectedMarker.setIcon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(chatSummaryMap.get(selectedMarker
+  					.getId()))));
+			}
 			return null;
 		}
 	}
@@ -487,43 +368,125 @@ public class MapActivity extends ActionBarActivity {
 					gsonBuilder.registerTypeAdapter(ChatSummariesForScreen.class, new ChatSummariesForScreenDeserializer());
 					Gson gson = gsonBuilder.create();
 					final ChatSummaryForScreen[] newChatSummaries = gson.fromJson(responseString, ChatSummariesForScreen.class).chats;
-
-					//TODO: Synchronize this clearing with the clicking on chats. 
+					
+					
+					// This area could definitely be optimized, but will require significant restructuring
+					
+					final ArrayList<ChatSummaryForScreen> summaryCreateList = new ArrayList<ChatSummaryForScreen>();
+					final ArrayList<ChatSummaryForScreen> summaryUpdateList = new ArrayList<ChatSummaryForScreen>();
+					final ArrayList<Marker> markerUpdateList = new ArrayList<Marker>();
+					final ArrayList<Marker> markerRemoveList = new ArrayList<Marker>();
+					
+					for(int i=0; i<newChatSummaries.length; i++)
+					{
+					  boolean match = false;
+					  for(int j=0; j<markerList.size(); j++)
+					  {
+					    ChatSummaryForScreen oldChatSummary = chatSummaryMap.get(markerList.get(j).getId());
+					    if (newChatSummaries[i].chatId.creatorId.equals(oldChatSummary.chatId.creatorId)
+					        && newChatSummaries[i].chatId.timeId.equals(oldChatSummary.chatId.timeId))
+					    {
+					      match = true;
+					      summaryUpdateList.add(newChatSummaries[i]);
+					      markerUpdateList.add(markerList.get(j));
+					    }
+					  }
+					  if(!match)
+					  {
+					    summaryCreateList.add(newChatSummaries[i]);
+					  }
+					}
+					
+					for(int i=0; i<markerList.size(); i++)
+					{
+					  boolean match = false;
+					  for(int j=0; j<markerUpdateList.size(); j++)
+					  {
+					    if(markerList.get(i) == markerUpdateList.get(j))
+					    {
+					      match = true;
+					    }
+					  }
+					  if(!match)
+					  {
+					    markerRemoveList.add(markerList.get(i));
+					  }
+					}
+					 
 					chatSummaryMap.clear();
 					markerList.clear();
+					
+					Log.d("dbConnect", "create: " + summaryCreateList.size());
+					Log.d("dbConnect", "update: " + markerUpdateList.size());
+					Log.d("dbConnect", "remove: " + markerRemoveList.size());
 					
 					runOnUiThread(new Runnable() {
 					  
 						@Override
 						public void run() {
-							
-							map.clear();
-							
-							Circle circle = 
-							    map.addCircle(new CircleOptions().radius(1000)
-                                .strokeColor(Color.argb(60, 255, 40, 50)).strokeWidth(5)
-                                .fillColor(Color.argb(30, 255, 40, 50)));
+						  
+						    Log.d("dbConnect", "create inside: " + summaryCreateList.size());
+						    for(int i=0; i<summaryCreateList.size(); i++)
+						    {
+						      //create marker
+						      Marker marker =
+                                  map.addMarker(new MarkerOptions()
+                                  .icon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(summaryCreateList.get(i))))
+                                  .anchor(0.5f, 1.0f) // Anchors the marker on the bottom left
+                                  .position(summaryCreateList.get(i).location));
+						      
+						      //add to marker list
+						      markerList.add(marker);
+						      
+						      //add summary to hash map
+						      chatSummaryMap.put(marker.getId(), summaryCreateList.get(i));
+						    }
+						  
+						    Log.d("dbConnect", "update inside: " + markerUpdateList.size());
+						    for(int i=0; i<markerUpdateList.size(); i++)
+						    {
+						      
+						      //add to marker list
+                              markerList.add(markerUpdateList.get(i));
+                              
+                              //add summary to hash map
+                              chatSummaryMap.put(markerUpdateList.get(i).getId(), summaryUpdateList.get(i));
+						      
+						      //handle selected
+						      if(!markerUpdateList.get(i).getId().equals(selectedMarker.getId()))
+						      {
+    						      //draw marker icon
+    						      markerUpdateList.get(i).setIcon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(summaryUpdateList.get(i))));
+						      }
+						    }
+						    
+						    Log.d("dbConnect", "remove inside: " + markerRemoveList.size());
+						    for(int i=0; i<markerRemoveList.size(); i++)
+						    {
+						      Log.d("dbConnect", "Removing something, shouldn't be... Remove size: " + markerRemoveList.size());
+						      //handle selected
+						      if(markerRemoveList.get(i).getId().equals(selectedMarker.getId()))
+						      {
+						        selectedMarker = null;
+						      }
+						      //remove marker
+						      markerRemoveList.get(i).remove();
+						    }
+						    
+						  
+//							for (int i = 0; i < newChatSummaries.length; i++)
+//							{
+//							  ChatSummaryForScreen curChatSummary = newChatSummaries[i];
+//
+//							  
+//
+//							  markerList.add(marker);
+//
+//							  chatSummaryMap.put(marker.getId(), curChatSummary);
+//							}
 
 							//TODO: Get location
-							
-							
-							for (int i = 0; i < newChatSummaries.length; i++)
-							{
-							  ChatSummaryForScreen curChatSummary = newChatSummaries[i];
-
-							  Marker marker =
-							      map.addMarker(new MarkerOptions()
-							      .icon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(curChatSummary)))
-							      .anchor(0.5f, 1.0f) // Anchors the marker on the bottom left
-							      .position(curChatSummary.location));
-
-							  markerList.add(marker);
-
-							  chatSummaryMap.put(marker.getId(), curChatSummary);
-							}
-
-							//TODO: Get location
-							circle.setCenter(new LatLng(52.1310799, -106.6341388));
+							userCircle.setCenter(new LatLng(52.1310799, -106.6341388));
 							
 							Log.d("dbConnect", "Cleared and replaced chat summaries, on the map screen.");
 						}
