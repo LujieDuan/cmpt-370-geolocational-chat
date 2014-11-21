@@ -86,8 +86,14 @@ public class MapActivity extends ActionBarActivity {
 	static ArrayList<Marker> markerList = new ArrayList<Marker>();
 	static HashMap<String, ChatSummaryForScreen> chatSummaryMap = new HashMap<String, ChatSummaryForScreen>();
 	
+	int minMessages;
+    int maxMessages;
+	
 	static final float triangleScreenSizeX = 0.05f;
 	static final float triangleScreenSizeY = (float) (triangleScreenSizeX * Math.sqrt(0.75));
+	
+	static final float MIN_TEXT_SIZE = 30;
+	static final float MAX_TEXT_SIZE = 60;
 
 	static final float bubbleUnselectedScreenSizeMin = 0.10f;
 	static final float bubbleUnselectedScreenSizeMax = 0.20f;
@@ -199,9 +205,12 @@ public class MapActivity extends ActionBarActivity {
 		}
 	}
 
-	Bitmap createMarkerIcon(ChatSummaryForScreen chatSummary) {
+	Bitmap createMarkerIcon(ChatSummaryForScreen chatSummary, int minMessages, int maxMessages) {
 		// todo: create function for bubble size
 
+	  
+	    float scale = (float) (chatSummary.numMessages - minMessages) / (float) (maxMessages - minMessages);
+	  
 		int numRepliesUnread = chatSummary.numMessages - chatSummary.numMessagesRead;
 
 		float triangleWidth = 30;
@@ -211,7 +220,7 @@ public class MapActivity extends ActionBarActivity {
 
 		Paint paintText = new Paint();
 		paintText.setColor(getResources().getColor(R.color.chat_me_foreground));
-		paintText.setTextSize(10 + chatSummary.numMessages);
+		paintText.setTextSize(scale * (MAX_TEXT_SIZE - MIN_TEXT_SIZE) + MIN_TEXT_SIZE);
 		paintText.setTextAlign(Paint.Align.CENTER);
 		paintText.setAntiAlias(true);
 
@@ -252,8 +261,7 @@ public class MapActivity extends ActionBarActivity {
 		protected Void doInBackground(String... markerIds) {
 			if(selectedMarker != null)
 			{
-  			  selectedMarker.setIcon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(chatSummaryMap.get(selectedMarker
-  					.getId()))));
+  			  selectedMarker.setIcon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(chatSummaryMap.get(selectedMarker.getId()),  minMessages, maxMessages)));
 			}
 			return null;
 		}
@@ -302,7 +310,7 @@ public class MapActivity extends ActionBarActivity {
 						Bitmap.createBitmap(bubbleSize.x, bubbleSize.y + triangleSize.y / 2,
 								Bitmap.Config.ARGB_8888);
 
-				float radius = 50 - 30 * t;
+				float radius = 50 - 50 * t;
 				float[] radii = {radius, radius, radius, radius, radius, radius, radius, radius};
 				RoundRectShape bubble = new RoundRectShape(radii, null, null);
 
@@ -431,7 +439,22 @@ public class MapActivity extends ActionBarActivity {
 					    markerRemoveList.add(markerList.get(i));
 					  }
 					}
-					 
+					
+					minMessages = Integer.MAX_VALUE;
+                    maxMessages = 0;
+                    
+                    for(int i=0; i<summaryCreateList.size(); i++)
+                    {
+                      minMessages = Math.min(minMessages, summaryCreateList.get(i).numMessages);
+                      maxMessages = Math.max(maxMessages, summaryCreateList.get(i).numMessages);
+                    }
+                      
+                    for(int i=0; i<summaryUpdateList.size(); i++)
+                    {
+                      minMessages = Math.min(minMessages, summaryUpdateList.get(i).numMessages);
+                      maxMessages = Math.max(maxMessages, summaryUpdateList.get(i).numMessages);
+                    }
+					
 					chatSummaryMap.clear();
 					markerList.clear();
 					
@@ -450,7 +473,7 @@ public class MapActivity extends ActionBarActivity {
 						      //create marker
 						      Marker marker =
                                   map.addMarker(new MarkerOptions()
-                                  .icon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(summaryCreateList.get(i))))
+                                  .icon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(summaryCreateList.get(i), minMessages, maxMessages)))
                                   .anchor(0.5f, 1.0f) // Anchors the marker on the bottom left
                                   .position(summaryCreateList.get(i).location));
 						      
@@ -475,7 +498,7 @@ public class MapActivity extends ActionBarActivity {
 						      if(selectedMarker != null && !markerUpdateList.get(i).getId().equals(selectedMarker.getId()))
 						      {
     						      //draw marker icon
-    						      markerUpdateList.get(i).setIcon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(summaryUpdateList.get(i))));
+    						      markerUpdateList.get(i).setIcon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(summaryUpdateList.get(i), minMessages, maxMessages)));
 						      }
 						    }
 						    
