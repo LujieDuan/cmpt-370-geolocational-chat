@@ -27,9 +27,9 @@ public class ChatSummarySerializer implements JsonSerializer<ChatSummaryToDb> {
 		json.addProperty("latitude", c.location.latitude);
 		
 		JsonArray tagsArray = new JsonArray();
-		for(int i = 0; i < c.tags.length; i++)
+		for(String tag : c.tags)
 		{
-			tagsArray.add(new JsonPrimitive(c.tags[i]));
+			tagsArray.add(new JsonPrimitive(tag));
 		}
 		
 		json.add("tags",tagsArray);

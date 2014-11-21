@@ -8,6 +8,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import coderunners.geolocationalchat.R;
 import data.global.GlobalSettings;
+import data.global.UserIdNamePair;
 
 /**
  * The settings activity can be used by the user to update various information.
@@ -73,11 +74,16 @@ public class SettingsActivity extends ActionBarActivity {
 		}
 		else if (!name.equals(GlobalSettings.userIdAndName.userName))
 		{
-			//TODO: finish this once I have got usernames down.
-			GlobalSettings.userIdAndName.userName = name;
-
-			new SendNewUserNameTask(this).execute(GlobalSettings.userIdAndName);
-			editName.setHint(name);
+			new SendNewUserNameTask(this).execute(new UserIdNamePair(GlobalSettings.userIdAndName.userId, name));
+			
+			//Wait until the sendNewUserNameTask finishes. If it was unsuccessful, just keep the same name as currently.
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				finish();
+			}
+			
+			editName.setHint(GlobalSettings.userIdAndName.userName);
 			editName.setText("");
 			finish();
 		}

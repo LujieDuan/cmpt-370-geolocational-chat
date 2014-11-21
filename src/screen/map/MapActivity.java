@@ -2,6 +2,7 @@ package screen.map;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -12,7 +13,6 @@ import org.json.JSONObject;
 
 import screen.chat.ChatActivity;
 import screen.chatCreation.ChatCreationActivity;
-import screen.inbox.InboxActivity;
 import screen.settings.SendNewUserNameTask;
 import screen.settings.SettingsActivity;
 import android.content.Intent;
@@ -51,10 +51,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-
 import comm.ChatSummariesForScreenDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetInbox;
+
 import data.chat.ChatId;
 import data.global.GlobalSettings;
 import data.global.UserIdNamePair;
@@ -124,12 +124,12 @@ public class MapActivity extends ActionBarActivity {
 
 		LatLng location = new LatLng(52.1310799,-106.6341388);
 
-		chatSummaries.add(new ChatSummaryForScreen("Anyone up for ultimate frisbee?", location, new String[]{"sports", "fun"},
+		chatSummaries.add(new ChatSummaryForScreen("Anyone up for ultimate frisbee?", location, new ArrayList<String>(Arrays.asList(new String[]{"sports", "fun"})),
 				new ChatId(GlobalSettings.userIdAndName.userId, new DateTime()),"Josh Heinrichs", 40, 40, new DateTime()));
 
 		location = new LatLng(52.1310799,-106.6241388);
 
-		chatSummaries.add(new ChatSummaryForScreen("Anyone up for MORE ultimate frisbee?", location, new String[]{"sports", "fun"},
+		chatSummaries.add(new ChatSummaryForScreen("Anyone up for MORE ultimate frisbee?", location, new ArrayList<String>(Arrays.asList(new String[]{"sports", "fun"})),
 				new ChatId(GlobalSettings.userIdAndName.userId, new DateTime()),"Josh Heinrichs", 80, 40, new DateTime()));
 
 		return chatSummaries;
@@ -373,7 +373,7 @@ public class MapActivity extends ActionBarActivity {
 		@Override
 		protected Void doInBackground(String... markerIds) {
 			Marker marker = selectedMarker;
-			//TODO uncomment this after importing google maps.
+
 			marker.setIcon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(chatSummaryMap.get(marker
 					.getId()))));
 			return null;
@@ -446,7 +446,7 @@ public class MapActivity extends ActionBarActivity {
 				Canvas canvas = new Canvas(image);
 				bubble.draw(canvas, paint);
 				canvas.drawPath(triangle, paint);
-				//TODO uncomment this after importing google maps.
+			
 				marker.setIcon(BitmapDescriptorFactory.fromBitmap(image));
 
 				if(t < 1)
@@ -478,9 +478,8 @@ public class MapActivity extends ActionBarActivity {
 		@Override
 		public void run() 
 		{
-			//TODO change these to be the actual location and tags, when those elements have been implemented.
-			LatLng l = new LatLng(InboxActivity.LAT,InboxActivity.LONG);
-			String[] tags = {""};
+			LatLng l = GlobalSettings.curPhoneLocation;
+			ArrayList<String> tags = GlobalSettings.tagsToFilterFor;
 			TaskParams_GetInbox sendParams = new TaskParams_GetInbox(l, tags);
 			try {
 				String responseString = HttpRequest.get(sendParams, GET_INBOX_URI);
@@ -551,7 +550,7 @@ public class MapActivity extends ActionBarActivity {
 				
 				Gson gson = new Gson();
 				String[] newTags = gson.fromJson(responseString, String[].class);
-				GlobalSettings.tags = newTags;
+				GlobalSettings.allTags = new ArrayList<String>(Arrays.asList(newTags));
 				
 				Log.d("dbConnect", "received tags. First tag: " + newTags[0]);
 			} catch (IOException e) {

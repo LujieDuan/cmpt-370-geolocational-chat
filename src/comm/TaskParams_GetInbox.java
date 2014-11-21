@@ -1,5 +1,6 @@
 package comm;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class TaskParams_GetInbox extends HttpGetParams
 	
 	/** string array. This will filter the chats which are received by the database,
 	 * so that each received chat includes at least one of these tags. */
-	public String[] tags;
+	public ArrayList<String> tags;
 	
 	/**
 	 * Make a new GetDataTaskParams object, with specified l.
@@ -23,7 +24,7 @@ public class TaskParams_GetInbox extends HttpGetParams
 	 * @param tags string array. This will filter the chats which are received by the database,
 	 * so that each received chat includes at least one of these tags.
 	 */
-	public TaskParams_GetInbox(LatLng curPhoneLocation, String[] tags)
+	public TaskParams_GetInbox(LatLng curPhoneLocation, ArrayList<String> tags)
 	{
 		this.curPhoneLocation = curPhoneLocation;
 		this.tags = tags;

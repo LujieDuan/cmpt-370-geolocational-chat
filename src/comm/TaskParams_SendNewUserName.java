@@ -10,7 +10,6 @@ import com.google.gson.Gson;
 
 import data.global.UserIdNamePair;
 
-//TODO: Change this back to extending HttpPutEntity, should the opportunity arise.
 public class TaskParams_SendNewUserName extends HttpPostEntity 
 {
 	public UserIdNamePair newUserIdNamePair;

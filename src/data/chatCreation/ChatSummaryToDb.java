@@ -1,5 +1,7 @@
 package data.chatCreation;
 
+import java.util.ArrayList;
+
 import org.joda.time.DateTime;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -23,7 +25,7 @@ public class ChatSummaryToDb extends ChatSummary
 	 * @param range int representing the range in meters of visibility for the new chat.
 	 * @param maxEndTime DateTime representing the maximum time that will pass before this chat is deleted.
 	 */
-	public ChatSummaryToDb(String title, LatLng location, String[] tags, 
+	public ChatSummaryToDb(String title, LatLng location, ArrayList<String> tags, 
 			String userId, String firstMessage, DateTime maxEndTime)
 	{
 		super(title, location, tags);

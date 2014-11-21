@@ -31,7 +31,6 @@ public class SendNewUserNameTask extends AsyncTask<UserIdNamePair, Void, Void>
 		TaskParams_SendNewUserName sendEntity = new TaskParams_SendNewUserName(newUserIdAndName);
 
 		try {
-			//TODO: Change this back to put, if the opportunity arises.
 			String responseString = HttpRequest.post(sendEntity, SettingsActivity.SEND_NEW_USER_NAME_URI);
 			JSONObject responseJson = new JSONObject(responseString);
 
@@ -51,7 +50,8 @@ public class SendNewUserNameTask extends AsyncTask<UserIdNamePair, Void, Void>
 					}
 				});
 			}
-
+			
+			activity.notify();
 			Log.i("dbConnect", "Sent new user name to db.");
 		} catch (IOException e) {
 			//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.

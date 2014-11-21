@@ -8,7 +8,6 @@ import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import screen.chat.ChatActivity;
 import screen.inbox.InboxActivity;
 import android.content.res.Resources;
 import android.os.AsyncTask;
@@ -22,10 +21,9 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 import coderunners.geolocationalchat.R;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import comm.HttpRequest;
 import comm.TaskParams_SendNewChat;
+
 import data.chatCreation.ChatSummaryToDb;
 import data.global.GlobalSettings;
 
@@ -69,6 +67,7 @@ public class ChatCreationActivity extends ActionBarActivity {
 		setContentView(R.layout.chat_creation_activity);
 		
 		//TODO: Grab tags from database
+		
 		ArrayList<String> tags = new ArrayList<String>();
 		tags.add("Sports");
 		tags.add("Event");
@@ -132,7 +131,7 @@ public class ChatCreationActivity extends ActionBarActivity {
 		else
 		{
 			new SendNewChatTask().execute(new ChatSummaryToDb(
-					title, new LatLng(InboxActivity.LAT,InboxActivity.LONG), new String[]{"fake tag 1", "fake tag 2"}, GlobalSettings.userIdAndName.userId, message, new DateTime()));
+					title, GlobalSettings.curPhoneLocation, new ArrayList<String>(), GlobalSettings.userIdAndName.userId, message, new DateTime()));
 
 			finish();
 		}

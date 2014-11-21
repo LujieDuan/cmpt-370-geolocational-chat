@@ -156,7 +156,6 @@ public class ChatActivity extends ActionBarActivity
 		listView.smoothScrollToPosition(listView.getBottom());
 	}
 	
-	//TODO implement this properly.
 	@Override
 	public void onBackPressed() 
 	{
