@@ -43,7 +43,7 @@ public class ChatCreationActivity extends ActionBarActivity {
 	/**
 	 * Maximum length of a title that can be submitted by a user
 	 */
-    public static final int MAX_TITLE_LENGTH = Integer.MAX_VALUE;
+    public static final int MAX_TITLE_LENGTH = 30;
 	
     /**
      * Minimum length of a message that can be submitted by a user

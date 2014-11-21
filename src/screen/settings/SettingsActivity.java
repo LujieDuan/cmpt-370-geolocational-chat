@@ -27,7 +27,7 @@ public class SettingsActivity extends ActionBarActivity {
 	/** 
 	 * Maximum name length which may be entered by a user
 	 */
-	public static final int MAX_NAME_LENGTH = Integer.MAX_VALUE;
+	public static final int MAX_NAME_LENGTH = 30;
 
 	public static final String SEND_NEW_USER_NAME_URI = "http://cmpt370duan.byethost10.com/updateuser.php";
 
