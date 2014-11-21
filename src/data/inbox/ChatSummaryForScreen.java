@@ -1,6 +1,8 @@
 package data.inbox;
 
 
+import java.util.ArrayList;
+
 import org.joda.time.DateTime;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -23,7 +25,7 @@ public class ChatSummaryForScreen extends ChatSummary
 	 * @param chatId as assigned by the database.
 	 * @param creatorUserName the alias of the one who created the chat
 	 */
-	public ChatSummaryForScreen(String title, LatLng location, String[] tags, 
+	public ChatSummaryForScreen(String title, LatLng location, ArrayList<String> tags, 
 			ChatId chatId, String creatorUserName, int numMessages, int numMessagesRead, DateTime lastMessageTime) 
 	{
 		super(title, location, tags);

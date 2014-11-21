@@ -2,6 +2,7 @@ package screen.map;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -12,7 +13,7 @@ import org.json.JSONObject;
 
 import screen.chat.ChatActivity;
 import screen.chatCreation.ChatCreationActivity;
-import screen.inbox.InboxActivity;
+import screen.settings.SendNewUserNameTask;
 import screen.settings.SettingsActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,6 +35,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 import coderunners.geolocationalchat.R;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -123,12 +125,12 @@ public class MapActivity extends ActionBarActivity {
 
 		LatLng location = new LatLng(52.1310799,-106.6341388);
 
-		chatSummaries.add(new ChatSummaryForScreen("Anyone up for ultimate frisbee?", location, new String[]{"sports", "fun"},
+		chatSummaries.add(new ChatSummaryForScreen("Anyone up for ultimate frisbee?", location, new ArrayList<String>(Arrays.asList(new String[]{"sports", "fun"})),
 				new ChatId(GlobalSettings.userIdAndName.userId, new DateTime()),"Josh Heinrichs", 40, 40, new DateTime()));
 
 		location = new LatLng(52.1310799,-106.6241388);
 
-		chatSummaries.add(new ChatSummaryForScreen("Anyone up for MORE ultimate frisbee?", location, new String[]{"sports", "fun"},
+		chatSummaries.add(new ChatSummaryForScreen("Anyone up for MORE ultimate frisbee?", location, new ArrayList<String>(Arrays.asList(new String[]{"sports", "fun"})),
 				new ChatId(GlobalSettings.userIdAndName.userId, new DateTime()),"Josh Heinrichs", 80, 40, new DateTime()));
 
 		return chatSummaries;
@@ -168,7 +170,7 @@ public class MapActivity extends ActionBarActivity {
 		if (userName.isEmpty())
 		{
 			//The SendNewUserNameTask changes the global userIdAndName for us.
-			new SettingsActivity.SendNewUserNameTask().execute(new UserIdNamePair(deviceId, deviceId));
+			new SendNewUserNameTask(this).execute(new UserIdNamePair(deviceId, deviceId));
 		}
 		else
 		{
@@ -367,7 +369,7 @@ public class MapActivity extends ActionBarActivity {
 		@Override
 		protected Void doInBackground(String... markerIds) {
 			Marker marker = selectedMarker;
-			//TODO uncomment this after importing google maps.
+
 			marker.setIcon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(chatSummaryMap.get(marker
 					.getId()))));
 			return null;
@@ -440,7 +442,7 @@ public class MapActivity extends ActionBarActivity {
 				Canvas canvas = new Canvas(image);
 				bubble.draw(canvas, paint);
 				canvas.drawPath(triangle, paint);
-				//TODO uncomment this after importing google maps.
+			
 				marker.setIcon(BitmapDescriptorFactory.fromBitmap(image));
 
 				if(t < 1)
@@ -472,15 +474,14 @@ public class MapActivity extends ActionBarActivity {
 		@Override
 		public void run() 
 		{
-			//TODO change these to be the actual location and tags, when those elements have been implemented.
-			LatLng l = new LatLng(InboxActivity.LAT,InboxActivity.LONG);
-			String[] tags = {""};
+			LatLng l = GlobalSettings.curPhoneLocation;
+			ArrayList<String> tags = GlobalSettings.tagsToFilterFor;
 			TaskParams_GetInbox sendParams = new TaskParams_GetInbox(l, tags);
 			try {
 				String responseString = HttpRequest.get(sendParams, GET_INBOX_URI);
 				JSONObject responseJson = new JSONObject(responseString);
 
-				if (responseJson.getInt(TAG_SUCCESS) == 1)
+				if (responseJson.getInt(TAG_SUCCESS) == HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
 					GsonBuilder gsonBuilder = new GsonBuilder();
 					gsonBuilder.registerTypeAdapter(ChatSummariesForScreen.class, new ChatSummariesForScreenDeserializer());
@@ -528,11 +529,18 @@ public class MapActivity extends ActionBarActivity {
 						}
 					});
 				}
-			} catch (IOException | JsonSyntaxException e) {
+			} catch (IOException e) {
 				//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.
-				e.printStackTrace();
-				Log.e("dbConnect", e.toString());
-			} catch (JSONException e) {
+				
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						Toast.makeText(MapActivity.this, 
+								"Unable to receive chats; server timed out.\nTrying again...", 
+								Toast.LENGTH_LONG).show();
+					}
+				});
+			} catch (JSONException | JsonSyntaxException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -548,7 +556,7 @@ public class MapActivity extends ActionBarActivity {
 				
 				Gson gson = new Gson();
 				String[] newTags = gson.fromJson(responseString, String[].class);
-				GlobalSettings.tags = newTags;
+				GlobalSettings.allTags = new ArrayList<String>(Arrays.asList(newTags));
 				
 				Log.d("dbConnect", "received tags. First tag: " + newTags[0]);
 			} catch (IOException e) {

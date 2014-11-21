@@ -1,13 +1,14 @@
 package data.inbox;
 
+import java.util.ArrayList;
+
 import com.google.android.gms.maps.model.LatLng;
-import com.google.gson.annotations.Expose;
 
 public class ChatSummary
 {
 	public String title;
 	public LatLng location;
-	public String[] tags = {""};
+	public ArrayList<String> tags;
 	
 	/**
 	 * Create a new chat summary, containing all the info necessary for an inbox item in the inbox UI.
@@ -15,7 +16,7 @@ public class ChatSummary
 	 * @param location the location of the chat
 	 * @param tags all tags associated with the chat (to help filtering)
 	 */
-	public ChatSummary(String title, LatLng location, String[] tags)
+	public ChatSummary(String title, LatLng location, ArrayList<String> tags)
 	{
 		this.title = title;
 		this.location = location;

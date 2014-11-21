@@ -1,13 +1,12 @@
 package comm;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-
-import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.JsonArray;
@@ -46,7 +45,7 @@ public class ChatSummariesForScreenDeserializer implements
 			JsonElement latElement = innerObj.get("latitude");
 			LatLng location = new LatLng(latElement.getAsDouble(), lonElement.getAsDouble());
 			
-			String[] tags = {""};
+			ArrayList<String> tags = new ArrayList<String>();
 			
 			String creatorId = innerObj.get("creatorId").getAsString();
 			DateTimeFormatter formatter = DateTimeFormat.forPattern(HttpRequest.DATETIME_FORMAT);

@@ -1,24 +1,12 @@
 package screen.settings;
 
 
-import java.io.IOException;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import screen.inbox.InboxActivity;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 import coderunners.geolocationalchat.R;
-
-import comm.HttpRequest;
-import comm.TaskParams_SendNewUserName;
-
 import data.global.GlobalSettings;
 import data.global.UserIdNamePair;
 
@@ -86,49 +74,19 @@ public class SettingsActivity extends ActionBarActivity {
 		}
 		else if (!name.equals(GlobalSettings.userIdAndName.userName))
 		{
-			//TODO: finish this once I have got usernames down.
-			GlobalSettings.userIdAndName.userName = name;
-
-			new SendNewUserNameTask().execute(GlobalSettings.userIdAndName);
-			editName.setHint(name);
+			new SendNewUserNameTask(this).execute(new UserIdNamePair(GlobalSettings.userIdAndName.userId, name));
+			
+			//Wait until the sendNewUserNameTask finishes. If it was unsuccessful, just keep the same name as currently.
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				finish();
+			}
+			
+			editName.setHint(GlobalSettings.userIdAndName.userName);
 			editName.setText("");
 			finish();
 		}
 
-	}
-
-	public static class SendNewUserNameTask extends AsyncTask<UserIdNamePair, Void, Void>
-	{	
-		@Override
-		protected Void doInBackground(UserIdNamePair... params) 
-		{
-			TaskParams_SendNewUserName sendEntity = new TaskParams_SendNewUserName(params[0]);
-
-			try {
-				//TODO: Change this back to put, if the opportunity arises.
-				String responseString = HttpRequest.post(sendEntity, SEND_NEW_USER_NAME_URI);
-				JSONObject responseJson = new JSONObject(responseString);
-
-				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) == 1)
-				{
-					//TODO set user name here
-				}
-				else
-				{
-					//TODO make failure toast. 
-				}
-				
-				Log.i("dbConnect", "Sent new user name to db.");
-			} catch (IOException e) {
-				//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.
-				e.printStackTrace();
-				Log.e("dbConnect", e.toString());
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			return null;
-		}
 	}
 }

@@ -21,10 +21,9 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 import coderunners.geolocationalchat.R;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import comm.HttpRequest;
 import comm.TaskParams_SendNewChat;
+
 import data.chatCreation.ChatSummaryToDb;
 import data.global.GlobalSettings;
 
@@ -68,6 +67,7 @@ public class ChatCreationActivity extends ActionBarActivity {
 		setContentView(R.layout.chat_creation_activity);
 		
 		//TODO: Grab tags from database
+		
 		ArrayList<String> tags = new ArrayList<String>();
 		tags.add("Sports");
 		tags.add("Event");
@@ -131,7 +131,7 @@ public class ChatCreationActivity extends ActionBarActivity {
 		else
 		{
 			new SendNewChatTask().execute(new ChatSummaryToDb(
-					title, new LatLng(InboxActivity.LAT,InboxActivity.LONG), new String[]{"fake tag 1", "fake tag 2"}, GlobalSettings.userIdAndName.userId, message, new DateTime()));
+					title, GlobalSettings.curPhoneLocation, new ArrayList<String>(), GlobalSettings.userIdAndName.userId, message, new DateTime()));
 
 			finish();
 		}
@@ -148,13 +148,16 @@ public class ChatCreationActivity extends ActionBarActivity {
 				String responseString = HttpRequest.post(sendEntity, SEND_NEW_CHAT_URI);
 				JSONObject responseJson = new JSONObject(responseString);
 
-				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) == 1)
+				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) != HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
-					//TODO set user name here
-				}
-				else
-				{
-					//TODO make failure toast. 
+					runOnUiThread(new Runnable() {
+		                @Override
+		                public void run() {
+		                	Toast.makeText(ChatCreationActivity.this, 
+		                			"Server rejected new chat.\nPlease try again later.", 
+		                			Toast.LENGTH_LONG).show();
+		                }
+		            });
 				}
 			} catch (IOException | JSONException e) {
 				//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.

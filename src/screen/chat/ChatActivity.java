@@ -156,7 +156,6 @@ public class ChatActivity extends ActionBarActivity
 		listView.smoothScrollToPosition(listView.getBottom());
 	}
 	
-	//TODO implement this properly.
 	@Override
 	public void onBackPressed() 
 	{
@@ -182,7 +181,7 @@ public class ChatActivity extends ActionBarActivity
 				String responseString = HttpRequest.get(sendParams, GET_NEW_MESSAGES_URI);
 				JSONObject responseJson = new JSONObject(responseString);
 				
-				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) == 1)
+				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) == HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
 					JSONArray messages = responseJson.getJSONArray(TAG_MESSAGE_ARRAY);
 					
@@ -203,20 +202,23 @@ public class ChatActivity extends ActionBarActivity
 		                }
 		            });
 				}
-				
-			} catch (IOException | JsonSyntaxException e) {
-				e.printStackTrace();
-				
+
+			} catch (IOException e) {		
 				//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.
 				retryCount++;
 				Log.e("dbConnect", e.toString() + "\nretry count: " + retryCount);
 				if (retryCount >= NUM_RETRY_ATTEMPTS)
 				{
-					Toast.makeText(ChatActivity.this, 
-							"Unable to receive messages; server timed out.\nPlease try again later.", 
-							Toast.LENGTH_LONG).show();
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							Toast.makeText(ChatActivity.this, 
+									"Unable to receive messages; server timed out.\nTrying again...", 
+									Toast.LENGTH_LONG).show();
+						}
+					});
 				}
-			} catch (JSONException e) {
+			} catch (JSONException | JsonSyntaxException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -234,13 +236,16 @@ public class ChatActivity extends ActionBarActivity
 				String responseString = HttpRequest.post(sendEntity, SEND_NEW_MESSAGE_URI);
 				JSONObject responseJson = new JSONObject(responseString);
 
-				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) == 1)
+				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) != HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
-					//TODO set user name here
-				}
-				else
-				{
-					//TODO make failure toast. 
+					runOnUiThread(new Runnable() {
+		                @Override
+		                public void run() {
+		                	Toast.makeText(ChatActivity.this, 
+		                			"Server rejected new message.\nPlease try again later.", 
+		                			Toast.LENGTH_LONG).show();
+		                }
+		            });
 				}
 			} catch (IOException | JSONException e) {
 				e.printStackTrace();

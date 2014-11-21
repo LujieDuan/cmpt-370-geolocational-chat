@@ -32,6 +32,7 @@ import comm.ChatSummariesForScreenDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetInbox;
 import data.chat.ChatId;
+import data.global.GlobalSettings;
 import data.global.UserIdNamePair;
 import data.inbox.ChatSummariesForScreen;
 import data.inbox.ChatSummaryForScreen;
@@ -61,7 +62,7 @@ public class InboxActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
     	
     	super.onCreate(savedInstanceState);
-    	//TODO change this back.
+    	
     	String device_id = Secure.getString(getBaseContext().getContentResolver(), Secure.ANDROID_ID);
     	USER_ID_AND_NAME = new UserIdNamePair(device_id, device_id);
     	
@@ -107,9 +108,8 @@ public class InboxActivity extends ListActivity {
 	    @Override
 	    public void run() 
 	    {
-	    	//TODO change these to be the actual location and tags, when those elements have been implemented.
-	    	LatLng l = new LatLng(LAT,LONG);
-			String[] tags = {""};
+	    	LatLng l = GlobalSettings.curPhoneLocation;
+			ArrayList<String> tags = new ArrayList<String>();
 			TaskParams_GetInbox sendParams = new TaskParams_GetInbox(l, tags);
 			try {
 				String responseString = HttpRequest.get(sendParams, GET_INBOX_URI);
