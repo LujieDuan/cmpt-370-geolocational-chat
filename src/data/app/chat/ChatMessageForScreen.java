@@ -1,4 +1,4 @@
-package data.chat;
+package data.app.chat;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -10,7 +10,13 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import comm.HttpRequest;
+import data.ChatMessage;
 
+/**
+ * Chat message, including all data needed for the chat screen to display the message.
+ * @author wsv759
+ *
+ */
 public class ChatMessageForScreen extends ChatMessage 
 {
 	public int messageId;

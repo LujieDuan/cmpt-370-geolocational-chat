@@ -18,14 +18,21 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
+import android.app.Activity;
 import android.util.Log;
+import android.widget.Toast;
 
+/**
+ * Uninstantiated class; handles all http methods to access the database, as well as toast to make upon failure.
+ * @author wsv759
+ *
+ */
 public class HttpRequest 
 {
 	public static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	public static final int TIMEOUT_MILLISEC = 10000;
 	public static final int HTTP_RESPONSE_SUCCESS = 1;
-
+	
 	public static String post(HttpPostEntity entity, String uri) throws ClientProtocolException, IOException
 	{
 		StringEntity se = entity.asJsonStringEntity();
@@ -106,5 +113,67 @@ public class HttpRequest
 	    }
 	    
 	    return sb.toString();
+	}
+	
+	/**
+	 * Display a message to the current activity indicating that the server rejected the request, and the current
+	 * task could not complete properly. It is the Activity's responsibility to call this function, if
+	 * it so desires.
+	 * @param activity the calling activity
+	 * @param dataDescriptor an optional string describing the data that needed to be retrieved. If null,
+	 * this defaults to "data".
+	 * @param autoRetry true if the task will automatically be retried (e.g. on a schedule), false otherwise.
+	 */
+	public static void makeToastOnRequestRejection(final Activity activity, final String dataDescriptor, final boolean autoRetry)
+	{
+		
+		activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+            	String usableDataDescriptor = dataDescriptor;
+            	if (usableDataDescriptor == null || usableDataDescriptor.isEmpty())
+            		usableDataDescriptor = "data";
+            	
+            	String retryString = "";
+            	if (autoRetry)
+            		retryString = " Retrying...";
+            	
+            	Toast.makeText(activity, 
+            			"Unable to retrieve " + usableDataDescriptor + "; rejected by server." + retryString, 
+            			Toast.LENGTH_LONG).show();
+            }
+        });
+	}
+	
+	/**
+	 * Display a message to the current activity indicating that the server timed out, and the current
+	 * task could not complete properly. It is the Activity's responsibility to call this function, if
+	 * it so desires.
+	 * @param activity the calling activity
+	 * @param dataDescriptor an optional string describing the data that needed to be retrieved. If null,
+	 * this defaults to "data".
+	 * @param autoRetry true if the task will automatically be retried (e.g. on a schedule), false otherwise.
+	 */
+	public static void makeToastOnServerTimeout(final Activity activity, final String dataDescriptor,final boolean autoRetry)
+	{
+		
+		activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+            	String usableDataDescriptor = dataDescriptor;
+            	if (usableDataDescriptor == null || usableDataDescriptor.isEmpty())
+            		usableDataDescriptor = "data";
+            	
+            	String retryString = "";
+            	if (autoRetry)
+            		retryString = "Retrying...";
+            	else
+            		retryString = "Please try again later.";
+            	
+            	Toast.makeText(activity, 
+            			"Unable to retrieve " + usableDataDescriptor + "; server timed out. " + retryString, 
+            			Toast.LENGTH_LONG).show();
+            }
+        });
 	}
 }

@@ -20,12 +20,9 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import coderunners.geolocationalchat.R;
-
 import comm.HttpRequest;
-import comm.TaskParams_SendNewChat;
-
-import data.chatCreation.ChatSummaryToDb;
-import data.global.GlobalSettings;
+import data.app.global.GlobalSettings;
+import data.comm.chatCreation.ChatSummaryToDb;
 
 /**
  * The chat creation activity can be used by the user to create a new chat at
@@ -66,14 +63,7 @@ public class ChatCreationActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.chat_creation_activity);
 		
-		//TODO: Grab tags from database
-		
-		ArrayList<String> tags = new ArrayList<String>();
-		tags.add("Sports");
-		tags.add("Event");
-		tags.add("Food");
-		tags.add("Games");
-		tags.add("Request");
+		ArrayList<String> tags = GlobalSettings.allTags;
 		
 		LinearLayout tagsList = (LinearLayout) findViewById(R.id.tags_list);
 		int id = Resources.getSystem().getIdentifier("btn_check_holo_light", "drawable", "android");
@@ -136,33 +126,33 @@ public class ChatCreationActivity extends ActionBarActivity {
 			finish();
 		}
 	}
-
+	
+	/**
+	 * Sends the new chat to the database, in the background, and makes toast if unsuccessful.
+	 * @author wsv759
+	 *
+	 * @param ChatSummaryToDb a ChatSummaryToDb object.
+	 */
 	private class SendNewChatTask extends AsyncTask<ChatSummaryToDb, Void, Void>
 	{	
 		@Override
 		protected Void doInBackground(ChatSummaryToDb... params) 
 		{
-			TaskParams_SendNewChat sendEntity = new TaskParams_SendNewChat(params[0]);
+			ChatSummaryToDb newChatSummary = params[0];
 			
 			try {
-				String responseString = HttpRequest.post(sendEntity, SEND_NEW_CHAT_URI);
+				String responseString = HttpRequest.post(newChatSummary, SEND_NEW_CHAT_URI);
 				JSONObject responseJson = new JSONObject(responseString);
 
 				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) != HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
-					runOnUiThread(new Runnable() {
-		                @Override
-		                public void run() {
-		                	Toast.makeText(ChatCreationActivity.this, 
-		                			"Server rejected new chat.\nPlease try again later.", 
-		                			Toast.LENGTH_LONG).show();
-		                }
-		            });
+					HttpRequest.makeToastOnRequestRejection(ChatCreationActivity.this, "response", false);
 				}
-			} catch (IOException | JSONException e) {
-				//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.
-				e.printStackTrace();
+			} catch (IOException e) {
+				HttpRequest.makeToastOnServerTimeout(ChatCreationActivity.this, "response", false);
 				Log.e("dbConnect", e.toString());
+			} catch (JSONException e) {
+				e.printStackTrace();
 			}
 
 			return null;

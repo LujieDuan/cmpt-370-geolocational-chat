@@ -36,7 +36,6 @@ import android.util.MutableBoolean;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 import coderunners.geolocationalchat.R;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -53,15 +52,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+
 import comm.ChatSummariesForScreenDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetInbox;
-
-import data.chat.ChatId;
-import data.global.GlobalSettings;
-import data.global.UserIdNamePair;
-import data.inbox.ChatSummariesForScreen;
-import data.inbox.ChatSummaryForScreen;
+import data.UserIdNamePair;
+import data.app.chat.ChatId;
+import data.app.global.GlobalSettings;
+import data.app.inbox.ChatSummaryForScreen;
+import data.comm.inbox.ChatSummariesFromDb;
 
 public class MapActivity extends ActionBarActivity {
 
@@ -98,6 +97,8 @@ public class MapActivity extends ActionBarActivity {
 
 	final int MARKER_UPDATE_INTERVAL = 1000; 
 	Handler handler = new Handler();
+	
+	private ScheduledThreadPoolExecutor chatUpdateScheduler;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -134,6 +135,7 @@ public class MapActivity extends ActionBarActivity {
 	            .fillColor(Color.argb(30, 255, 40, 50)).center(new LatLng(52.1310799, -106.6341388)));
 		
 		ScheduledThreadPoolExecutor chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
+
 		chatUpdateScheduler.scheduleWithFixedDelay(new GetInboxTask(), 0, GET_INBOX_DELAY_SECONDS, TimeUnit.SECONDS);
 
 		map.setOnMarkerClickListener(new OnMarkerClickListener() {
@@ -334,7 +336,10 @@ public class MapActivity extends ActionBarActivity {
 
 		});
 	}
-
+	
+	/**
+	 * Save the userName, if it exists, to internal storage.
+	 */
 	@Override
 	protected void onStop(){
 		super.onStop();
@@ -348,8 +353,21 @@ public class MapActivity extends ActionBarActivity {
 			
 		editor.commit();
 	}
-
-
+	
+	@Override
+	protected void onDestroy(){
+		super.onDestroy();
+		
+		chatUpdateScheduler.shutdownNow();
+		//Can't use it anymore anyway, so this will help emphasize that...
+		chatUpdateScheduler = null;
+	}
+	/**
+	 * Gets the full list of nearby chats from the database, in the background. Then, in the foreground, adds
+	 * their new markers to the map. Makes toast if unsuccessful.
+	 * @author wsv759
+	 *
+	 */
 	private class GetInboxTask implements Runnable 
 	{
 		@Override
@@ -358,6 +376,7 @@ public class MapActivity extends ActionBarActivity {
 			LatLng l = GlobalSettings.curPhoneLocation;
 			ArrayList<String> tags = GlobalSettings.tagsToFilterFor;
 			TaskParams_GetInbox sendParams = new TaskParams_GetInbox(l, tags);
+			
 			try {
 				String responseString = HttpRequest.get(sendParams, GET_INBOX_URI);
 				JSONObject responseJson = new JSONObject(responseString);
@@ -365,10 +384,10 @@ public class MapActivity extends ActionBarActivity {
 				if (responseJson.getInt(TAG_SUCCESS) == HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
 					GsonBuilder gsonBuilder = new GsonBuilder();
-					gsonBuilder.registerTypeAdapter(ChatSummariesForScreen.class, new ChatSummariesForScreenDeserializer());
+					gsonBuilder.registerTypeAdapter(ChatSummariesFromDb.class, new ChatSummariesForScreenDeserializer());
 					Gson gson = gsonBuilder.create();
-					final ChatSummaryForScreen[] newChatSummaries = gson.fromJson(responseString, ChatSummariesForScreen.class).chats;
-					
+
+					final ChatSummaryForScreen[] newChatSummaries = gson.fromJson(responseString, ChatSummariesFromDb.class).chats;
 					
 					// This area could definitely be optimized, but will require significant restructuring
 					
@@ -472,18 +491,6 @@ public class MapActivity extends ActionBarActivity {
 						      //remove marker
 						      markerRemoveList.get(i).remove();
 						    }
-						    
-						  
-//							for (int i = 0; i < newChatSummaries.length; i++)
-//							{
-//							  ChatSummaryForScreen curChatSummary = newChatSummaries[i];
-//
-//							  
-//
-//							  markerList.add(marker);
-//
-//							  chatSummaryMap.put(marker.getId(), curChatSummary);
-//							}
 
 							//TODO: Get location
 							userCircle.setCenter(new LatLng(52.1310799, -106.6341388));
@@ -492,24 +499,25 @@ public class MapActivity extends ActionBarActivity {
 						}
 					});
 				}
+				else
+				{
+					HttpRequest.makeToastOnRequestRejection(MapActivity.this, "new inbox data", true);
+				}
 			} catch (IOException e) {
-				//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.
-				
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						Toast.makeText(MapActivity.this, 
-								"Unable to receive chats; server timed out.\nTrying again...", 
-								Toast.LENGTH_LONG).show();
-					}
-				});
+				HttpRequest.makeToastOnServerTimeout(MapActivity.this, "new inbox data", true);
+				Log.e("dbConnect", e.toString());
 			} catch (JSONException | JsonSyntaxException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 	}
-
+	
+	/**
+	 * Gets all the tags for the app from the database, in the background. 
+	 * Sets the global tags object if successful, and does nothing otherwise, causing the app to fail. TODO change that
+	 * @author wsv759
+	 *
+	 */
 	private class GetTagsTask extends AsyncTask<Void, Void, Void>
 	{
 		@Override
@@ -523,12 +531,11 @@ public class MapActivity extends ActionBarActivity {
 				
 				Log.d("dbConnect", "received tags. First tag: " + newTags[0]);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				HttpRequest.makeToastOnServerTimeout(MapActivity.this, "tags", false);
+				Log.e("dbConnect", e.toString());
 			}
 
 			return null;
 		}
-
 	}
 }

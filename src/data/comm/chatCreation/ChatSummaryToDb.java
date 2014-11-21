@@ -1,14 +1,28 @@
-package data.chatCreation;
+package data.comm.chatCreation;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
+import org.apache.http.entity.StringEntity;
 import org.joda.time.DateTime;
 
+import android.util.Log;
+
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-import data.inbox.ChatSummary;
+import comm.ChatSummarySerializer;
+import comm.HttpPostEntity;
+import data.ChatSummary;
 
-public class ChatSummaryToDb extends ChatSummary 
+/**
+ * Chat Summary, including all data that needs to be sent to the database.
+ * This is what a user creates when they create a new chat.
+ * @author wsv759
+ *
+ */
+public class ChatSummaryToDb extends ChatSummary implements HttpPostEntity
 {
 	public String userId;
 	public String firstMessage;
@@ -33,5 +47,23 @@ public class ChatSummaryToDb extends ChatSummary
 		this.userId = userId;
 		this.firstMessage = firstMessage;
 		this.maxEndTime = maxEndTime;
+	}
+	
+	public StringEntity asJsonStringEntity() {
+		GsonBuilder gsonBuilder = new GsonBuilder(); 
+		gsonBuilder.registerTypeAdapter(ChatSummaryToDb.class, new ChatSummarySerializer());
+	    Gson gson = gsonBuilder.create();
+
+		String jsonString = gson.toJson(this);
+		
+		Log.d("dbConnect","json string for new chat to send: " + jsonString);
+		StringEntity se = null;
+		try {
+			se = new StringEntity(jsonString);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+
+		return se;
 	}
 }

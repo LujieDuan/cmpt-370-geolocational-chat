@@ -9,29 +9,39 @@ import screen.inbox.InboxActivity;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
-
 import comm.HttpRequest;
-import comm.TaskParams_SendNewUserName;
+import data.UserIdNamePair;
+import data.app.global.GlobalSettings;
 
-import data.global.GlobalSettings;
-import data.global.UserIdNamePair;
-
+/**
+ * Sends a new userId-userName pairing to the database, in the background. 
+ * If successful, sets the global userId-userName pairing
+ * for this phone to be the new userId-userName pairing.
+ * @author wsv759
+ * 
+ * @param UserIdNamePair a UserIdNamePair object.
+ */
 public class SendNewUserNameTask extends AsyncTask<UserIdNamePair, Void, Void>
 {	
+	/** the activity to which to make toast. */
 	protected Activity activity;
+	
+	/**
+	 * constructor keeps track of the activity to which to make toast.
+	 * @param activity the activity to which to make toast.
+	 */
 	public SendNewUserNameTask(Activity activity)
 	{
 		this.activity = activity;
 	}
+	
 	@Override
 	protected Void doInBackground(UserIdNamePair... params) 
 	{
 		UserIdNamePair newUserIdAndName = params[0];
-		TaskParams_SendNewUserName sendEntity = new TaskParams_SendNewUserName(newUserIdAndName);
 
 		try {
-			String responseString = HttpRequest.post(sendEntity, SettingsActivity.SEND_NEW_USER_NAME_URI);
+			String responseString = HttpRequest.post(newUserIdAndName, SettingsActivity.SEND_NEW_USER_NAME_URI);
 			JSONObject responseJson = new JSONObject(responseString);
 
 			if (responseJson.getInt(InboxActivity.TAG_SUCCESS) == 1)
@@ -40,25 +50,15 @@ public class SendNewUserNameTask extends AsyncTask<UserIdNamePair, Void, Void>
 			}
 			else
 			{
-				activity.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						Toast.makeText(
-								activity, 
-								"Server rejected new user.\nPlease try again later.", 
-								Toast.LENGTH_LONG).show();
-					}
-				});
+				HttpRequest.makeToastOnRequestRejection(activity, "response", false);
 			}
 			
 			activity.notify();
 			Log.i("dbConnect", "Sent new user name to db.");
 		} catch (IOException e) {
-			//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.
-			e.printStackTrace();
+			HttpRequest.makeToastOnServerTimeout(activity, "response", false);
 			Log.e("dbConnect", e.toString());
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
