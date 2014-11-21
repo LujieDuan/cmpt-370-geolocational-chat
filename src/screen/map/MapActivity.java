@@ -42,6 +42,7 @@ import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -182,11 +183,6 @@ public class MapActivity extends ActionBarActivity {
 		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 
 		map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(52.1310799, -106.6341388), 14));
-
-		// draw user view distance
-		map.addCircle(new CircleOptions().center(new LatLng(52.1310799, -106.6341388)).radius(1000)
-				.strokeColor(Color.argb(60, 255, 40, 50)).strokeWidth(5)
-				.fillColor(Color.argb(30, 255, 40, 50)));
 
 		// create markers
 		//		for (int i = 0; i < chatSummaries.size(); i++) {
@@ -493,30 +489,40 @@ public class MapActivity extends ActionBarActivity {
 					//TODO: Synchronize this clearing with the clicking on chats. 
 					chatSummaryMap.clear();
 					markerList.clear();
+					
 					runOnUiThread(new Runnable() {
-
+					  
 						@Override
 						public void run() {
-							for(int i=0; i<markerList.size(); i++)
-							{
-								markerList.get(i).remove();
-							}
+							
+							map.clear();
+							
+							Circle circle = 
+							    map.addCircle(new CircleOptions().radius(1000)
+                                .strokeColor(Color.argb(60, 255, 40, 50)).strokeWidth(5)
+                                .fillColor(Color.argb(30, 255, 40, 50)));
 
+							//TODO: Get location
+							
+							
 							for (int i = 0; i < newChatSummaries.length; i++)
 							{
-								ChatSummaryForScreen curChatSummary = newChatSummaries[i];
+							  ChatSummaryForScreen curChatSummary = newChatSummaries[i];
 
-								Marker marker =
-										map.addMarker(new MarkerOptions()
-										.icon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(curChatSummary)))
-										.anchor(0.5f, 1.0f) // Anchors the marker on the bottom left
-										.position(curChatSummary.location));
+							  Marker marker =
+							      map.addMarker(new MarkerOptions()
+							      .icon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(curChatSummary)))
+							      .anchor(0.5f, 1.0f) // Anchors the marker on the bottom left
+							      .position(curChatSummary.location));
 
-								markerList.add(marker);
+							  markerList.add(marker);
 
-								chatSummaryMap.put(marker.getId(), curChatSummary);
+							  chatSummaryMap.put(marker.getId(), curChatSummary);
 							}
 
+							//TODO: Get location
+							circle.setCenter(new LatLng(52.1310799, -106.6341388));
+							
 							Log.d("dbConnect", "Cleared and replaced chat summaries, on the map screen.");
 						}
 					});
