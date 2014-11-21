@@ -90,7 +90,9 @@ public class MapActivity extends ActionBarActivity {
 
 	final int MARKER_UPDATE_INTERVAL = 2000; /* milliseconds */
 	Handler handler = new Handler();
-
+	
+	private ScheduledThreadPoolExecutor chatUpdateScheduler;
+	
 	Runnable updateMarker = new Runnable() {
 		@Override
 		public void run() {
@@ -200,7 +202,7 @@ public class MapActivity extends ActionBarActivity {
 		//					.position(location));
 		//			chatSummaryMap.put(marker.getId(), chatSummary);
 		//		}
-		ScheduledThreadPoolExecutor chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
+		chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
 		chatUpdateScheduler.scheduleWithFixedDelay(new GetInboxTask(), 0, GET_INBOX_DELAY_SECONDS, TimeUnit.SECONDS);
 
 		map.setOnMarkerClickListener(new OnMarkerClickListener() {
@@ -474,6 +476,14 @@ public class MapActivity extends ActionBarActivity {
 		editor.commit();
 	}
 	
+	@Override
+	protected void onDestroy(){
+		super.onDestroy();
+		
+		chatUpdateScheduler.shutdownNow();
+		//Can't use it anymore anyway, so this will help emphasize that...
+		chatUpdateScheduler = null;
+	}
 	/**
 	 * Gets the full list of nearby chats from the database, in the background. Then, in the foreground, adds
 	 * their new markers to the map. Makes toast if unsuccessful.

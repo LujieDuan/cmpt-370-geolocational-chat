@@ -48,31 +48,54 @@ public class ChatActivity extends ActionBarActivity
 	private static final String SEND_NEW_MESSAGE_URI = "http://cmpt370duan.byethost10.com/create_message.php";
 	private static final String TAG_MESSAGE_ARRAY = "messages";
 	public static final String CHATID_STRING = "chatId";
-	
+
 	private Chat chat = new Chat();  
 	private ChatId chatId;
 	private MySimpleArrayAdapter adapter;
-	
+
 	private static final int GET_MESSAGES_DELAY_SEC = 5;
-	
+
 	private ScheduledThreadPoolExecutor chatUpdateScheduler;
 	@Override
-	  protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-	    setContentView(R.layout.chat_screen);
-	    
-	    chatId = getIntent().getExtras().getParcelable(CHATID_STRING);
-	    
-	    final ListView listView = (ListView) findViewById(R.id.listview);
 
-	    adapter = new MySimpleArrayAdapter(this, chat.getChatItems());
-	    listView.setAdapter(adapter);
-	    
-	    chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
-	    chatUpdateScheduler.scheduleWithFixedDelay(new GetNewMessagesTask(), 0, GET_MESSAGES_DELAY_SEC, TimeUnit.SECONDS);
-	  }
-	
+		setContentView(R.layout.chat_screen);
+
+		chatId = getIntent().getExtras().getParcelable(CHATID_STRING);
+
+		final ListView listView = (ListView) findViewById(R.id.listview);
+
+		adapter = new MySimpleArrayAdapter(this, chat.getChatItems());
+		listView.setAdapter(adapter);
+	}
+
+	/**
+	 * Start updating the chat, when the chat starts. (i.e. returns to the phone screen.)
+	 */
+	@Override
+	public void onStart() 
+	{
+		super.onStart();
+
+		chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
+		chatUpdateScheduler.scheduleWithFixedDelay(
+				new GetNewMessagesTask(), 0, GET_MESSAGES_DELAY_SEC, TimeUnit.SECONDS);
+	}
+
+	/**
+	 * Stop updating the chat, when the chat stops. (i.e. vanishes from the phone screen.)
+	 */
+	@Override
+	public void onStop() 
+	{
+		super.onStop();
+
+		chatUpdateScheduler.shutdownNow();
+		//Can't use it anymore anyway, so this will help emphasize that...
+		chatUpdateScheduler = null;
+	}
+
 	public void sendMessage(View v)
 	{	
 		EditText editText = (EditText) findViewById(R.id.EditText);
@@ -81,30 +104,30 @@ public class ChatActivity extends ActionBarActivity
 		if(!message.equals(""))
 		{
 			//TODO implement a dummy message, for immediate viewing.
-//			chat.addMessages(new ChatMessageForScreen(message,MapActivity.USER_ID_AND_NAME.userId,MapActivity.USER_ID_AND_NAME.userName, FAKE_MESSAGE_ID, new DateTime()));
-//			onChatUpdated();
-		
+			//			chat.addMessages(new ChatMessageForScreen(message,MapActivity.USER_ID_AND_NAME.userId,MapActivity.USER_ID_AND_NAME.userName, FAKE_MESSAGE_ID, new DateTime()));
+			//			onChatUpdated();
+
 			new SendNewMessageTask().execute(new ChatMessageToDb(message, GlobalSettings.userIdAndName.userId, chatId));
 		}
 	}
 
 	public class MySimpleArrayAdapter extends ArrayAdapter<ChatItem> {
-		  
+
 		private final Context context;
 		private final ArrayList<ChatItem> values;
 
 		public MySimpleArrayAdapter(Context context, ArrayList<ChatItem> values) {
 			super(context, R.layout.chat_item_me, values);
 			this.context = context;
-		    this.values = values;
+			this.values = values;
 		}
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			
+
 			View itemView;
-			
+
 			if(values.get(position).getUserId().equals(GlobalSettings.userIdAndName.userId))
 			{
 				itemView = inflater.inflate(R.layout.chat_item_me, parent, false);
@@ -129,43 +152,33 @@ public class ChatActivity extends ActionBarActivity
 					bubbleList.addView(bubbleView);
 				}
 			}
-			
+
 			TextView textViewName = (TextView) itemView.findViewById(R.id.textViewName);	
 			textViewName.setText(values.get(position).getName());
 			TextView textViewTimeLocation = (TextView) itemView.findViewById(R.id.timeAndLocation);
-			
+
 			Location location = new Location("");
 			location.setLatitude(0);
 			location.setLongitude(0);
-			
+
 			textViewTimeLocation.setText(values.get(position).getTimeString(new DateTime()));
-			
+
 			return itemView;
 		}
-		
+
 	} 
-	
+
 	/**
 	 * Update the UI when the underlying chat messages have changed.
 	 */
 	private void onChatUpdated()
 	{
 		adapter.notifyDataSetChanged();
-		
+
 		ListView listView = (ListView) findViewById(R.id.listview);
 		listView.smoothScrollToPosition(listView.getBottom());
 	}
-	
-	/**
-	 * Stop updating the chat, when you leave the chat.
-	 */
-	@Override
-	public void onBackPressed() 
-	{
-		chatUpdateScheduler.shutdownNow();
-		ChatActivity.super.onBackPressed();
-	}
-	
+
 	/**
 	 * Get any new messages for this chat from the database, in the background. 
 	 * On success, update the chat. Make toast on failure.
@@ -174,25 +187,25 @@ public class ChatActivity extends ActionBarActivity
 	 */
 	private class GetNewMessagesTask implements Runnable 
 	{
-	    @Override
-	    public void run() 
-	    {
-	    	int lastMessageId = -1;
-	    	if (chat.numMessages() > 0)
-	    	{		    		
-	    		lastMessageId = chat.getChatMessageForScreen(chat.numMessages() - 1).messageId;
-	    	}
-	    	
+		@Override
+		public void run() 
+		{
+			int lastMessageId = -1;
+			if (chat.numMessages() > 0)
+			{		    		
+				lastMessageId = chat.getChatMessageForScreen(chat.numMessages() - 1).messageId;
+			}
+
 			TaskParams_GetNewMessages sendParams = new TaskParams_GetNewMessages(chatId, lastMessageId);
-			
+
 			try {
 				String responseString = HttpRequest.get(sendParams, GET_NEW_MESSAGES_URI);
 				JSONObject responseJson = new JSONObject(responseString);
-				
+
 				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) == HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
 					JSONArray messages = responseJson.optJSONArray(TAG_MESSAGE_ARRAY);
-					
+
 					//Request Could be successful, but without finding any new messages.
 					if (messages != null)
 					{
@@ -205,7 +218,7 @@ public class ChatActivity extends ActionBarActivity
 						Log.d("dbConnect", "new chat messages: " + newChatMessages.toString());
 
 						chat.addMessages(newChatMessages);
-						
+
 						runOnUiThread(new Runnable() {
 
 							@Override
@@ -225,9 +238,9 @@ public class ChatActivity extends ActionBarActivity
 			} catch (JSONException | JsonSyntaxException e) {
 				e.printStackTrace();
 			}
-	    }
+		}
 	}
-	
+
 	/**
 	 * Send a new message to the database, in the background. On failure, make toast. 
 	 * @author wsv759
@@ -238,7 +251,7 @@ public class ChatActivity extends ActionBarActivity
 		@Override
 		protected Void doInBackground(ChatMessageToDb... params) {
 			ChatMessageToDb newChatMessage = params[0];
-			
+
 			try {
 				String responseString = HttpRequest.post(newChatMessage, SEND_NEW_MESSAGE_URI);
 				JSONObject responseJson = new JSONObject(responseString);
@@ -253,7 +266,7 @@ public class ChatActivity extends ActionBarActivity
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
-			
+
 			//TODO immediately get new messages.
 			return null;
 		}
