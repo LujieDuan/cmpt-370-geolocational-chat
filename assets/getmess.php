@@ -52,16 +52,16 @@ if (isset($_GET["creatorId"]) && isset($_GET["timeId"]) && isset($_GET["lastMess
         echo json_encode($response);
         } else {
             // no products found
-            $response["success"] = 0;
-            $response["message"] = "No message found";
+            $response["success"] = 1;
+            $response["message"] = "No new message found";
  
             // echo no users JSON
             echo json_encode($response);
         }
     } else {
         // no product found
-        $response["success"] = 0;
-        $response["message"] = "No message found";
+        $response["success"] = 1;
+        $response["message"] = "No new message found";
  
         // echo no users JSON
         echo json_encode($response);
