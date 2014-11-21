@@ -4,20 +4,13 @@
 
 
     -- This trigger set the end time to default 5 days after posting
-DELIMITER $$
-DROP TRIGGER IF EXISTS userSetEndTimeConstraint $$
-CREATE TRIGGER userSetEndTimeConstraint
-AFTER INSERT on chats
+DROP TRIGGER IF EXISTS setEndTime;
+
+CREATE TRIGGER setEndTime
+BEFORE INSERT on chats
 FOR EACH ROW
-BEGIN
-UPDATE chats SET chEndTime = ADDDTIME(now() + '5 00:00:00')
-WHERE chPhoneId = NEW.chPhoneId and chTimeId = NEW.chTimeId;
-END $$
-DELIMITER ;
+SET NEW.chEndTime = ADDTIME(now(), '5 00:00:00');
 
-
-    -- The above trigger can also be replaceb by this
-ALTER TABLE chats ALTER chEndTime SET DEFAULT ADDDTIME(now() + '5 00:00:00');
 
 
     -- create a trigger that increase the end time by one day whenever a chat gets a new reply
@@ -27,8 +20,8 @@ CREATE TRIGGER endTimeIncrease
 AFTER INSERT on messages
 FOR EACH ROW
 BEGIN
-IF ((SELECT chEndTime FROM chats WHERE NEW.mePhoneId = chPhoneId AND NEW.meTimeId = chTimeID) <  ADDDTIME(now() + '1 00:00:00')
-    UPDATE chats SET chEndTime = ADDDTIME(now() + '1 00:00:00')
+IF ((SELECT chEndTime FROM chats WHERE NEW.mePhoneId = chPhoneId AND NEW.meTimeId = chTimeID) <  ADDTIME(now(), '1 00:00:00')
+    UPDATE chats SET chEndTime = ADDTIME(now(),  '1 00:00:00')
 WHERE chPhoneId = NEW.mePhoneId and chTimeId = NEW.meTimeId;
 END IF;
 END $$
