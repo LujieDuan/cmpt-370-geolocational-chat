@@ -80,8 +80,8 @@ public class MapActivity extends ActionBarActivity {
 	Marker selectedMarker = null;
 	boolean selectionAvailable = true;
 
-	static ArrayList<Marker> markerList = new ArrayList<Marker>();
-	static HashMap<String, ChatSummaryForScreen> chatSummaryMap = new HashMap<String, ChatSummaryForScreen>();
+	ArrayList<Marker> markerList = new ArrayList<Marker>();
+	HashMap<String, ChatSummaryForScreen> chatSummaryMap = new HashMap<String, ChatSummaryForScreen>();
 	
 	int minMessages;
     int maxMessages;
@@ -100,7 +100,7 @@ public class MapActivity extends ActionBarActivity {
 
 	final int MARKER_UPDATE_INTERVAL = 1000; 
 	Handler handler = new Handler();
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -269,7 +269,7 @@ public class MapActivity extends ActionBarActivity {
 	 * @param marker Marker to animate
 	 * @param display Display on which it will be animated
 	 */
-	static void animateMarkerSelection(final Marker marker, final Display display)
+	void animateMarkerSelection(final Marker marker, final Display display)
 	{
 		final Handler handler = new Handler();
 		final long start = SystemClock.uptimeMillis();
