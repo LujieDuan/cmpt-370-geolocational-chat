@@ -51,15 +51,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-
 import comm.ChatSummariesForScreenDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetInbox;
+
 import data.app.global.GlobalSettings;
-import data.app.inbox.ChatSummaryForScreen;
+import data.app.map.ChatSummaryForScreen;
 import data.base.ChatId;
 import data.base.UserIdNamePair;
-import data.comm.ChatSummariesFromDb;
+import data.comm.map.ChatSummariesFromDb;
 
 public class MapActivity extends Activity {
 
@@ -100,6 +100,7 @@ public class MapActivity extends Activity {
 
 	final int MARKER_UPDATE_INTERVAL = 1000; 
 	Handler handler = new Handler();
+	private ScheduledThreadPoolExecutor inboxUpdateScheduler;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -135,9 +136,9 @@ public class MapActivity extends Activity {
 	            .strokeWidth(5)
 	            .fillColor(Color.argb(30, 255, 40, 50)).center(new LatLng(52.1310799, -106.6341388)));
 		
-		chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
+		inboxUpdateScheduler = new ScheduledThreadPoolExecutor(1);
 
-		chatUpdateScheduler.scheduleWithFixedDelay(new GetInboxTask(), 0, GET_INBOX_DELAY_SECONDS, TimeUnit.SECONDS);
+		inboxUpdateScheduler.scheduleWithFixedDelay(new GetInboxTask(), 0, GET_INBOX_DELAY_SECONDS, TimeUnit.SECONDS);
 
 		map.setOnMarkerClickListener(new OnMarkerClickListener() {
 			@Override
@@ -359,6 +360,17 @@ public class MapActivity extends Activity {
 	}
 	
 	/**
+	 * Stop updating the inbox when the app finishes.
+	 */
+	@Override
+	protected void onDestroy(){
+		super.onDestroy();
+		
+		inboxUpdateScheduler.shutdownNow();
+		inboxUpdateScheduler = null;
+	}
+	
+	/**
 	 * Gets the full list of nearby chats from the database, in the background. Then, in the foreground, adds
 	 * their new markers to the map. Makes toast if unsuccessful.
 	 * @author wsv759
@@ -448,9 +460,9 @@ public class MapActivity extends Activity {
 					chatSummaryMap.clear();
 					markerList.clear();
 					
-					Log.d("dbConnect", "create: " + summaryCreateList.size());
-					Log.d("dbConnect", "update: " + markerUpdateList.size());
-					Log.d("dbConnect", "remove: " + markerRemoveList.size());
+					Log.i("dbConnect", "create: " + summaryCreateList.size());
+					Log.i("dbConnect", "update: " + markerUpdateList.size());
+					Log.i("dbConnect", "remove: " + markerRemoveList.size());
 					
 					runOnUiThread(new Runnable() {
 					  
@@ -505,19 +517,33 @@ public class MapActivity extends Activity {
 							//TODO: Get location
 							userCircle.setCenter(new LatLng(52.1310799, -106.6341388));
 							
-							Log.d("dbConnect", "Cleared and replaced chat summaries, on the map screen.");
+							Log.i("dbConnect", "Cleared and replaced chat summaries, on the map screen.");
 						}
 					});
 				}
 				else
 				{
-					HttpRequest.makeToastOnRequestRejection(MapActivity.this, "new inbox data", true);
+					HttpRequest.handleHttpRequestFailure(
+							MapActivity.this, 
+							getResources().getString(R.string.http_data_descriptor_new_inbox), 
+							true, 
+							HttpRequest.ReasonForFailure.REQUEST_REJECTED);
+					Log.e("dbConnect", getResources().getString(R.string.http_request_failure_rejected));
 				}
 			} catch (IOException e) {
-				HttpRequest.makeToastOnServerTimeout(MapActivity.this, "new inbox data", true);
+				HttpRequest.handleHttpRequestFailure(
+						MapActivity.this, 
+						getResources().getString(R.string.http_data_descriptor_new_inbox), 
+						true, 
+						HttpRequest.ReasonForFailure.REQUEST_TIMEOUT);
 				Log.e("dbConnect", e.toString());
 			} catch (JSONException | JsonSyntaxException e) {
-				e.printStackTrace();
+				HttpRequest.handleHttpRequestFailure(
+						MapActivity.this, 
+						getResources().getString(R.string.http_data_descriptor_new_inbox), 
+						true, 
+						HttpRequest.ReasonForFailure.NO_SERVER_RESPONSE);
+				Log.e("dbConnect", e.toString());
 			}
 		}
 	}
@@ -539,9 +565,13 @@ public class MapActivity extends Activity {
 				String[] newTags = gson.fromJson(responseString, String[].class);
 				GlobalSettings.allTags = new ArrayList<String>(Arrays.asList(newTags));
 				
-				Log.d("dbConnect", "received tags. First tag: " + newTags[0]);
+				Log.i("dbConnect", "received tags. First tag: " + newTags[0]);
 			} catch (IOException e) {
-				HttpRequest.makeToastOnServerTimeout(MapActivity.this, "tags", false);
+				HttpRequest.handleHttpRequestFailure(
+						MapActivity.this, 
+						getResources().getString(R.string.http_data_descriptor_tags), 
+						false, 
+						HttpRequest.ReasonForFailure.REQUEST_TIMEOUT);
 				Log.e("dbConnect", e.toString());
 			}
 

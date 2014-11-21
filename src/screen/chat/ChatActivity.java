@@ -30,17 +30,17 @@ import coderunners.geolocationalchat.R;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-
 import comm.DateTimeDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetNewMessages;
+
 import data.app.chat.Chat;
 import data.app.chat.ChatItem;
 import data.app.chat.ChatMessageForScreen;
 import data.app.global.GlobalSettings;
 import data.base.ChatId;
-import data.comm.ChatMessageToDb;
-import data.comm.ChatMessagesFromDb;
+import data.comm.chat.ChatMessageToDb;
+import data.comm.chat.ChatMessagesFromDb;
 
 public class ChatActivity extends ActionBarActivity
 {
@@ -209,13 +209,11 @@ public class ChatActivity extends ActionBarActivity
 					//Request Could be successful, but without finding any new messages.
 					if (messages != null)
 					{
-						Log.d("dbConnect", "messages: " + messages);
-						Log.d("dbConnect", "trying to convert json...");
 						GsonBuilder gsonBuilder = new GsonBuilder(); 
 						gsonBuilder.registerTypeAdapter(DateTime.class, new DateTimeDeserializer());
 						Gson gson = gsonBuilder.create();
 						ChatMessageForScreen[] newChatMessages = gson.fromJson(responseString, ChatMessagesFromDb.class).messages;
-						Log.d("dbConnect", "new chat messages: " + newChatMessages.toString());
+						Log.i("dbConnect", "num new chat messages: " + newChatMessages.length);
 
 						chat.addMessages(newChatMessages);
 
@@ -230,13 +228,27 @@ public class ChatActivity extends ActionBarActivity
 				}
 				else
 				{
-					HttpRequest.makeToastOnRequestRejection(ChatActivity.this, "new messages", true);
+					HttpRequest.handleHttpRequestFailure(
+							ChatActivity.this, 
+							getResources().getString(R.string.http_data_descriptor_new_messages), 
+							true, 
+							HttpRequest.ReasonForFailure.REQUEST_REJECTED);
+					Log.e("dbConnect", getResources().getString(R.string.http_request_failure_rejected));
 				}
 			} catch (IOException e) {		
-				HttpRequest.makeToastOnServerTimeout(ChatActivity.this, "new messages", true);
+				HttpRequest.handleHttpRequestFailure(
+						ChatActivity.this, 
+						getResources().getString(R.string.http_data_descriptor_new_messages), 
+						true, 
+						HttpRequest.ReasonForFailure.REQUEST_TIMEOUT);
 				Log.e("dbConnect", e.toString());
 			} catch (JSONException | JsonSyntaxException e) {
-				e.printStackTrace();
+				HttpRequest.handleHttpRequestFailure(
+						ChatActivity.this, 
+						getResources().getString(R.string.http_data_descriptor_new_messages), 
+						true, 
+						HttpRequest.ReasonForFailure.NO_SERVER_RESPONSE);
+				Log.e("dbConnect", e.toString());
 			}
 		}
 	}
@@ -258,13 +270,27 @@ public class ChatActivity extends ActionBarActivity
 
 				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) != HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
-					HttpRequest.makeToastOnRequestRejection(ChatActivity.this, "response", false);
+					HttpRequest.handleHttpRequestFailure(
+							ChatActivity.this, 
+							getResources().getString(R.string.http_data_descriptor_response), 
+							false, 
+							HttpRequest.ReasonForFailure.REQUEST_REJECTED);
+					Log.e("dbConnect", getResources().getString(R.string.http_request_failure_rejected));
 				}
 			} catch (IOException e) {
-				HttpRequest.makeToastOnServerTimeout(ChatActivity.this, "response", false);
+				HttpRequest.handleHttpRequestFailure(
+						ChatActivity.this, 
+						getResources().getString(R.string.http_data_descriptor_response), 
+						false, 
+						HttpRequest.ReasonForFailure.REQUEST_TIMEOUT);
 				Log.e("dbConnect", e.toString());
 			} catch (JSONException e) {
-				e.printStackTrace();
+				HttpRequest.handleHttpRequestFailure(
+						ChatActivity.this, 
+						getResources().getString(R.string.http_data_descriptor_response), 
+						false,
+						HttpRequest.ReasonForFailure.NO_SERVER_RESPONSE);
+				Log.e("dbConnect", e.toString());
 			}
 
 			//TODO immediately get new messages.

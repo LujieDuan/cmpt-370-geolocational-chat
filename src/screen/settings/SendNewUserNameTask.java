@@ -9,7 +9,10 @@ import screen.inbox.InboxActivity;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
+import coderunners.geolocationalchat.R;
+
 import comm.HttpRequest;
+
 import data.app.global.GlobalSettings;
 import data.base.UserIdNamePair;
 
@@ -50,16 +53,30 @@ public class SendNewUserNameTask extends AsyncTask<UserIdNamePair, Void, Void>
 			}
 			else
 			{
-				HttpRequest.makeToastOnRequestRejection(activity, "response", false);
+				HttpRequest.handleHttpRequestFailure(
+						activity,
+						activity.getResources().getString(R.string.http_data_descriptor_response),
+						false,
+						HttpRequest.ReasonForFailure.REQUEST_REJECTED);
+				Log.e("dbConnect", activity.getResources().getString(R.string.http_request_failure_rejected));
 			}
 			
 			activity.notify();
 			Log.i("dbConnect", "Sent new user name to db.");
 		} catch (IOException e) {
-			HttpRequest.makeToastOnServerTimeout(activity, "response", false);
+			HttpRequest.handleHttpRequestFailure(
+					activity,
+					activity.getResources().getString(R.string.http_data_descriptor_response),
+					false,
+					HttpRequest.ReasonForFailure.REQUEST_TIMEOUT);
 			Log.e("dbConnect", e.toString());
 		} catch (JSONException e) {
-			e.printStackTrace();
+			HttpRequest.handleHttpRequestFailure(
+					activity,
+					activity.getResources().getString(R.string.http_data_descriptor_response),
+					false,
+					HttpRequest.ReasonForFailure.NO_SERVER_RESPONSE);
+			Log.e("dbConnect", e.toString());
 		}
 
 		return null;

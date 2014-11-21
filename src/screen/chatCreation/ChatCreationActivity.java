@@ -20,9 +20,11 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import coderunners.geolocationalchat.R;
+
 import comm.HttpRequest;
+
 import data.app.global.GlobalSettings;
-import data.comm.ChatSummaryToDb;
+import data.comm.chatCreation.ChatSummaryToDb;
 
 /**
  * The chat creation activity can be used by the user to create a new chat at
@@ -146,13 +148,27 @@ public class ChatCreationActivity extends ActionBarActivity {
 
 				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) != HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
-					HttpRequest.makeToastOnRequestRejection(ChatCreationActivity.this, "response", false);
+					HttpRequest.handleHttpRequestFailure(
+							ChatCreationActivity.this, 
+							getResources().getString(R.string.http_data_descriptor_response), 
+							false, 
+							HttpRequest.ReasonForFailure.REQUEST_REJECTED);
+					Log.e("dbConnect", getResources().getString(R.string.http_request_failure_rejected));
 				}
 			} catch (IOException e) {
-				HttpRequest.makeToastOnServerTimeout(ChatCreationActivity.this, "response", false);
+				HttpRequest.handleHttpRequestFailure(
+						ChatCreationActivity.this, 
+						getResources().getString(R.string.http_data_descriptor_response), 
+						false, 
+						HttpRequest.ReasonForFailure.REQUEST_TIMEOUT);
 				Log.e("dbConnect", e.toString());
 			} catch (JSONException e) {
-				e.printStackTrace();
+				HttpRequest.handleHttpRequestFailure(
+						ChatCreationActivity.this, 
+						getResources().getString(R.string.http_data_descriptor_response), 
+						false, 
+						HttpRequest.ReasonForFailure.NO_SERVER_RESPONSE);
+				Log.e("dbConnect", e.toString());
 			}
 
 			return null;

@@ -1,4 +1,4 @@
-package data.comm;
+package data.comm.chat;
 
 import java.io.UnsupportedEncodingException;
 

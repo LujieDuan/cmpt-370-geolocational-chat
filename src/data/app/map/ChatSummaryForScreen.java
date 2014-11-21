@@ -1,4 +1,4 @@
-package data.app.inbox;
+package data.app.map;
 
 
 import java.util.ArrayList;

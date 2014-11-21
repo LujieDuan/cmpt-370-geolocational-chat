@@ -16,9 +16,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
-import data.app.inbox.ChatSummaryForScreen;
+import data.app.map.ChatSummaryForScreen;
 import data.base.ChatId;
-import data.comm.ChatSummariesFromDb;
+import data.comm.map.ChatSummariesFromDb;
 
 /**
  * Helps gson to deserialize the incoming json ChatSummary data from the database.

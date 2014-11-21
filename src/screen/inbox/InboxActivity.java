@@ -27,15 +27,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-
 import comm.ChatSummariesForScreenDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetInbox;
+
 import data.app.global.GlobalSettings;
-import data.app.inbox.ChatSummaryForScreen;
+import data.app.map.ChatSummaryForScreen;
 import data.base.ChatId;
 import data.base.UserIdNamePair;
-import data.comm.ChatSummariesFromDb;
+import data.comm.map.ChatSummariesFromDb;
 
 
 public class InboxActivity extends ListActivity {
@@ -141,13 +141,15 @@ public class InboxActivity extends ListActivity {
 				}
 				else
 				{
-					HttpRequest.makeToastOnRequestRejection(InboxActivity.this, "new inbox data", true);
+					HttpRequest.handleHttpRequestFailure(InboxActivity.this, "new inbox data", true, HttpRequest.ReasonForFailure.REQUEST_REJECTED);
+					Log.e("dbConnect", getResources().getString(R.string.http_request_failure_rejected));
 				}
 			} catch (IOException e) {
-				HttpRequest.makeToastOnServerTimeout(InboxActivity.this, "new inbox data", true);
+				HttpRequest.handleHttpRequestFailure(InboxActivity.this, "new inbox data", true, HttpRequest.ReasonForFailure.REQUEST_TIMEOUT);
 				Log.e("dbConnect", e.toString());
 			} catch (JSONException | JsonSyntaxException e) {
-				e.printStackTrace();
+				HttpRequest.handleHttpRequestFailure(InboxActivity.this, "new inbox data", true, HttpRequest.ReasonForFailure.NO_SERVER_RESPONSE);
+				Log.e("dbConnect", e.toString());
 			}
 	    }
 	}
