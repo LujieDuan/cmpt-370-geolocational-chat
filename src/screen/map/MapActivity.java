@@ -138,7 +138,7 @@ public class MapActivity extends Activity {
 	            .strokeWidth(5)
 	            .fillColor(Color.argb(30, 255, 40, 50)).center(new LatLng(52.1310799, -106.6341388)));
 		
-		ScheduledThreadPoolExecutor chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
+		chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
 
 		chatUpdateScheduler.scheduleWithFixedDelay(new GetInboxTask(), 0, GET_INBOX_DELAY_SECONDS, TimeUnit.SECONDS);
 
