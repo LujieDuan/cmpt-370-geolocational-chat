@@ -32,9 +32,9 @@ import comm.ChatSummariesForScreenDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetInbox;
 import data.chat.ChatId;
+import data.global.UserIdNamePair;
 import data.inbox.ChatSummariesForScreen;
 import data.inbox.ChatSummaryForScreen;
-import data.user.UserIdNamePair;
 
 
 public class InboxActivity extends ListActivity {
