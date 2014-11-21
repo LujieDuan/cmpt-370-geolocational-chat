@@ -12,8 +12,13 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import data.chatCreation.ChatSummaryToDb;
+import data.comm.chatCreation.ChatSummaryToDb;
 
+/**
+ * Helps gson to serialize ChatSummary data into json form, before sending to the database.
+ * @author wsv759
+ *
+ */
 public class ChatSummarySerializer implements JsonSerializer<ChatSummaryToDb> {
 
 	

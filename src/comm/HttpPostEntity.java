@@ -2,7 +2,12 @@ package comm;
 
 import org.apache.http.entity.StringEntity;
 
-public abstract class HttpPostEntity 
+/**
+ * Any data structures to send to the database via a post request must implement this. 
+ * @author wsv759
+ *
+ */
+public interface HttpPostEntity 
 {
-	public abstract StringEntity asJsonStringEntity();
+	public StringEntity asJsonStringEntity();
 }

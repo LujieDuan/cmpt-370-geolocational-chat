@@ -9,12 +9,9 @@ import screen.inbox.InboxActivity;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
-
 import comm.HttpRequest;
-import comm.TaskParams_SendNewUserName;
-
-import data.global.GlobalSettings;
-import data.global.UserIdNamePair;
+import data.UserIdNamePair;
+import data.app.global.GlobalSettings;
 
 /**
  * Sends a new userId-userName pairing to the database, in the background. 
@@ -42,10 +39,9 @@ public class SendNewUserNameTask extends AsyncTask<UserIdNamePair, Void, Void>
 	protected Void doInBackground(UserIdNamePair... params) 
 	{
 		UserIdNamePair newUserIdAndName = params[0];
-		TaskParams_SendNewUserName sendEntity = new TaskParams_SendNewUserName(newUserIdAndName);
 
 		try {
-			String responseString = HttpRequest.post(sendEntity, SettingsActivity.SEND_NEW_USER_NAME_URI);
+			String responseString = HttpRequest.post(newUserIdAndName, SettingsActivity.SEND_NEW_USER_NAME_URI);
 			JSONObject responseJson = new JSONObject(responseString);
 
 			if (responseJson.getInt(InboxActivity.TAG_SUCCESS) == 1)

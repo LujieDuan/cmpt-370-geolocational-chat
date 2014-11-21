@@ -50,15 +50,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+
 import comm.ChatSummariesForScreenDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetInbox;
-
-import data.chat.ChatId;
-import data.global.GlobalSettings;
-import data.global.UserIdNamePair;
-import data.inbox.ChatSummariesForScreen;
-import data.inbox.ChatSummaryForScreen;
+import data.UserIdNamePair;
+import data.app.chat.ChatId;
+import data.app.global.GlobalSettings;
+import data.app.inbox.ChatSummaryForScreen;
+import data.comm.inbox.ChatSummariesFromDb;
 
 public class MapActivity extends ActionBarActivity {
 
@@ -496,9 +496,9 @@ public class MapActivity extends ActionBarActivity {
 				if (responseJson.getInt(TAG_SUCCESS) == HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
 					GsonBuilder gsonBuilder = new GsonBuilder();
-					gsonBuilder.registerTypeAdapter(ChatSummariesForScreen.class, new ChatSummariesForScreenDeserializer());
+					gsonBuilder.registerTypeAdapter(ChatSummariesFromDb.class, new ChatSummariesForScreenDeserializer());
 					Gson gson = gsonBuilder.create();
-					final ChatSummaryForScreen[] newChatSummaries = gson.fromJson(responseString, ChatSummariesForScreen.class).chats;
+					final ChatSummaryForScreen[] newChatSummaries = gson.fromJson(responseString, ChatSummariesFromDb.class).chats;
 
 					//TODO: Synchronize this clearing with the clicking on chats. 
 					chatSummaryMap.clear();

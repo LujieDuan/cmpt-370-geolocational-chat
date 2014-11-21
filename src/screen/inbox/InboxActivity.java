@@ -31,11 +31,11 @@ import com.google.gson.JsonSyntaxException;
 import comm.ChatSummariesForScreenDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetInbox;
-import data.chat.ChatId;
-import data.global.GlobalSettings;
-import data.global.UserIdNamePair;
-import data.inbox.ChatSummariesForScreen;
-import data.inbox.ChatSummaryForScreen;
+import data.UserIdNamePair;
+import data.app.chat.ChatId;
+import data.app.global.GlobalSettings;
+import data.app.inbox.ChatSummaryForScreen;
+import data.comm.inbox.ChatSummariesFromDb;
 
 
 public class InboxActivity extends ListActivity {
@@ -121,9 +121,9 @@ public class InboxActivity extends ListActivity {
 					Log.d("dbConnect", "chat summaries: " + summaries);
 					Log.d("dbConnect", "trying to convert json...");
 					GsonBuilder gsonBuilder = new GsonBuilder();
-					gsonBuilder.registerTypeAdapter(ChatSummariesForScreen.class, new ChatSummariesForScreenDeserializer());
+					gsonBuilder.registerTypeAdapter(ChatSummariesFromDb.class, new ChatSummariesForScreenDeserializer());
 					Gson gson = gsonBuilder.create();
-				    ChatSummaryForScreen[] newChatSummaries = gson.fromJson(responseString, ChatSummariesForScreen.class).chats;
+				    ChatSummaryForScreen[] newChatSummaries = gson.fromJson(responseString, ChatSummariesFromDb.class).chats;
 					
 				    Log.d("dbConnect", "new chat summaries title one: " + newChatSummaries[0].title);
 				    

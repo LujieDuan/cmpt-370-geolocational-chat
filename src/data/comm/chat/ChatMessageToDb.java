@@ -1,4 +1,4 @@
-package comm;
+package data.comm.chat;
 
 import java.io.UnsupportedEncodingException;
 
@@ -9,24 +9,34 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import data.chat.ChatMessageToDb;
+import comm.ChatMessageSerializer;
+import comm.HttpPostEntity;
+import data.ChatMessage;
+import data.app.chat.ChatId;
 
-public class TaskParams_SendNewMessage extends HttpPostEntity {
-
-	public ChatMessageToDb newChatMessage;
+/**
+ * Chat message, including all data that needs to be sent to the database.
+ * @author wsv759
+ *
+ */
+public class ChatMessageToDb extends ChatMessage implements HttpPostEntity
+{
+	public ChatId chatId;
 	
-	public TaskParams_SendNewMessage(ChatMessageToDb newChatMessage) {
-		this.newChatMessage = newChatMessage;
+	public ChatMessageToDb(String message, String userId, ChatId chatId) 
+	{
+		super(message, userId);
+		
+		this.chatId = chatId;
 	}
-
-	@Override
+	
 	public StringEntity asJsonStringEntity() 
 	{
 		GsonBuilder gsonBuilder = new GsonBuilder(); 
 		gsonBuilder.registerTypeAdapter(ChatMessageToDb.class, new ChatMessageSerializer());
 	    Gson gson = gsonBuilder.create();
 		
-		String jsonString = gson.toJson(newChatMessage);
+		String jsonString = gson.toJson(this);
 		
 		Log.d("dbConnect", "json string for new message to send: " + jsonString);
 		StringEntity se = null;
@@ -38,5 +48,4 @@ public class TaskParams_SendNewMessage extends HttpPostEntity {
 		
 		return se;
 	}
-
 }

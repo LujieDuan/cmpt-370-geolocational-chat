@@ -1,9 +1,14 @@
-package data.inbox;
+package data;
 
 import java.util.ArrayList;
 
 import com.google.android.gms.maps.model.LatLng;
 
+/**
+ * Basic chat summary: Does NOT include the actual chat contents.
+ * @author wsv759
+ *
+ */
 public class ChatSummary
 {
 	public String title;
@@ -21,10 +26,5 @@ public class ChatSummary
 		this.title = title;
 		this.location = location;
 		this.tags = tags;
-	}
-
-	public String getDistanceString(LatLng currLocation)
-	{    
-		return "50m away";
 	}
 }

@@ -9,6 +9,11 @@ import org.apache.http.message.BasicNameValuePair;
 
 import com.google.android.gms.maps.model.LatLng;
 
+/**
+ * Encapsulates the parameters needed for the http request to get inbox. 
+ * @author wsv759
+ *
+ */
 public class TaskParams_GetInbox extends HttpGetParams
 {
 	/** the current location of the phone, as calculated when this constructor is called.*/

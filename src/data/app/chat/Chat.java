@@ -1,7 +1,6 @@
-package data.chat;
+package data.app.chat;
 
 import java.util.ArrayList;
-
 
 public class Chat 
 {	

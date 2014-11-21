@@ -16,15 +16,20 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
-import data.chat.ChatId;
-import data.inbox.ChatSummariesForScreen;
-import data.inbox.ChatSummaryForScreen;
+import data.app.chat.ChatId;
+import data.app.inbox.ChatSummaryForScreen;
+import data.comm.inbox.ChatSummariesFromDb;
 
+/**
+ * Helps gson to deserialize the incoming json ChatSummary data from the database.
+ * @author wsv759
+ *
+ */
 public class ChatSummariesForScreenDeserializer implements
-		JsonDeserializer<ChatSummariesForScreen> {
+		JsonDeserializer<ChatSummariesFromDb> {
 
 	@Override
-	public ChatSummariesForScreen deserialize(JsonElement arg0, Type arg1,
+	public ChatSummariesFromDb deserialize(JsonElement arg0, Type arg1,
 			JsonDeserializationContext arg2) throws JsonParseException {
 	
 		JsonObject obj = arg0.getAsJsonObject();
@@ -65,7 +70,7 @@ public class ChatSummariesForScreenDeserializer implements
 					creatorUserName, numMessages, numMessagesRead, lastMessageTime); 
 		}
 		
-		return new ChatSummariesForScreen(chats);
+		return new ChatSummariesFromDb(chats);
 	}
 
 }

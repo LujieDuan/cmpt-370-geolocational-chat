@@ -12,7 +12,7 @@ import coderunners.geolocationalchat.R;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import data.inbox.ChatSummaryForScreen;
+import data.app.inbox.ChatSummaryForScreen;
 
 public class InboxItemArrayAdapter extends ArrayAdapter<ChatSummaryForScreen> {
   

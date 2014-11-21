@@ -11,6 +11,11 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 
+/**
+ * Helps gson to deserialize the incoming json DateTime data from the database.
+ * @author wsv759
+ *
+ */
 public class DateTimeDeserializer implements JsonDeserializer<DateTime> 
 {
 	@Override

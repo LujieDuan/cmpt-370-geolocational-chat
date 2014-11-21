@@ -7,8 +7,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import data.chat.ChatMessageToDb;
+import data.comm.chat.ChatMessageToDb;
 
+/**
+ * Helps gson to serialize ChatMessage data into json form, before sending to the database.
+ * @author wsv759
+ *
+ */
 public class ChatMessageSerializer implements JsonSerializer<ChatMessageToDb> 
 {
 	@Override

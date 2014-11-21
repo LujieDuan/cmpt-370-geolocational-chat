@@ -1,5 +1,10 @@
-package data.chat;
+package data;
 
+/**
+ * Basic chat message.
+ * @author wsv759
+ *
+ */
 public class ChatMessage {
 
   public String message;

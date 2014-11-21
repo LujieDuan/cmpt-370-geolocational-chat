@@ -30,18 +30,17 @@ import coderunners.geolocationalchat.R;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+
 import comm.DateTimeDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetNewMessages;
-import comm.TaskParams_SendNewMessage;
-
-import data.chat.Chat;
-import data.chat.ChatId;
-import data.chat.ChatItem;
-import data.chat.ChatMessageForScreen;
-import data.chat.ChatMessageToDb;
-import data.chat.ChatMessagesForScreen;
-import data.global.GlobalSettings;
+import data.app.chat.Chat;
+import data.app.chat.ChatId;
+import data.app.chat.ChatItem;
+import data.app.chat.ChatMessageForScreen;
+import data.app.global.GlobalSettings;
+import data.comm.chat.ChatMessageToDb;
+import data.comm.chat.ChatMessagesFromDb;
 
 public class ChatActivity extends ActionBarActivity
 {
@@ -192,24 +191,29 @@ public class ChatActivity extends ActionBarActivity
 				
 				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) == HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
-					JSONArray messages = responseJson.getJSONArray(TAG_MESSAGE_ARRAY);
+					JSONArray messages = responseJson.optJSONArray(TAG_MESSAGE_ARRAY);
 					
-					Log.d("dbConnect", "messages: " + messages);
-					Log.d("dbConnect", "trying to convert json...");
-					GsonBuilder gsonBuilder = new GsonBuilder(); 
-					gsonBuilder.registerTypeAdapter(DateTime.class, new DateTimeDeserializer());
-				    Gson gson = gsonBuilder.create();
-				    ChatMessageForScreen[] newChatMessages = gson.fromJson(responseString, ChatMessagesForScreen.class).messages;
-					Log.d("dbConnect", "new chat messages: " + newChatMessages.toString());
-					
-					chat.addMessages(newChatMessages);
-					runOnUiThread(new Runnable() {
+					//Request Could be successful, but without finding any new messages.
+					if (messages != null)
+					{
+						Log.d("dbConnect", "messages: " + messages);
+						Log.d("dbConnect", "trying to convert json...");
+						GsonBuilder gsonBuilder = new GsonBuilder(); 
+						gsonBuilder.registerTypeAdapter(DateTime.class, new DateTimeDeserializer());
+						Gson gson = gsonBuilder.create();
+						ChatMessageForScreen[] newChatMessages = gson.fromJson(responseString, ChatMessagesFromDb.class).messages;
+						Log.d("dbConnect", "new chat messages: " + newChatMessages.toString());
 
-		                @Override
-		                public void run() {
-		                    onChatUpdated();
-		                }
-		            });
+						chat.addMessages(newChatMessages);
+						
+						runOnUiThread(new Runnable() {
+
+							@Override
+							public void run() {
+								onChatUpdated();
+							}
+						});
+					}
 				}
 				else
 				{
@@ -233,10 +237,10 @@ public class ChatActivity extends ActionBarActivity
 	{	
 		@Override
 		protected Void doInBackground(ChatMessageToDb... params) {
-			TaskParams_SendNewMessage sendEntity = new TaskParams_SendNewMessage(params[0]);
+			ChatMessageToDb newChatMessage = params[0];
 			
 			try {
-				String responseString = HttpRequest.post(sendEntity, SEND_NEW_MESSAGE_URI);
+				String responseString = HttpRequest.post(newChatMessage, SEND_NEW_MESSAGE_URI);
 				JSONObject responseJson = new JSONObject(responseString);
 
 				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) != HttpRequest.HTTP_RESPONSE_SUCCESS)

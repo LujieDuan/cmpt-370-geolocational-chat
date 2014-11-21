@@ -20,12 +20,9 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import coderunners.geolocationalchat.R;
-
 import comm.HttpRequest;
-import comm.TaskParams_SendNewChat;
-
-import data.chatCreation.ChatSummaryToDb;
-import data.global.GlobalSettings;
+import data.app.global.GlobalSettings;
+import data.comm.chatCreation.ChatSummaryToDb;
 
 /**
  * The chat creation activity can be used by the user to create a new chat at
@@ -141,10 +138,10 @@ public class ChatCreationActivity extends ActionBarActivity {
 		@Override
 		protected Void doInBackground(ChatSummaryToDb... params) 
 		{
-			TaskParams_SendNewChat sendEntity = new TaskParams_SendNewChat(params[0]);
+			ChatSummaryToDb newChatSummary = params[0];
 			
 			try {
-				String responseString = HttpRequest.post(sendEntity, SEND_NEW_CHAT_URI);
+				String responseString = HttpRequest.post(newChatSummary, SEND_NEW_CHAT_URI);
 				JSONObject responseJson = new JSONObject(responseString);
 
 				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) != HttpRequest.HTTP_RESPONSE_SUCCESS)

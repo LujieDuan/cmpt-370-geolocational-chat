@@ -1,4 +1,4 @@
-package data.inbox;
+package data.app.inbox;
 
 
 import java.util.ArrayList;
@@ -7,8 +7,15 @@ import org.joda.time.DateTime;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import data.chat.ChatId;
+import data.ChatSummary;
+import data.app.chat.ChatId;
 
+/**
+ * Individual chat, as displayed by the map screen. Only includes information relevant to the map screen.
+ * Does NOT include the actual chat contents, as the map screen doesn't need those.
+ * @author wsv759
+ *
+ */
 public class ChatSummaryForScreen extends ChatSummary 
 {
 	public ChatId chatId;
@@ -37,5 +44,13 @@ public class ChatSummaryForScreen extends ChatSummary
 		this.lastMessageTime = lastMessageTime;
 		
 	}
-
+	
+	/**
+	 * @param currLocation the current location of the user's phone.
+	 * @return string representing distance between this chat and the user's phone.
+	 */
+	public String getDistanceString(LatLng currLocation)
+	{    
+		return "50m away"; //TODO un-fake this.
+	}
 }

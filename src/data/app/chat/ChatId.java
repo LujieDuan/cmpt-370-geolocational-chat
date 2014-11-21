@@ -1,4 +1,4 @@
-package data.chat;
+package data.app.chat;
 
 import org.joda.time.DateTime;
 
@@ -6,6 +6,14 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import comm.HttpRequest;
 
+/**
+ * Encapsulates the unique chatId for each chat, as created by the database.
+ * This chatId causes the chat screen to be able to request the right chat messages from the database, for display.
+ * 
+ * Must be parcelable, as it has to be passed from the map screen to the chat screen.
+ * @author wsv759
+ *
+ */
 public class ChatId implements Parcelable {
 	
 	public String creatorId;

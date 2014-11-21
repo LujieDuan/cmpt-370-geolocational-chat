@@ -7,8 +7,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 import coderunners.geolocationalchat.R;
-import data.global.GlobalSettings;
-import data.global.UserIdNamePair;
+import data.UserIdNamePair;
+import data.app.global.GlobalSettings;
 
 /**
  * The settings activity can be used by the user to update various information.
