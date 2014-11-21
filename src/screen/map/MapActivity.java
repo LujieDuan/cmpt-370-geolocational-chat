@@ -579,6 +579,5 @@ public class MapActivity extends ActionBarActivity {
 
 			return null;
 		}
-
 	}
 }
