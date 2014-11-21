@@ -146,6 +146,9 @@ public class ChatActivity extends ActionBarActivity
 		
 	} 
 	
+	/**
+	 * Update the UI when the underlying chat messages have changed.
+	 */
 	private void onChatUpdated()
 	{
 		adapter.notifyDataSetChanged();
@@ -154,6 +157,9 @@ public class ChatActivity extends ActionBarActivity
 		listView.smoothScrollToPosition(listView.getBottom());
 	}
 	
+	/**
+	 * Stop updating the chat, when you leave the chat.
+	 */
 	@Override
 	public void onBackPressed() 
 	{
@@ -161,6 +167,12 @@ public class ChatActivity extends ActionBarActivity
 		ChatActivity.super.onBackPressed();
 	}
 	
+	/**
+	 * Get any new messages for this chat from the database, in the background. 
+	 * On success, update the chat. Make toast on failure.
+	 * @author wsv759
+	 *
+	 */
 	private class GetNewMessagesTask implements Runnable 
 	{
 	    @Override
@@ -212,6 +224,11 @@ public class ChatActivity extends ActionBarActivity
 	    }
 	}
 	
+	/**
+	 * Send a new message to the database, in the background. On failure, make toast. 
+	 * @author wsv759
+	 *
+	 */
 	private class SendNewMessageTask extends AsyncTask<ChatMessageToDb, Void, Void>
 	{	
 		@Override

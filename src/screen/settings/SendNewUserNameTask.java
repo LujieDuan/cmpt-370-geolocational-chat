@@ -16,13 +16,28 @@ import comm.TaskParams_SendNewUserName;
 import data.global.GlobalSettings;
 import data.global.UserIdNamePair;
 
+/**
+ * Sends a new userId-userName pairing to the database, in the background. 
+ * If successful, sets the global userId-userName pairing
+ * for this phone to be the new userId-userName pairing.
+ * @author wsv759
+ * 
+ * @param UserIdNamePair a UserIdNamePair object.
+ */
 public class SendNewUserNameTask extends AsyncTask<UserIdNamePair, Void, Void>
 {	
+	/** the activity to which to make toast. */
 	protected Activity activity;
+	
+	/**
+	 * constructor keeps track of the activity to which to make toast.
+	 * @param activity the activity to which to make toast.
+	 */
 	public SendNewUserNameTask(Activity activity)
 	{
 		this.activity = activity;
 	}
+	
 	@Override
 	protected Void doInBackground(UserIdNamePair... params) 
 	{

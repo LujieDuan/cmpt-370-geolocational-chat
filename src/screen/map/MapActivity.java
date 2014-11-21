@@ -456,7 +456,10 @@ public class MapActivity extends ActionBarActivity {
 
 		});
 	}
-
+	
+	/**
+	 * Save the userName, if it exists, to internal storage.
+	 */
 	@Override
 	protected void onStop(){
 		super.onStop();
@@ -471,6 +474,12 @@ public class MapActivity extends ActionBarActivity {
 		editor.commit();
 	}
 	
+	/**
+	 * Gets the full list of nearby chats from the database, in the background. Then, in the foreground, adds
+	 * their new markers to the map. Makes toast if unsuccessful.
+	 * @author wsv759
+	 *
+	 */
 	private class GetInboxTask implements Runnable 
 	{
 		@Override
@@ -479,6 +488,7 @@ public class MapActivity extends ActionBarActivity {
 			LatLng l = GlobalSettings.curPhoneLocation;
 			ArrayList<String> tags = GlobalSettings.tagsToFilterFor;
 			TaskParams_GetInbox sendParams = new TaskParams_GetInbox(l, tags);
+			
 			try {
 				String responseString = HttpRequest.get(sendParams, GET_INBOX_URI);
 				JSONObject responseJson = new JSONObject(responseString);
@@ -533,7 +543,13 @@ public class MapActivity extends ActionBarActivity {
 			}
 		}
 	}
-
+	
+	/**
+	 * Gets all the tags for the app from the database, in the background. 
+	 * Sets the global tags object if successful, and does nothing otherwise, causing the app to fail. TODO change that
+	 * @author wsv759
+	 *
+	 */
 	private class GetTagsTask extends AsyncTask<Void, Void, Void>
 	{
 		@Override

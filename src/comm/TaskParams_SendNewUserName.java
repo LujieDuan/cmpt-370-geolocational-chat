@@ -31,7 +31,6 @@ public class TaskParams_SendNewUserName extends HttpPostEntity
 		try {
 			se = new StringEntity(jsonString);
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

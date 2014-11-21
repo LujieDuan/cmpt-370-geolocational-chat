@@ -66,14 +66,7 @@ public class ChatCreationActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.chat_creation_activity);
 		
-		//TODO: Grab tags from database
-		
-		ArrayList<String> tags = new ArrayList<String>();
-		tags.add("Sports");
-		tags.add("Event");
-		tags.add("Food");
-		tags.add("Games");
-		tags.add("Request");
+		ArrayList<String> tags = GlobalSettings.allTags;
 		
 		LinearLayout tagsList = (LinearLayout) findViewById(R.id.tags_list);
 		int id = Resources.getSystem().getIdentifier("btn_check_holo_light", "drawable", "android");
@@ -136,7 +129,13 @@ public class ChatCreationActivity extends ActionBarActivity {
 			finish();
 		}
 	}
-
+	
+	/**
+	 * Sends the new chat to the database, in the background, and makes toast if unsuccessful.
+	 * @author wsv759
+	 *
+	 * @param ChatSummaryToDb a ChatSummaryToDb object.
+	 */
 	private class SendNewChatTask extends AsyncTask<ChatSummaryToDb, Void, Void>
 	{	
 		@Override
