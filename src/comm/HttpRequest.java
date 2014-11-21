@@ -24,6 +24,7 @@ public class HttpRequest
 {
 	public static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	public static final int TIMEOUT_MILLISEC = 10000;
+	public static final int HTTP_RESPONSE_SUCCESS = 1;
 
 	public static String post(HttpPostEntity entity, String uri) throws ClientProtocolException, IOException
 	{

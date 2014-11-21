@@ -8,6 +8,7 @@ import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import screen.chat.ChatActivity;
 import screen.inbox.InboxActivity;
 import android.content.res.Resources;
 import android.os.AsyncTask;
@@ -148,13 +149,16 @@ public class ChatCreationActivity extends ActionBarActivity {
 				String responseString = HttpRequest.post(sendEntity, SEND_NEW_CHAT_URI);
 				JSONObject responseJson = new JSONObject(responseString);
 
-				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) == 1)
+				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) != HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
-					//TODO set user name here
-				}
-				else
-				{
-					//TODO make failure toast. 
+					runOnUiThread(new Runnable() {
+		                @Override
+		                public void run() {
+		                	Toast.makeText(ChatCreationActivity.this, 
+		                			"Server rejected new chat.\nPlease try again later.", 
+		                			Toast.LENGTH_LONG).show();
+		                }
+		            });
 				}
 			} catch (IOException | JSONException e) {
 				//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.

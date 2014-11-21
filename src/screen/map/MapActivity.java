@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import screen.chat.ChatActivity;
 import screen.chatCreation.ChatCreationActivity;
 import screen.inbox.InboxActivity;
+import screen.settings.SendNewUserNameTask;
 import screen.settings.SettingsActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,6 +35,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 import coderunners.geolocationalchat.R;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -49,10 +51,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+
 import comm.ChatSummariesForScreenDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetInbox;
-
 import data.chat.ChatId;
 import data.global.GlobalSettings;
 import data.global.UserIdNamePair;
@@ -167,7 +169,7 @@ public class MapActivity extends ActionBarActivity {
 		if (userName.isEmpty())
 		{
 			//The SendNewUserNameTask changes the global userIdAndName for us.
-			new SettingsActivity.SendNewUserNameTask().execute(new UserIdNamePair(deviceId, deviceId));
+			new SendNewUserNameTask(this).execute(new UserIdNamePair(deviceId, deviceId));
 		}
 		else
 		{
@@ -484,7 +486,7 @@ public class MapActivity extends ActionBarActivity {
 				String responseString = HttpRequest.get(sendParams, GET_INBOX_URI);
 				JSONObject responseJson = new JSONObject(responseString);
 
-				if (responseJson.getInt(TAG_SUCCESS) == 1)
+				if (responseJson.getInt(TAG_SUCCESS) == HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
 					GsonBuilder gsonBuilder = new GsonBuilder();
 					gsonBuilder.registerTypeAdapter(ChatSummariesForScreen.class, new ChatSummariesForScreenDeserializer());
@@ -522,11 +524,18 @@ public class MapActivity extends ActionBarActivity {
 						}
 					});
 				}
-			} catch (IOException | JsonSyntaxException e) {
+			} catch (IOException e) {
 				//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.
-				e.printStackTrace();
-				Log.e("dbConnect", e.toString());
-			} catch (JSONException e) {
+				
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						Toast.makeText(MapActivity.this, 
+								"Unable to receive chats; server timed out.\nTrying again...", 
+								Toast.LENGTH_LONG).show();
+					}
+				});
+			} catch (JSONException | JsonSyntaxException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
