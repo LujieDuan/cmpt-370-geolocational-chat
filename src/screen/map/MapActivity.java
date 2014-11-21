@@ -33,6 +33,7 @@ import android.provider.Settings.Secure;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import coderunners.geolocationalchat.R;
 
@@ -62,8 +63,6 @@ import data.comm.ChatSummariesFromDb;
 
 public class MapActivity extends Activity {
 
-	
-
 	public static final String SETTINGS_FILE_NAME = "GeolocationalChatStoredSettings";
 	public static final String SETTINGS_KEY_USER_NAME = "userName";
 
@@ -81,8 +80,8 @@ public class MapActivity extends Activity {
 	Marker selectedMarker = null;
 	boolean selectionAvailable = true;
 
-	static ArrayList<Marker> markerList = new ArrayList<Marker>();
-	static HashMap<String, ChatSummaryForScreen> chatSummaryMap = new HashMap<String, ChatSummaryForScreen>();
+	ArrayList<Marker> markerList = new ArrayList<Marker>();
+	HashMap<String, ChatSummaryForScreen> chatSummaryMap = new HashMap<String, ChatSummaryForScreen>();
 	
 	int minMessages;
     int maxMessages;
@@ -102,8 +101,6 @@ public class MapActivity extends Activity {
 	final int MARKER_UPDATE_INTERVAL = 1000; 
 	Handler handler = new Handler();
 	
-	private ScheduledThreadPoolExecutor chatUpdateScheduler;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -177,8 +174,9 @@ public class MapActivity extends Activity {
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+	    MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -271,7 +269,7 @@ public class MapActivity extends Activity {
 	 * @param marker Marker to animate
 	 * @param display Display on which it will be animated
 	 */
-	static void animateMarkerSelection(final Marker marker, final Display display)
+	void animateMarkerSelection(final Marker marker, final Display display)
 	{
 		final Handler handler = new Handler();
 		final long start = SystemClock.uptimeMillis();
@@ -360,14 +358,6 @@ public class MapActivity extends Activity {
 		editor.commit();
 	}
 	
-	@Override
-	protected void onDestroy(){
-		super.onDestroy();
-		
-		chatUpdateScheduler.shutdownNow();
-		//Can't use it anymore anyway, so this will help emphasize that...
-		chatUpdateScheduler = null;
-	}
 	/**
 	 * Gets the full list of nearby chats from the database, in the background. Then, in the foreground, adds
 	 * their new markers to the map. Makes toast if unsuccessful.
