@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -32,7 +31,6 @@ import android.os.SystemClock;
 import android.provider.Settings.Secure;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.util.MutableBoolean;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -267,9 +265,14 @@ public class MapActivity extends ActionBarActivity {
 		}
 	}
 
+	// TODO: This method contains outdated math, ideally all animation would be handled by a different class
+	/**
+	 * Animates a marker selection, repeatedly changing the marker icon.
+	 * @param marker Marker to animate
+	 * @param display Display on which it will be animated
+	 */
 	static void animateMarkerSelection(final Marker marker, final Display display)
 	{
-		final LatLng startPosition = marker.getPosition();
 		final Handler handler = new Handler();
 		final long start = SystemClock.uptimeMillis();
 		final float durationInMs = 1000;
@@ -296,11 +299,6 @@ public class MapActivity extends ActionBarActivity {
 				Point triangleSize =
 						new Point((int) (screenSize.x * triangleScreenSizeX),
 								(int) (screenSize.x * triangleScreenSizeY));
-
-				Point bubbleSizeInitial =
-						new Point((int) (screenSize.x * 0.20 + chatSummary.numMessages),
-								(int) (screenSize.x * 0.20 + chatSummary.numMessages));
-
 
 				Point bubbleSize =
 						new Point(100 + (int) ((screenSize.x * 0.67 - 100) * t),
@@ -414,7 +412,9 @@ public class MapActivity extends ActionBarActivity {
 					        && newChatSummaries[i].chatId.timeId.equals(oldChatSummary.chatId.timeId))
 					    {
 					      match = true;
-					      summaryUpdateList.add(newChatSummaries[i]);
+					      oldChatSummary.lastMessageTime = newChatSummaries[i].lastMessageTime;
+					      oldChatSummary.numMessages = newChatSummaries[i].numMessages;
+					      summaryUpdateList.add(oldChatSummary);
 					      markerUpdateList.add(markerList.get(j));
 					    }
 					  }
@@ -467,7 +467,6 @@ public class MapActivity extends ActionBarActivity {
 						@Override
 						public void run() {
 						  
-						    Log.d("dbConnect", "create inside: " + summaryCreateList.size());
 						    for(int i=0; i<summaryCreateList.size(); i++)
 						    {
 						      //create marker
@@ -484,7 +483,6 @@ public class MapActivity extends ActionBarActivity {
 						      chatSummaryMap.put(marker.getId(), summaryCreateList.get(i));
 						    }
 						  
-						    Log.d("dbConnect", "update inside: " + markerUpdateList.size());
 						    for(int i=0; i<markerUpdateList.size(); i++)
 						    {
 						      
@@ -502,7 +500,6 @@ public class MapActivity extends ActionBarActivity {
 						      }
 						    }
 						    
-						    Log.d("dbConnect", "remove inside: " + markerRemoveList.size());
 						    for(int i=0; i<markerRemoveList.size(); i++)
 						    {
 						      Log.d("dbConnect", "Removing something, shouldn't be... Remove size: " + markerRemoveList.size());
