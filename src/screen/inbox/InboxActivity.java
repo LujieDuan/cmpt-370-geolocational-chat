@@ -31,11 +31,11 @@ import com.google.gson.JsonSyntaxException;
 import comm.ChatSummariesForScreenDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetInbox;
-import data.UserIdNamePair;
-import data.app.chat.ChatId;
 import data.app.global.GlobalSettings;
 import data.app.inbox.ChatSummaryForScreen;
-import data.comm.inbox.ChatSummariesFromDb;
+import data.base.ChatId;
+import data.base.UserIdNamePair;
+import data.comm.ChatSummariesFromDb;
 
 
 public class InboxActivity extends ListActivity {

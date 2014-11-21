@@ -12,7 +12,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import data.comm.chatCreation.ChatSummaryToDb;
+import data.comm.ChatSummaryToDb;
 
 /**
  * Helps gson to serialize ChatSummary data into json form, before sending to the database.

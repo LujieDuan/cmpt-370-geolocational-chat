@@ -35,12 +35,12 @@ import comm.DateTimeDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetNewMessages;
 import data.app.chat.Chat;
-import data.app.chat.ChatId;
 import data.app.chat.ChatItem;
 import data.app.chat.ChatMessageForScreen;
 import data.app.global.GlobalSettings;
-import data.comm.chat.ChatMessageToDb;
-import data.comm.chat.ChatMessagesFromDb;
+import data.base.ChatId;
+import data.comm.ChatMessageToDb;
+import data.comm.ChatMessagesFromDb;
 
 public class ChatActivity extends ActionBarActivity
 {

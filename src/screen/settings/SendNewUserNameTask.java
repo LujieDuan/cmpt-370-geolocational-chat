@@ -10,8 +10,8 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
 import comm.HttpRequest;
-import data.UserIdNamePair;
 import data.app.global.GlobalSettings;
+import data.base.UserIdNamePair;
 
 /**
  * Sends a new userId-userName pairing to the database, in the background. 

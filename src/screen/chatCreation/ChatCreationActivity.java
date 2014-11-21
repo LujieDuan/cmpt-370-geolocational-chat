@@ -22,7 +22,7 @@ import android.widget.Toast;
 import coderunners.geolocationalchat.R;
 import comm.HttpRequest;
 import data.app.global.GlobalSettings;
-import data.comm.chatCreation.ChatSummaryToDb;
+import data.comm.ChatSummaryToDb;
 
 /**
  * The chat creation activity can be used by the user to create a new chat at

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import data.UserIdNamePair;
+import data.base.UserIdNamePair;
 
 /**
  * Uninstantiated class; contains some global constants that various parts of the app will need to access.

@@ -1,4 +1,4 @@
-package data.comm.inbox;
+package data.comm;
 
 import data.app.inbox.ChatSummaryForScreen;
 

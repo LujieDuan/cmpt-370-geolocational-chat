@@ -7,8 +7,8 @@ import org.joda.time.DateTime;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import data.ChatSummary;
-import data.app.chat.ChatId;
+import data.base.ChatId;
+import data.base.ChatSummary;
 
 /**
  * Individual chat, as displayed by the map screen. Only includes information relevant to the map screen.
@@ -19,7 +19,7 @@ import data.app.chat.ChatId;
 public class ChatSummaryForScreen extends ChatSummary 
 {
 	public ChatId chatId;
-	public String creatorUserName = "Todd";
+	public String creatorUserName;
 	public int numMessages;
 	public DateTime lastMessageTime;
 	public int numMessagesRead = 0;

@@ -14,6 +14,7 @@ import screen.chat.ChatActivity;
 import screen.chatCreation.ChatCreationActivity;
 import screen.settings.SendNewUserNameTask;
 import screen.settings.SettingsActivity;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -29,7 +30,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.provider.Settings.Secure;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -54,13 +54,13 @@ import com.google.gson.JsonSyntaxException;
 import comm.ChatSummariesForScreenDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetInbox;
-import data.UserIdNamePair;
-import data.app.chat.ChatId;
 import data.app.global.GlobalSettings;
 import data.app.inbox.ChatSummaryForScreen;
-import data.comm.inbox.ChatSummariesFromDb;
+import data.base.ChatId;
+import data.base.UserIdNamePair;
+import data.comm.ChatSummariesFromDb;
 
-public class MapActivity extends ActionBarActivity {
+public class MapActivity extends Activity {
 
 	
 
@@ -117,7 +117,7 @@ public class MapActivity extends ActionBarActivity {
 		if (userName.isEmpty())
 		{
 			//The SendNewUserNameTask changes the global userIdAndName for us.
-			new SendNewUserNameTask(this).execute(new UserIdNamePair(deviceId, deviceId));
+			new SendNewUserNameTask(this).execute(new UserIdNamePair(deviceId,getResources().getString(R.string.unknown_user_name)));
 		}
 		else
 		{
@@ -265,7 +265,7 @@ public class MapActivity extends ActionBarActivity {
 		}
 	}
 
-	// TODO: This method contains outdated math, ideally all animation would be handled by a different class
+	// TODO: This method contains outdated math; ideally all animation would be handled by a different class
 	/**
 	 * Animates a marker selection, repeatedly changing the marker icon.
 	 * @param marker Marker to animate
