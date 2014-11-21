@@ -428,6 +428,7 @@ public class MapActivity extends ActionBarActivity {
 		@Override
 		public void run() 
 		{
+		    updateLocation();
 			LatLng l = GlobalSettings.curPhoneLocation;
 			ArrayList<String> tags = GlobalSettings.tagsToFilterFor;
 			TaskParams_GetInbox sendParams = new TaskParams_GetInbox(l, tags);
@@ -561,7 +562,6 @@ public class MapActivity extends ActionBarActivity {
 						      markerRemoveList.get(i).remove();
 						    }
 
-						    updateLocation();
 							userCircle.setCenter(GlobalSettings.curPhoneLocation);
 							
 							Log.i("dbConnect", "Cleared and replaced chat summaries, on the map screen.");
