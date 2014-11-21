@@ -1,4 +1,4 @@
-package data;
+package data.base;
 
 import java.io.UnsupportedEncodingException;
 

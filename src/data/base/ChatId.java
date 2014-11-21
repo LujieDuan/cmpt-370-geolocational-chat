@@ -1,4 +1,4 @@
-package data.app.chat;
+package data.base;
 
 import org.joda.time.DateTime;
 

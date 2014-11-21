@@ -11,8 +11,8 @@ import com.google.gson.GsonBuilder;
 
 import comm.ChatMessageSerializer;
 import comm.HttpPostEntity;
-import data.ChatMessage;
-import data.app.chat.ChatId;
+import data.base.ChatId;
+import data.base.ChatMessage;
 
 /**
  * Chat message, including all data that needs to be sent to the database.

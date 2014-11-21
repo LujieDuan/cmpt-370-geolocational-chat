@@ -10,7 +10,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import comm.HttpRequest;
-import data.ChatMessage;
+import data.base.ChatMessage;
 
 /**
  * Chat message, including all data needed for the chat screen to display the message.

@@ -14,7 +14,7 @@ import com.google.gson.GsonBuilder;
 
 import comm.ChatSummarySerializer;
 import comm.HttpPostEntity;
-import data.ChatSummary;
+import data.base.ChatSummary;
 
 /**
  * Chat Summary, including all data that needs to be sent to the database.

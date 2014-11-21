@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 
-import data.app.chat.ChatId;
+import data.base.ChatId;
 
 
 /**

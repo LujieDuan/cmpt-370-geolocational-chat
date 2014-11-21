@@ -1,4 +1,4 @@
-package data.app.inbox;
+package data.app.map;
 
 
 import java.util.ArrayList;
@@ -13,8 +13,8 @@ import org.joda.time.Years;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import data.ChatSummary;
-import data.app.chat.ChatId;
+import data.base.ChatId;
+import data.base.ChatSummary;
 
 /**
  * Individual chat, as displayed by the map screen. Only includes information relevant to the map screen.
