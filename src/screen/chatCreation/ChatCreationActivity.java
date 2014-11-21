@@ -150,19 +150,13 @@ public class ChatCreationActivity extends ActionBarActivity {
 
 				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) != HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
-					runOnUiThread(new Runnable() {
-		                @Override
-		                public void run() {
-		                	Toast.makeText(ChatCreationActivity.this, 
-		                			"Server rejected new chat.\nPlease try again later.", 
-		                			Toast.LENGTH_LONG).show();
-		                }
-		            });
+					HttpRequest.makeToastOnRequestRejection(ChatCreationActivity.this, "response", false);
 				}
-			} catch (IOException | JSONException e) {
-				//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.
-				e.printStackTrace();
+			} catch (IOException e) {
+				HttpRequest.makeToastOnServerTimeout(ChatCreationActivity.this, "response", false);
 				Log.e("dbConnect", e.toString());
+			} catch (JSONException e) {
+				e.printStackTrace();
 			}
 
 			return null;

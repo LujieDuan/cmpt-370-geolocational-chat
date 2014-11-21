@@ -139,11 +139,14 @@ public class InboxActivity extends ListActivity {
 		                }
 		            });
 				}
-			} catch (IOException | JsonSyntaxException e) {
-				e.printStackTrace();
+				else
+				{
+					HttpRequest.makeToastOnRequestRejection(InboxActivity.this, "new inbox data", true);
+				}
+			} catch (IOException e) {
+				HttpRequest.makeToastOnServerTimeout(InboxActivity.this, "new inbox data", true);
 				Log.e("dbConnect", e.toString());
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
+			} catch (JSONException | JsonSyntaxException e) {
 				e.printStackTrace();
 			}
 	    }

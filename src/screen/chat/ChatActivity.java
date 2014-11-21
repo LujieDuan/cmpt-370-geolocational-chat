@@ -25,7 +25,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 import coderunners.geolocationalchat.R;
 
 import com.google.gson.Gson;
@@ -55,7 +54,6 @@ public class ChatActivity extends ActionBarActivity
 	private ChatId chatId;
 	private MySimpleArrayAdapter adapter;
 	
-	private static final int NUM_RETRY_ATTEMPTS = 1;
 	private static final int GET_MESSAGES_DELAY_SEC = 5;
 	
 	private ScheduledThreadPoolExecutor chatUpdateScheduler;
@@ -176,7 +174,6 @@ public class ChatActivity extends ActionBarActivity
 	    	
 			TaskParams_GetNewMessages sendParams = new TaskParams_GetNewMessages(chatId, lastMessageId);
 			
-			int retryCount = 0;
 			try {
 				String responseString = HttpRequest.get(sendParams, GET_NEW_MESSAGES_URI);
 				JSONObject responseJson = new JSONObject(responseString);
@@ -202,24 +199,14 @@ public class ChatActivity extends ActionBarActivity
 		                }
 		            });
 				}
-
-			} catch (IOException e) {		
-				//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.
-				retryCount++;
-				Log.e("dbConnect", e.toString() + "\nretry count: " + retryCount);
-				if (retryCount >= NUM_RETRY_ATTEMPTS)
+				else
 				{
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							Toast.makeText(ChatActivity.this, 
-									"Unable to receive messages; server timed out.\nTrying again...", 
-									Toast.LENGTH_LONG).show();
-						}
-					});
+					HttpRequest.makeToastOnRequestRejection(ChatActivity.this, "new messages", true);
 				}
+			} catch (IOException e) {		
+				HttpRequest.makeToastOnServerTimeout(ChatActivity.this, "new messages", true);
+				Log.e("dbConnect", e.toString());
 			} catch (JSONException | JsonSyntaxException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 	    }
@@ -231,39 +218,19 @@ public class ChatActivity extends ActionBarActivity
 		protected Void doInBackground(ChatMessageToDb... params) {
 			TaskParams_SendNewMessage sendEntity = new TaskParams_SendNewMessage(params[0]);
 			
-			int retryCount = 0;
 			try {
 				String responseString = HttpRequest.post(sendEntity, SEND_NEW_MESSAGE_URI);
 				JSONObject responseJson = new JSONObject(responseString);
 
 				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) != HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
-					runOnUiThread(new Runnable() {
-		                @Override
-		                public void run() {
-		                	Toast.makeText(ChatActivity.this, 
-		                			"Server rejected new message.\nPlease try again later.", 
-		                			Toast.LENGTH_LONG).show();
-		                }
-		            });
+					HttpRequest.makeToastOnRequestRejection(ChatActivity.this, "response", false);
 				}
-			} catch (IOException | JSONException e) {
+			} catch (IOException e) {
+				HttpRequest.makeToastOnServerTimeout(ChatActivity.this, "response", false);
+				Log.e("dbConnect", e.toString());
+			} catch (JSONException e) {
 				e.printStackTrace();
-				
-				//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.
-				retryCount++;
-				Log.e("dbConnect", e.toString() + "\nretry count: " + retryCount);
-				if (retryCount >= NUM_RETRY_ATTEMPTS)
-				{
-					runOnUiThread(new Runnable() {
-		                @Override
-		                public void run() {
-		                	Toast.makeText(ChatActivity.this, 
-		                			"Unable to send message; server timed out.\nPlease try again later.", 
-		                			Toast.LENGTH_LONG).show();
-		                }
-		            });
-				}
 			}
 			
 			//TODO immediately get new messages.

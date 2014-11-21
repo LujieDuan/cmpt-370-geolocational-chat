@@ -35,7 +35,6 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 import coderunners.geolocationalchat.R;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -471,8 +470,7 @@ public class MapActivity extends ActionBarActivity {
 			
 		editor.commit();
 	}
-
-
+	
 	private class GetInboxTask implements Runnable 
 	{
 		@Override
@@ -523,19 +521,14 @@ public class MapActivity extends ActionBarActivity {
 						}
 					});
 				}
+				else
+				{
+					HttpRequest.makeToastOnRequestRejection(MapActivity.this, "new inbox data", true);
+				}
 			} catch (IOException e) {
-				//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.
-				
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						Toast.makeText(MapActivity.this, 
-								"Unable to receive chats; server timed out.\nTrying again...", 
-								Toast.LENGTH_LONG).show();
-					}
-				});
+				HttpRequest.makeToastOnServerTimeout(MapActivity.this, "new inbox data", true);
+				Log.e("dbConnect", e.toString());
 			} catch (JSONException | JsonSyntaxException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -554,8 +547,8 @@ public class MapActivity extends ActionBarActivity {
 				
 				Log.d("dbConnect", "received tags. First tag: " + newTags[0]);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				HttpRequest.makeToastOnServerTimeout(MapActivity.this, "tags", false);
+				Log.e("dbConnect", e.toString());
 			}
 
 			return null;

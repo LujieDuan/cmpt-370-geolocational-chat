@@ -9,7 +9,6 @@ import screen.inbox.InboxActivity;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import comm.HttpRequest;
 import comm.TaskParams_SendNewUserName;
@@ -40,25 +39,15 @@ public class SendNewUserNameTask extends AsyncTask<UserIdNamePair, Void, Void>
 			}
 			else
 			{
-				activity.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						Toast.makeText(
-								activity, 
-								"Server rejected new user.\nPlease try again later.", 
-								Toast.LENGTH_LONG).show();
-					}
-				});
+				HttpRequest.makeToastOnRequestRejection(activity, "response", false);
 			}
 			
 			activity.notify();
 			Log.i("dbConnect", "Sent new user name to db.");
 		} catch (IOException e) {
-			//TODO: Implement retries properly, presumably by setting the DefaultHttpRequestRetryHandler.
-			e.printStackTrace();
+			HttpRequest.makeToastOnServerTimeout(activity, "response", false);
 			Log.e("dbConnect", e.toString());
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
