@@ -58,12 +58,14 @@ public class ChatSummariesForScreenDeserializer implements
 			
 			ChatId chatId = new ChatId(creatorId, timeId);
 			
+			//TODO: Get name from database
 			String creatorUserName = "Joseph";
 			
 			int numMessages = innerObj.get("numMessages").getAsInt();
 			
 			int numMessagesRead = 0;
 			
+			//TODO: Get time from database
 			DateTime lastMessageTime = formatter.parseDateTime("2000-01-01 20:20:20");
 			
 			chats[i] = new ChatSummaryForScreen(title, location, tags, chatId, 

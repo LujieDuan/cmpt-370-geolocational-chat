@@ -24,6 +24,9 @@ import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.shapes.RoundRectShape;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -98,8 +101,11 @@ public class MapActivity extends ActionBarActivity {
 	static final float bubbleSelectedScreenSizeX = 0.67f;
 	static final float bubbleSelectedScreenSizeY = 0.33f;
 
-	final int MARKER_UPDATE_INTERVAL = 1000; 
 	Handler handler = new Handler();
+	
+	Location location;
+	Criteria criteria;
+	LocationManager locationManager;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -125,6 +131,8 @@ public class MapActivity extends ActionBarActivity {
 		
 		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 		
+		updateLocation();
+		
 		LatLng curPhoneLocation = GlobalSettings.curPhoneLocation;
         
 		map.moveCamera(CameraUpdateFactory.newLatLngZoom(curPhoneLocation, 14));
@@ -133,7 +141,7 @@ public class MapActivity extends ActionBarActivity {
 	        map.addCircle(new CircleOptions().radius(1000)
 	            .strokeColor(Color.argb(60, 255, 40, 50))
 	            .strokeWidth(5)
-	            .fillColor(Color.argb(30, 255, 40, 50)).center(new LatLng(52.1310799, -106.6341388)));
+	            .fillColor(Color.argb(30, 255, 40, 50)).center(GlobalSettings.curPhoneLocation));
 		
 		ScheduledThreadPoolExecutor chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
 
@@ -149,11 +157,7 @@ public class MapActivity extends ActionBarActivity {
 					chatScreenIntent.putExtra(ChatActivity.CHATID_STRING,curChatId);
 					startActivity(chatScreenIntent);
 				} else if (selectionAvailable) {
-					deselectMarker();
-					selectedMarker = marker;
-					animateMarkerSelection(marker, getWindowManager().getDefaultDisplay());
-					//          AnimateMarkerSelect animateMarkfinalerSelect = new AnimateMarkerSelect();
-					//          animateMarkerSelect.doInBackground(marker.getId());
+					selectMarker(marker);
 				}        
 				return false;
 			}
@@ -193,26 +197,36 @@ public class MapActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    void selectMarker(Marker marker) {
+      deselectMarker();
+      selectedMarker = marker;
+      selectedMarker.setIcon(BitmapDescriptorFactory.fromBitmap(createSelectedMarkerIcon(chatSummaryMap.get(selectedMarker.getId()))));
+    }
+    
 	void deselectMarker() {
-		if (selectedMarker != null) {
-			AnimateMarkerDeselect animateMarkerDeselected = new AnimateMarkerDeselect();
-			animateMarkerDeselected.doInBackground(new String(selectedMarker.getId()));
-			selectedMarker = null;
-		}
+	  if(selectedMarker != null)
+      {
+        selectedMarker.setIcon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(chatSummaryMap.get(selectedMarker.getId()),  minMessages, maxMessages)));
+		selectedMarker = null;
+      }
 	}
 
+	/**
+	 * Creates and returns a marker bitmap for the given chat summary
+	 * @param chatSummary chat summary for which an icon is created
+	 * @param minMessages The minimum number of messages for known chats, used
+	 * to determine the scale of the marker
+	 * @param maxMessages The maximum number of messages for known chats, used
+	 * to determine the scale of the marker
+	 */
 	Bitmap createMarkerIcon(ChatSummaryForScreen chatSummary, int minMessages, int maxMessages) {
-		// todo: create function for bubble size
-
 	  
-	    float scale = (float) (chatSummary.numMessages - minMessages) / (float) (maxMessages - minMessages);
-	  
-		int numRepliesUnread = chatSummary.numMessages - chatSummary.numMessagesRead;
+	    float scale = (float) (chatSummary.getNumMessages() - minMessages) / (float) (maxMessages - minMessages);
 
 		float triangleWidth = 30;
 		float triangleHeight = (float) (triangleWidth * Math.sqrt(0.75));
 
-		String strText = Integer.toString(numRepliesUnread);
+		String strText = Integer.toString(chatSummary.getNumMessagesUnread());
 
 		Paint paintText = new Paint();
 		paintText.setColor(getResources().getColor(R.color.chat_me_foreground));
@@ -251,95 +265,126 @@ public class MapActivity extends ActionBarActivity {
 
 		return image;
 	}
-
-	private class AnimateMarkerDeselect extends AsyncTask<String, Void, Void> {
-		@Override
-		protected Void doInBackground(String... markerIds) {
-			if(selectedMarker != null)
-			{
-  			  selectedMarker.setIcon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(chatSummaryMap.get(selectedMarker.getId()),  minMessages, maxMessages)));
-			}
-			return null;
-		}
-	}
-
-	// TODO: This method contains outdated math, ideally all animation would be handled by a different class
+	
 	/**
-	 * Animates a marker selection, repeatedly changing the marker icon.
-	 * @param marker Marker to animate
-	 * @param display Display on which it will be animated
+	 * Creates a selected marker bitmap for the given chat summary.
+	 * @param chatSummary chat summary for which an icon is created
 	 */
-	void animateMarkerSelection(final Marker marker, final Display display)
-	{
-		final Handler handler = new Handler();
-		final long start = SystemClock.uptimeMillis();
-		final float durationInMs = 1000;
-		final ChatSummaryForScreen chatSummary = chatSummaryMap.get(marker.getId());
+	Bitmap createSelectedMarkerIcon(ChatSummaryForScreen chatSummary)
+    {
+	  
+      
+      String nameText = chatSummary.getUserName();
+      String titleText = chatSummary.getTitle();
+      String infoText = chatSummary.getTimeString() + ", " + chatSummary.getNumMessagesString();
+      
+      Log.d("dbConnect", nameText);
+      Log.d("dbConnect", titleText);
+      Log.d("dbConnect", infoText);
+      
+      //TODO: limit name size
+      Paint paintNameText = new Paint();
+      paintNameText.setColor(getResources().getColor(R.color.white));
+      paintNameText.setTextSize(30);
+      paintNameText.setAntiAlias(true);
+      
+      //TODO: limit title size
+      Paint paintTitleText = new Paint();
+      paintTitleText.setColor(getResources().getColor(R.color.white));
+      paintTitleText.setTextSize(40);
+      paintTitleText.setAntiAlias(true);
+      
+      Paint paintInfoText = new Paint();
+      paintInfoText.setColor(getResources().getColor(R.color.white));
+      paintInfoText.setTextSize(20);
+      paintInfoText.setAntiAlias(true);
+      
+      Paint paintShape = new Paint();
+      paintShape.setColor(getResources().getColor(R.color.chat_me_background));
+      paintShape.setAntiAlias(true);
+      
+      Rect boundsNameText = new Rect();
+      paintNameText.getTextBounds(nameText, 0, nameText.length(), boundsNameText);
+      
+      Rect boundsTitleText = new Rect();
+      paintTitleText.getTextBounds(titleText, 0, titleText.length(), boundsTitleText);
+      
+      Rect boundsInfoText = new Rect();
+      paintInfoText.getTextBounds(infoText, 0, infoText.length(), boundsInfoText);
+      
+      Log.d("dbConnect", "height: " + boundsTitleText.bottom + ", " + boundsInfoText.bottom);
+      Log.d("dbConnect", "size: " + Math.max(Math.max(boundsNameText.right, boundsTitleText.right), boundsInfoText.right));
+      
+      Rect boundsText = new Rect();
+      boundsText.set(0, 0, 
+          Math.max(Math.max(boundsNameText.right, boundsTitleText.right), boundsInfoText.right) + 50, 
+          boundsNameText.height() + boundsTitleText.height() + boundsInfoText.height() + 70);
+      
+      float triangleWidth = 30;
+      float triangleHeight = (float) (triangleWidth * Math.sqrt(0.75));
+      
+      Log.d("dbConnect", "size 2: " + boundsText.width());
+      
+      Bitmap image =
+          Bitmap.createBitmap(boundsText.width(), 
+              boundsText.height() + (int) triangleHeight / 2, 
+              Bitmap.Config.ARGB_8888);
+      
+      Canvas canvas = new Canvas(image);
+      
+      Point trianglePosition = new Point();
+      trianglePosition.x = (int) (image.getWidth() / 2 - triangleWidth / 2);
+      trianglePosition.y = (int) (image.getHeight() - triangleHeight);
 
-		handler.post(new Runnable()
-		{
+      Path triangle = new Path();
+      triangle.moveTo(trianglePosition.x, trianglePosition.y);
+      triangle.lineTo(trianglePosition.x + triangleWidth * 1.0f, trianglePosition.y);
+      triangle.lineTo(trianglePosition.x + triangleWidth * 0.5f, trianglePosition.y + triangleHeight);
+      
+      canvas.drawPath(triangle, paintShape);
+      canvas.drawRect(boundsText, paintShape);
+      canvas.drawText(titleText, 25, 50, paintTitleText);
+      canvas.drawText(nameText, 25, 90, paintNameText);
+      canvas.drawText(infoText, 25, 125, paintInfoText);
 
-			long elapsed;
-			float t;
-
-			@Override
-			public void run() {
-				elapsed = SystemClock.uptimeMillis() - start;
-				t = elapsed / durationInMs;
-				t = (float) Math.min(t, 1.0);
-
-				// TODO: Make size relative to screen size, add text, make formula for bubble size
-
-				Point screenSize = new Point();
-				display.getSize(screenSize);
-
-				// TODO: Instead of using screen.x, use smallest screen dim?
-				Point triangleSize =
-						new Point((int) (screenSize.x * triangleScreenSizeX),
-								(int) (screenSize.x * triangleScreenSizeY));
-
-				Point bubbleSize =
-						new Point(100 + (int) ((screenSize.x * 0.67 - 100) * t),
-								100 + (int) ((screenSize.x * 0.33 - 100) * t));
-
-				Bitmap image =
-						Bitmap.createBitmap(bubbleSize.x, bubbleSize.y + triangleSize.y / 2,
-								Bitmap.Config.ARGB_8888);
-
-				float radius = 50 - 50 * t;
-				float[] radii = {radius, radius, radius, radius, radius, radius, radius, radius};
-				RoundRectShape bubble = new RoundRectShape(radii, null, null);
-
-				bubble.resize(bubbleSize.x, bubbleSize.y);
-
-				Point trianglePosition =
-						new Point((int) (image.getWidth() / 2 - triangleSize.x / 2),
-								(int) (image.getHeight() - triangleSize.y));
-
-				Path triangle = new Path();
-				triangle.moveTo(trianglePosition.x, trianglePosition.y);
-				triangle.lineTo(trianglePosition.x + triangleSize.x, trianglePosition.y);
-				triangle.lineTo(trianglePosition.x + triangleSize.x * 0.5f, 
-						trianglePosition.y + triangleSize.y);
-
-				Paint paint = new Paint();
-				paint.setAntiAlias(false);
-				paint.setARGB(255, 255, 65 + (int) (30 * t), 65 + (int) (30 * t));
-
-				Canvas canvas = new Canvas(image);
-				bubble.draw(canvas, paint);
-				canvas.drawPath(triangle, paint);
-			
-				marker.setIcon(BitmapDescriptorFactory.fromBitmap(image));
-
-				if(t < 1)
-				{
-					handler.postDelayed(this, 16);
-				}
-			}
-
-		});
-	}
+      return image;
+    }
+	
+//	/**
+//	 * Returns the current location of the user
+//	 */
+//	public LatLng getCurrentLocation()
+//	{
+//	  locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+//	  criteria = new Criteria();
+//	  criteria.setAccuracy(Criteria.ACCURACY_FINE);
+//	  String provider = locationManager.getBestProvider(criteria, true);
+//	  
+//	  location = locationManager.getLastKnownLocation(provider);
+//	  LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+//	  return currentLocation;
+//	}
+	
+     /**
+      * Returns the current location of the user
+      */
+     public void updateLocation()
+     {
+       locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+       criteria = new Criteria();
+       criteria.setAccuracy(Criteria.ACCURACY_FINE);
+       String provider = locationManager.getBestProvider(criteria, true);
+       location = locationManager.getLastKnownLocation(provider);
+       if(location != null)
+       {
+         GlobalSettings.curPhoneLocation = new LatLng(location.getLatitude(), location.getLongitude());
+       }
+       else
+       {
+         //defaults to usask when no GPS is available
+         GlobalSettings.curPhoneLocation = new LatLng(52.1334, -106.631358);
+       }
+     }
 	
 	/**
 	 * Save the userName, if it exists, to internal storage.
@@ -502,8 +547,8 @@ public class MapActivity extends ActionBarActivity {
 						      markerRemoveList.get(i).remove();
 						    }
 
-							//TODO: Get location
-							userCircle.setCenter(new LatLng(52.1310799, -106.6341388));
+						    updateLocation();
+							userCircle.setCenter(GlobalSettings.curPhoneLocation);
 							
 							Log.d("dbConnect", "Cleared and replaced chat summaries, on the map screen.");
 						}

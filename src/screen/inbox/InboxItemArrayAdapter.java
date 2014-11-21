@@ -45,7 +45,7 @@ public class InboxItemArrayAdapter extends ArrayAdapter<ChatSummaryForScreen> {
     textViewPost.setText(chatSummary.title);
     textViewTime.setText(chatSummary.lastMessageTime.toString());
     textViewReplies.setText(chatSummary.numMessages + "replies");
-    textViewDistance.setText(chatSummary.getDistanceString(location));
+//    textViewDistance.setText(chatSummary.getDistanceString(location)); deprecated
     
     return rowView;
   }
