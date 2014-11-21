@@ -14,7 +14,6 @@ import screen.chat.ChatActivity;
 import screen.chatCreation.ChatCreationActivity;
 import screen.settings.SendNewUserNameTask;
 import screen.settings.SettingsActivity;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -62,6 +61,12 @@ import data.base.ChatId;
 import data.base.UserIdNamePair;
 import data.comm.map.ChatSummariesFromDb;
 
+/**
+ * The map activity is the starting activity in the program. It displays
+ * summary information about various chats within the user's radius to the user.
+ * From here a user can select a chat, their settings page, or create a new
+ * chat at their current location.
+ */
 public class MapActivity extends ActionBarActivity {
 
 	public static final String SETTINGS_FILE_NAME = "GeolocationalChatStoredSettings";
@@ -87,17 +92,8 @@ public class MapActivity extends ActionBarActivity {
 	int minMessages;
     int maxMessages;
 	
-	static final float triangleScreenSizeX = 0.05f;
-	static final float triangleScreenSizeY = (float) (triangleScreenSizeX * Math.sqrt(0.75));
-	
 	static final float MIN_TEXT_SIZE = 30;
 	static final float MAX_TEXT_SIZE = 60;
-
-	static final float bubbleUnselectedScreenSizeMin = 0.10f;
-	static final float bubbleUnselectedScreenSizeMax = 0.20f;
-
-	static final float bubbleSelectedScreenSizeX = 0.67f;
-	static final float bubbleSelectedScreenSizeY = 0.33f;
 
 	Handler handler = new Handler();
 	private ScheduledThreadPoolExecutor inboxUpdateScheduler;
@@ -106,6 +102,11 @@ public class MapActivity extends ActionBarActivity {
 	Criteria criteria;
 	LocationManager locationManager;
 	
+	/**
+	 * Sets up the map screen, and grabs various user settings needed for the
+	 * application such as the user's location, and display name. After this,
+	 * a thread is started which polls the database for chat summaries.
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -199,12 +200,20 @@ public class MapActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Selects the given marker, updating its icon and state.
+     * @param marker Marker to be selected
+     */
     void selectMarker(Marker marker) {
       deselectMarker();
       selectedMarker = marker;
       selectedMarker.setIcon(BitmapDescriptorFactory.fromBitmap(createSelectedMarkerIcon(chatSummaryMap.get(selectedMarker.getId()))));
     }
     
+    /**
+     * Deselects a currently selected marker, if a currently selected marker 
+     * exists, updating its icon and state.
+     */
 	void deselectMarker() {
 	  if(selectedMarker != null)
       {
@@ -268,7 +277,6 @@ public class MapActivity extends ActionBarActivity {
 		return image;
 	}
 
-	// TODO: This method contains outdated math; ideally all animation would be handled by a different class
 	/**
 	 * Creates a selected marker bitmap for the given chat summary.
 	 * @param chatSummary chat summary for which an icon is created
@@ -283,13 +291,11 @@ public class MapActivity extends ActionBarActivity {
       Log.d("dbConnect", titleText);
       Log.d("dbConnect", infoText);
       
-      //TODO: limit name size
       Paint paintNameText = new Paint();
       paintNameText.setColor(getResources().getColor(R.color.white));
       paintNameText.setTextSize(30);
       paintNameText.setAntiAlias(true);
       
-      //TODO: limit title size
       Paint paintTitleText = new Paint();
       paintTitleText.setColor(getResources().getColor(R.color.white));
       paintTitleText.setTextSize(40);
@@ -367,7 +373,10 @@ public class MapActivity extends ActionBarActivity {
 //	}
 	
      /**
-      * Returns the current location of the user
+      * Updates the location of the user in 
+      * {@link GlobalSettings#curPhoneLocation}. If the location cannot be
+      * obtained (i.e. when running through an emulator), it the location is
+      * set to the coordinates of the Usask campus.
       */
      public void updateLocation()
      {
