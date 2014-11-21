@@ -472,7 +472,7 @@ public class MapActivity extends ActionBarActivity {
                               chatSummaryMap.put(markerUpdateList.get(i).getId(), summaryUpdateList.get(i));
 						      
 						      //handle selected
-						      if(!markerUpdateList.get(i).getId().equals(selectedMarker.getId()))
+						      if(selectedMarker != null && !markerUpdateList.get(i).getId().equals(selectedMarker.getId()))
 						      {
     						      //draw marker icon
     						      markerUpdateList.get(i).setIcon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(summaryUpdateList.get(i))));
@@ -484,7 +484,7 @@ public class MapActivity extends ActionBarActivity {
 						    {
 						      Log.d("dbConnect", "Removing something, shouldn't be... Remove size: " + markerRemoveList.size());
 						      //handle selected
-						      if(markerRemoveList.get(i).getId().equals(selectedMarker.getId()))
+						      if(selectedMarker != null && markerRemoveList.get(i).getId().equals(selectedMarker.getId()))
 						      {
 						        selectedMarker = null;
 						      }
