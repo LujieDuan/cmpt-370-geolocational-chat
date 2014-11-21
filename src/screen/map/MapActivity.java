@@ -33,6 +33,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import coderunners.geolocationalchat.R;
 
@@ -61,8 +62,6 @@ import data.app.inbox.ChatSummaryForScreen;
 import data.comm.inbox.ChatSummariesFromDb;
 
 public class MapActivity extends ActionBarActivity {
-
-	
 
 	public static final String SETTINGS_FILE_NAME = "GeolocationalChatStoredSettings";
 	public static final String SETTINGS_KEY_USER_NAME = "userName";
@@ -101,8 +100,6 @@ public class MapActivity extends ActionBarActivity {
 
 	final int MARKER_UPDATE_INTERVAL = 1000; 
 	Handler handler = new Handler();
-	
-	private ScheduledThreadPoolExecutor chatUpdateScheduler;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -177,8 +174,9 @@ public class MapActivity extends ActionBarActivity {
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+	    MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -360,14 +358,6 @@ public class MapActivity extends ActionBarActivity {
 		editor.commit();
 	}
 	
-	@Override
-	protected void onDestroy(){
-		super.onDestroy();
-		
-		chatUpdateScheduler.shutdownNow();
-		//Can't use it anymore anyway, so this will help emphasize that...
-		chatUpdateScheduler = null;
-	}
 	/**
 	 * Gets the full list of nearby chats from the database, in the background. Then, in the foreground, adds
 	 * their new markers to the map. Makes toast if unsuccessful.
