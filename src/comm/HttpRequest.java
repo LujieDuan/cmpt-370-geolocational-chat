@@ -34,12 +34,8 @@ public class HttpRequest
 	public static final int TIMEOUT_MILLISEC = 10000;
 	public static final int HTTP_RESPONSE_SUCCESS = 1;
 	
-//	public static final String REQUEST_REJECTED = "rejected by server";
-//	public static final String SERVER_TIMEOUT = "server timed out";
-//	public static final String NO_SERVER_RESPONSE = "no response received from server";
-	
 	public static enum ReasonForFailure {
-		REQUEST_REJECTED, REQUEST_TIMEOUT, NO_SERVER_RESPONSE
+		REQUEST_REJECTED, REQUEST_TIMEOUT, NO_SERVER_RESPONSE, UNKNOWN
 	}
 	
 	public static String post(HttpPostEntity entity, String uri) throws ClientProtocolException, IOException
@@ -124,62 +120,25 @@ public class HttpRequest
 		return sb.toString();
 	}
 	
-	
-//	/**
-//	 * Display a message to the current activity indicating that the server rejected the request, and the current
-//	 * task could not complete properly. It is the Activity's responsibility to call this function, if
-//	 * it so desires.
-//	 * @param activity the calling activity
-//	 * @param dataDescriptor an optional string describing the data that needed to be retrieved. If null,
-//	 * this defaults to "data".
-//	 * @param autoRetry true if the task will automatically be retried (e.g. on a schedule), false otherwise.
-//	 */
-//	public static void makeToastOnRequestRejection(final Activity activity, final String dataDescriptor, final boolean autoRetry)
-//	{
-//		makeToast(activity, dataDescriptor, autoRetry, "rejected by server"); 
-//	}
-//
-//	/**
-//	 * Display a message to the current activity indicating that the server timed out, and the current
-//	 * task could not complete properly. It is the Activity's responsibility to call this function, if
-//	 * it so desires.
-//	 * @param activity the calling activity
-//	 * @param dataDescriptor an optional string describing the data that needed to be retrieved. If null,
-//	 * this defaults to "data".
-//	 * @param autoRetry true if the task will automatically be retried (e.g. on a schedule), false otherwise.
-//	 */
-//	public static void makeToastOnServerTimeout(final Activity activity, final String dataDescriptor,final boolean autoRetry)
-//	{
-//		makeToast(activity, dataDescriptor, autoRetry, "server timed out"); 
-//	}
-//
-//	/**
-//	 * Display a message to the current activity indicating that no response was received from the server,
-//	 * and the current task could not complete properly. 
-//	 * It is the Activity's responsibility to call this function, if it so desires.
-//	 * @param activity the calling activity
-//	 * @param dataDescriptor an optional string describing the data that needed to be retrieved. If null,
-//	 * this defaults to "data".
-//	 * @param autoRetry true if the task will automatically be retried (e.g. on a schedule), false otherwise.
-//	 */
-//	public static void makeToastOnNoServerResponse(final Activity activity, final String dataDescriptor,final boolean autoRetry)
-//	{
-//		makeToast(activity, dataDescriptor, autoRetry, "no response received from server");
-//	}
-
 	/**
-	 * Display the given toastText to the given activity.
+	 * Display a 'toast' message to the current activity indicating the reason for an http request failure.
+	 * It is the Activity's responsibility to call this function, if it so desires. The calling activity must also
+	 * indicate the reason for failure. 
 	 * @param activity the activity on which to display the toast.
+	 * @param dataDescriptor an optional string describing the data that needed to be retrieved. If null,
 	 * @param toastText the text of the toast.
+	 * @param autoRetry true if the task will automatically be retried (e.g. on a schedule), false otherwise.
+	 * @param reasonForFailure code representing the reason for failure, to be selected from the ReasonForFailure enum.
 	 */
-	public static void handleHttpRequestFailure(final Activity activity, String dataDescriptor, boolean autoRetry, final ReasonForFailure reason)
+	public static void handleHttpRequestFailure(
+			final Activity activity, String dataDescriptor, boolean autoRetry, final ReasonForFailure reasonForFailure)
 	{
 		final String reasonForError;
-		if (reason == ReasonForFailure.REQUEST_REJECTED)
+		if (reasonForFailure == ReasonForFailure.REQUEST_REJECTED)
 			reasonForError = activity.getResources().getString(R.string.http_request_failure_rejected);
-		else if (reason == ReasonForFailure.REQUEST_TIMEOUT)
+		else if (reasonForFailure == ReasonForFailure.REQUEST_TIMEOUT)
 			reasonForError = activity.getResources().getString(R.string.http_request_failure_timeout);
-		else if (reason == ReasonForFailure.NO_SERVER_RESPONSE)
+		else if (reasonForFailure == ReasonForFailure.NO_SERVER_RESPONSE)
 			reasonForError = activity.getResources().getString(R.string.http_request_failure_no_response);
 		else
 			reasonForError = activity.getResources().getString(R.string.http_request_failure_unknown);
