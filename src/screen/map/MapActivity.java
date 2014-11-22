@@ -375,8 +375,8 @@ public class MapActivity extends ActionBarActivity {
      /**
       * Updates the location of the user in 
       * {@link GlobalSettings#curPhoneLocation}. If the location cannot be
-      * obtained (i.e. when running through an emulator), it the location is
-      * set to the coordinates of the Usask campus.
+      * obtained (i.e. when running through an emulator), it is left as whatever
+      * is specified in {@link GlobalSettings#curPhoneLocation}.
       */
      public void updateLocation()
      {
@@ -388,11 +388,6 @@ public class MapActivity extends ActionBarActivity {
        if(location != null)
        {
          GlobalSettings.curPhoneLocation = new LatLng(location.getLatitude(), location.getLongitude());
-       }
-       else
-       {
-         //defaults to usask when no GPS is available
-         GlobalSettings.curPhoneLocation = new LatLng(52.1334, -106.631358);
        }
      }
 	
