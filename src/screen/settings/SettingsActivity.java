@@ -1,10 +1,16 @@
 package screen.settings;
 
 
+import java.util.ArrayList;
+
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import coderunners.geolocationalchat.R;
 import data.app.global.GlobalSettings;
@@ -31,6 +37,8 @@ public class SettingsActivity extends ActionBarActivity {
 
 	public static final String SEND_NEW_USER_NAME_URI = "http://cmpt370duan.byethost10.com/updateuser.php";
 
+	ArrayList<CheckBox> checkBoxTags = new ArrayList<CheckBox>();
+	
 	/**
 	 * Sets up a settings screen to be displayed to the user
 	 */
@@ -40,8 +48,54 @@ public class SettingsActivity extends ActionBarActivity {
 		setContentView(R.layout.settings_activity);
 		EditText editName = (EditText) findViewById(R.id.edit_name);
 		editName.setHint(GlobalSettings.userIdAndName.userName);
+		
+		ArrayList<String> tags = GlobalSettings.allTags;
+        
+        LinearLayout tagsList = (LinearLayout) findViewById(R.id.filter_list);
+        int id = Resources.getSystem().getIdentifier("btn_check_holo_light", "drawable", "android");
+        
+        for(int i=0; i<tags.size(); i++)
+        {
+          CheckBox checkBox = new CheckBox(getApplicationContext());
+          checkBox.setText(tags.get(i));
+          checkBox.setTextColor(getResources().getColor(R.color.black));
+          checkBox.setButtonDrawable(id);
+          for(int j=0; j<GlobalSettings.tagsToFilterFor.size(); j++)
+          {
+            if(tags.get(i).equals(GlobalSettings.tagsToFilterFor.get(j)))
+            {
+              checkBox.setChecked(true); 
+            }
+          }
+          tagsList.addView(checkBox);
+          checkBoxTags.add(checkBox);
+        }
 	}
 
+	public void onFilterCheck(View v)
+	{
+	  
+	  CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_filter);
+	  
+	  if(checkBox.isChecked())
+	  {
+	    for(int i=0; i<checkBoxTags.size(); i++)
+	    {
+	      checkBoxTags.get(i).setActivated(true);
+	    }
+	  }
+	  else
+	  {
+	    for(int i=0; i<checkBoxTags.size(); i++)
+        {
+          checkBoxTags.get(i).setActivated(false);
+        }
+	  } 
+	  
+	  //TODO: Refresh view?
+	  v.invalidate();
+	}
+	
 	/**
 	 * Returns to the previous screen without submitting any data entered by the
 	 * user.
@@ -86,6 +140,21 @@ public class SettingsActivity extends ActionBarActivity {
 			editName.setHint(GlobalSettings.userIdAndName.userName);
 			editName.setText("");
 			finish();
+			
+			CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_filter);
+
+			GlobalSettings.tagsToFilterFor.clear();
+			
+			if(checkBox.isChecked())
+			{
+			  for(int i=0; i<checkBoxTags.size(); i++)
+			  {
+			    if(checkBoxTags.get(i).isChecked())
+			    {
+			      GlobalSettings.tagsToFilterFor.add((String) checkBoxTags.get(i).getText());
+			    }
+			  }
+			}
 		}
 
 	}
