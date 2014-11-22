@@ -10,7 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import screen.inbox.InboxActivity;
+import screen.map.MapActivity;
 import android.content.Context;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -202,7 +202,7 @@ public class ChatActivity extends ActionBarActivity
 				String responseString = HttpRequest.get(sendParams, GET_NEW_MESSAGES_URI);
 				JSONObject responseJson = new JSONObject(responseString);
 
-				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) == HttpRequest.HTTP_RESPONSE_SUCCESS)
+				if (responseJson.getInt(MapActivity.TAG_SUCCESS) == HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
 					JSONArray messages = responseJson.optJSONArray(TAG_MESSAGE_ARRAY);
 
@@ -268,7 +268,7 @@ public class ChatActivity extends ActionBarActivity
 				String responseString = HttpRequest.post(newChatMessage, SEND_NEW_MESSAGE_URI);
 				JSONObject responseJson = new JSONObject(responseString);
 
-				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) != HttpRequest.HTTP_RESPONSE_SUCCESS)
+				if (responseJson.getInt(MapActivity.TAG_SUCCESS) != HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
 					HttpRequest.handleHttpRequestFailure(
 							ChatActivity.this, 
