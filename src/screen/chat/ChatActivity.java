@@ -51,7 +51,7 @@ public class ChatActivity extends ActionBarActivity
 
 	private Chat chat = new Chat();  
 	private ChatId chatId;
-	private MySimpleArrayAdapter adapter;
+	private ChatItemArrayAdapter adapter;
 
 	private static final int GET_MESSAGES_DELAY_SEC = 5;
 
@@ -66,7 +66,7 @@ public class ChatActivity extends ActionBarActivity
 
 		final ListView listView = (ListView) findViewById(R.id.listview);
 
-		adapter = new MySimpleArrayAdapter(this, chat.getChatItems());
+		adapter = new ChatItemArrayAdapter(this, chat.getChatItems());
 		listView.setAdapter(adapter);
 	}
 
@@ -111,12 +111,17 @@ public class ChatActivity extends ActionBarActivity
 		}
 	}
 
-	public class MySimpleArrayAdapter extends ArrayAdapter<ChatItem> {
+	/**
+	 * 
+	 * @author joshheinrichs
+	 *
+	 */
+	public class ChatItemArrayAdapter extends ArrayAdapter<ChatItem> {
 
 		private final Context context;
 		private final ArrayList<ChatItem> values;
 
-		public MySimpleArrayAdapter(Context context, ArrayList<ChatItem> values) {
+		public ChatItemArrayAdapter(Context context, ArrayList<ChatItem> values) {
 			super(context, R.layout.chat_item_me, values);
 			this.context = context;
 			this.values = values;
