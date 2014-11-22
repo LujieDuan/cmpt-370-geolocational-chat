@@ -42,6 +42,10 @@ import data.base.ChatId;
 import data.comm.chat.ChatMessageToDb;
 import data.comm.chat.ChatMessagesFromDb;
 
+/**
+ * The chat activity displays all messages sent for a given chat id. From here
+ * a user can both send and recieve messages specific to that chat.
+ */
 public class ChatActivity extends ActionBarActivity
 {
 	private static final String GET_NEW_MESSAGES_URI = "http://cmpt370duan.byethost10.com/getmess.php";
@@ -56,6 +60,10 @@ public class ChatActivity extends ActionBarActivity
 	private static final int GET_MESSAGES_DELAY_SEC = 5;
 
 	private ScheduledThreadPoolExecutor chatUpdateScheduler;
+	
+	/**
+	 * Creates a new chat activity
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -96,6 +104,11 @@ public class ChatActivity extends ActionBarActivity
 		chatUpdateScheduler = null;
 	}
 
+	/**
+	 * Sends a message to the database when the send button is clicked by the
+	 * user. This function is directly linked into the layout's XML.
+	 * @param v
+	 */
 	public void sendMessage(View v)
 	{	
 		EditText editText = (EditText) findViewById(R.id.EditText);
@@ -112,21 +125,30 @@ public class ChatActivity extends ActionBarActivity
 	}
 
 	/**
-	 * 
-	 * @author joshheinrichs
-	 *
+	 * The chat item array adapter is used to place {@link ChatItem}s within a
+	 * list view in the chat screen, allowing multiple messages to be displayed.
 	 */
 	public class ChatItemArrayAdapter extends ArrayAdapter<ChatItem> {
 
 		private final Context context;
 		private final ArrayList<ChatItem> values;
 
+		/**
+		 * Creates a new ChatItemArrayAdapter, used to list messages within
+		 * the chat activity.
+		 * @param context Activity in which it's created
+		 * @param values Messages to adapt to a list view
+		 */
 		public ChatItemArrayAdapter(Context context, ArrayList<ChatItem> values) {
 			super(context, R.layout.chat_item_me, values);
 			this.context = context;
 			this.values = values;
 		}
 
+		/**
+		 * Returns a list view in which the messages are contained. <br>
+		 * {@inheritDoc}
+		 */
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
