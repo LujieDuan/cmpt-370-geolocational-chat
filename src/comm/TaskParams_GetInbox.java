@@ -42,8 +42,16 @@ public class TaskParams_GetInbox extends HttpGetParams
 
 	    params.add(new BasicNameValuePair("latitude", Double.toString(curPhoneLocation.latitude)));
 	    params.add(new BasicNameValuePair("longitude", Double.toString(curPhoneLocation.longitude)));
-		params.add(new BasicNameValuePair("tags", tags.toString()));
-	
+	    if (tags.size() > 0)
+	    {
+	    	for (String tag : tags)
+	    		params.add(new BasicNameValuePair("tags[]", tag));
+	    }
+	    else
+	    {
+	    	params.add(new BasicNameValuePair("tags[]", ""));
+	    }
+	    	
 		return URLEncodedUtils.format(params, "utf-8");
 	}
 }
