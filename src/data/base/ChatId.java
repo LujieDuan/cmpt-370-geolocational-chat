@@ -19,6 +19,11 @@ public class ChatId implements Parcelable {
 	public String creatorId;
 	public DateTime timeId;
 	
+	/**
+	 * Creates a new {@link ChatId}.
+	 * @param creatorId phone ID of the user which created the chat
+	 * @param timeId The time at which the chat was created
+	 */
 	public ChatId(String creatorId, DateTime timeId) 
 	{
 		this.creatorId = creatorId;
