@@ -10,6 +10,9 @@ import org.joda.time.Minutes;
 import org.joda.time.Months;
 import org.joda.time.Years;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import data.base.ChatId;
@@ -21,13 +24,13 @@ import data.base.ChatSummary;
  * @author wsv759
  *
  */
-public class ChatSummaryForScreen extends ChatSummary 
+public class ChatSummaryForScreen extends ChatSummary implements Parcelable 
 {
 	public ChatId chatId;
 	public String creatorUserName;
 	public int numMessages;
 	public DateTime lastMessageTime;
-	public int numMessagesRead = 0;
+	public int numMessagesRead;
 	
 	/**
 	 * Create a new chat summary, containing all the info necessary for an inbox item in the inbox UI.
@@ -47,7 +50,6 @@ public class ChatSummaryForScreen extends ChatSummary
 		this.numMessages = numMessages;
 		this.numMessagesRead = numMessagesRead;
 		this.lastMessageTime = lastMessageTime;
-		
 	}
 	
 	/**
@@ -143,6 +145,46 @@ public class ChatSummaryForScreen extends ChatSummary
 	    return numMessages + " replies, " + getNumMessagesUnread() + " unread";
 	  }
 	}
+
+	public ChatSummaryForScreen(Parcel in)
+	{
+		this.title = in.readString();
+		this.location = new LatLng(in.readDouble(),in.readDouble());
+		in.readList(tags, String.class.getClassLoader());
+		this.chatId = new ChatId(in.readString(), new DateTime(in.readLong()));
+		this.creatorUserName = in.readString();
+		this.numMessages = in.readInt();
+		this.numMessagesRead = in.readInt();
+		this.lastMessageTime = new DateTime(in.readLong());
+	}
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) 
+	{
+		dest.writeString(title);
+		dest.writeDouble(location.latitude);
+		dest.writeDouble(location.longitude);
+		dest.writeList(tags);
+		dest.writeString(chatId.creatorId);
+		dest.writeLong(chatId.timeId.getMillis());
+		dest.writeString(creatorUserName);
+		dest.writeInt(numMessages);
+		dest.writeInt(numMessagesRead);
+		dest.writeLong(lastMessageTime.getMillis());
+	}
 	
-	
+    public static final Parcelable.Creator<ChatSummaryForScreen> CREATOR = new Parcelable.Creator<ChatSummaryForScreen>() {
+        public ChatSummaryForScreen createFromParcel(Parcel in) {
+            return new ChatSummaryForScreen(in);
+        }
+
+        public ChatSummaryForScreen[] newArray(int size) {
+            return new ChatSummaryForScreen[size];
+        }
+    };
 }
