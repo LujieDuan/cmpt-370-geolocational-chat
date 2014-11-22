@@ -61,10 +61,10 @@ import data.base.UserIdNamePair;
 import data.comm.map.ChatSummariesFromDb;
 
 /**
- * The map activity is the starting activity in the program. It displays
- * summary information about various chats within the user's radius to the user.
- * From here a user can select a chat, their settings page, or create a new
- * chat at their current location.
+ * The map activity is the starting activity in the program. It displays summary
+ * information about various chats within the user's radius to the user. From
+ * here a user can select a chat, their settings page, or create a new chat at
+ * their current location.
  */
 public class MapActivity extends ActionBarActivity {
 
@@ -79,9 +79,8 @@ public class MapActivity extends ActionBarActivity {
 	public static final String TAG_SUCCESS = "success";
 	public static final String TAG_CHATS_ARRAY = "chats";
 
-	public static enum ActivityRequestCode
-	{
-		CHAT_SCREEN,SETTINGS_SCREEN,CHAT_CREATION_SCREEN
+	public static enum ActivityRequestCode {
+		CHAT_SCREEN, SETTINGS_SCREEN, CHAT_CREATION_SCREEN
 	}
 
 	public static final String CHAT_SUMMARY_STRING = "chatSummary";
@@ -112,40 +111,46 @@ public class MapActivity extends ActionBarActivity {
 
 	/**
 	 * Sets up the map screen, and grabs various user settings needed for the
-	 * application such as the user's location, and display name. After this,
-	 * a thread is started which polls the database for chat summaries.
+	 * application such as the user's location, and display name. After this, a
+	 * thread is started which polls the database for chat summaries.
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.map_activity);
 
-		String deviceId = Secure.getString(getBaseContext().getContentResolver(), Secure.ANDROID_ID);
+		String deviceId = Secure.getString(getBaseContext()
+				.getContentResolver(), Secure.ANDROID_ID);
 
-		SharedPreferences settings = getSharedPreferences(SETTINGS_FILE_NAME, MODE_PRIVATE);
+		SharedPreferences settings = getSharedPreferences(SETTINGS_FILE_NAME,
+				MODE_PRIVATE);
 		String userName = settings.getString(SETTINGS_KEY_USER_NAME, "");
-		//This is just required to pass Set<String>.toArray() the right type of array.
+		// This is just required to pass Set<String>.toArray() the right type of
+		// array.
 		String[] tagsToFilterFor = new String[0];
-		GlobalSettings.tagsToFilterFor = 
-				new ArrayList<String>(Arrays.asList(settings.getStringSet(SETTINGS_KEY_TAGS_TO_FILTER_FOR, new HashSet<String>()).toArray(tagsToFilterFor)));
-		GlobalSettings.tagFilteringIsOn = settings.getBoolean(SETTINGS_KEY_TAG_FILTERING_IS_ON, false);
+		GlobalSettings.tagsToFilterFor = new ArrayList<String>(
+				Arrays.asList(settings.getStringSet(
+						SETTINGS_KEY_TAGS_TO_FILTER_FOR, new HashSet<String>())
+						.toArray(tagsToFilterFor)));
+		GlobalSettings.tagFilteringIsOn = settings.getBoolean(
+				SETTINGS_KEY_TAG_FILTERING_IS_ON, false);
 
-		if (userName.isEmpty())
-		{
-			//The SendNewUserNameTask changes the global userIdAndName for us.
-			new SendNewUserNameTask(this).execute(new UserIdNamePair(deviceId,getResources().getString(R.string.unknown_user_name)));
-		}
-		else
-		{
-			GlobalSettings.userIdAndName = new UserIdNamePair(deviceId, userName);
+		if (userName.isEmpty()) {
+			// The SendNewUserNameTask changes the global userIdAndName for us.
+			new SendNewUserNameTask(this).execute(new UserIdNamePair(deviceId,
+					getResources().getString(R.string.unknown_user_name)));
+		} else {
+			GlobalSettings.userIdAndName = new UserIdNamePair(deviceId,
+					userName);
 		}
 
 		new GetTagsTask().execute();
 
-		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
+				.getMap();
 
 		// TODO: Might have issues with emulator
-		//map.setMyLocationEnabled(true);
+		// map.setMyLocationEnabled(true);
 
 		updateLocation();
 
@@ -153,28 +158,33 @@ public class MapActivity extends ActionBarActivity {
 
 		map.moveCamera(CameraUpdateFactory.newLatLngZoom(curPhoneLocation, 14));
 
-		userCircle = 
-				map.addCircle(new CircleOptions().radius(1000)
-						.strokeColor(Color.argb(60, 255, 40, 50))
-						.strokeWidth(5)
-						.fillColor(Color.argb(30, 255, 40, 50)).center(GlobalSettings.curPhoneLocation));
+		userCircle = map.addCircle(new CircleOptions().radius(1000)
+				.strokeColor(Color.argb(60, 255, 40, 50)).strokeWidth(5)
+				.fillColor(Color.argb(30, 255, 40, 50))
+				.center(GlobalSettings.curPhoneLocation));
 
 		inboxUpdateScheduler = new ScheduledThreadPoolExecutor(1);
 
-		inboxUpdateScheduler.scheduleWithFixedDelay(new GetInboxTask(), 0, GET_INBOX_DELAY_SECONDS, TimeUnit.SECONDS);
+		inboxUpdateScheduler.scheduleWithFixedDelay(new GetInboxTask(), 0,
+				GET_INBOX_DELAY_SECONDS, TimeUnit.SECONDS);
 
 		map.setOnMarkerClickListener(new OnMarkerClickListener() {
 			@Override
 			public boolean onMarkerClick(Marker marker) {
-				if (selectedMarker != null && selectedMarker.getId().equals(marker.getId())) {
-					Intent chatScreenIntent = new Intent(MapActivity.this, ChatActivity.class);
-					ChatSummaryForScreen curChatSummary = chatSummaryMap.get(marker.getId());
+				if (selectedMarker != null
+						&& selectedMarker.getId().equals(marker.getId())) {
+					Intent chatScreenIntent = new Intent(MapActivity.this,
+							ChatActivity.class);
+					ChatSummaryForScreen curChatSummary = chatSummaryMap
+							.get(marker.getId());
 
-					chatScreenIntent.putExtra(ChatActivity.CHAT_SUMMARY_STRING, curChatSummary);
-					startActivityForResult(chatScreenIntent, ActivityRequestCode.CHAT_SCREEN.ordinal());
+					chatScreenIntent.putExtra(ChatActivity.CHAT_SUMMARY_STRING,
+							curChatSummary);
+					startActivityForResult(chatScreenIntent,
+							ActivityRequestCode.CHAT_SCREEN.ordinal());
 				} else if (selectionAvailable) {
 					selectMarker(marker);
-				}        
+				}
 				return false;
 			}
 
@@ -188,7 +198,6 @@ public class MapActivity extends ActionBarActivity {
 
 		});
 
-
 	}
 
 	@Override
@@ -201,13 +210,15 @@ public class MapActivity extends ActionBarActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId())
-		{
+		switch (item.getItemId()) {
 		case R.id.action_chat_creation:
-			startActivity(new Intent(getApplicationContext(), ChatCreationActivity.class));
+			startActivity(new Intent(getApplicationContext(),
+					ChatCreationActivity.class));
 			break;
 		case R.id.action_settings:
-			startActivityForResult(new Intent(getApplicationContext(), SettingsActivity.class), ActivityRequestCode.SETTINGS_SCREEN.ordinal());
+			startActivityForResult(new Intent(getApplicationContext(),
+					SettingsActivity.class),
+					ActivityRequestCode.SETTINGS_SCREEN.ordinal());
 			break;
 		}
 		return super.onOptionsItemSelected(item);
@@ -215,37 +226,49 @@ public class MapActivity extends ActionBarActivity {
 
 	/**
 	 * Selects the given marker, updating its icon and state.
-	 * @param marker Marker to be selected
+	 * 
+	 * @param marker
+	 *            Marker to be selected
 	 */
 	void selectMarker(Marker marker) {
 		deselectMarker();
 		selectedMarker = marker;
-		selectedMarker.setIcon(BitmapDescriptorFactory.fromBitmap(createSelectedMarkerIcon(chatSummaryMap.get(selectedMarker.getId()))));
+		selectedMarker.setIcon(BitmapDescriptorFactory
+				.fromBitmap(createSelectedMarkerIcon(chatSummaryMap
+						.get(selectedMarker.getId()))));
 	}
 
 	/**
-	 * Deselects a currently selected marker, if a currently selected marker 
+	 * Deselects a currently selected marker, if a currently selected marker
 	 * exists, updating its icon and state.
 	 */
 	void deselectMarker() {
-		if(selectedMarker != null)
-		{
-			selectedMarker.setIcon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(chatSummaryMap.get(selectedMarker.getId()),  minMessages, maxMessages)));
+		if (selectedMarker != null) {
+			selectedMarker.setIcon(BitmapDescriptorFactory
+					.fromBitmap(createMarkerIcon(
+							chatSummaryMap.get(selectedMarker.getId()),
+							minMessages, maxMessages)));
 			selectedMarker = null;
 		}
 	}
 
 	/**
 	 * Creates and returns a marker bitmap for the given chat summary
-	 * @param chatSummary chat summary for which an icon is created
-	 * @param minMessages The minimum number of messages for known chats, used
-	 * to determine the scale of the marker
-	 * @param maxMessages The maximum number of messages for known chats, used
-	 * to determine the scale of the marker
+	 * 
+	 * @param chatSummary
+	 *            chat summary for which an icon is created
+	 * @param minMessages
+	 *            The minimum number of messages for known chats, used to
+	 *            determine the scale of the marker
+	 * @param maxMessages
+	 *            The maximum number of messages for known chats, used to
+	 *            determine the scale of the marker
 	 */
-	Bitmap createMarkerIcon(ChatSummaryForScreen chatSummary, int minMessages, int maxMessages) {
+	Bitmap createMarkerIcon(ChatSummaryForScreen chatSummary, int minMessages,
+			int maxMessages) {
 
-		float scale = (float) (chatSummary.getNumMessages() - minMessages) / (float) (maxMessages - minMessages);
+		float scale = (float) (chatSummary.getNumMessages() - minMessages)
+				/ (float) (maxMessages - minMessages);
 
 		float triangleWidth = 30;
 		float triangleHeight = (float) (triangleWidth * Math.sqrt(0.75));
@@ -254,7 +277,8 @@ public class MapActivity extends ActionBarActivity {
 
 		Paint paintText = new Paint();
 		paintText.setColor(getResources().getColor(R.color.chat_me_foreground));
-		paintText.setTextSize(scale * (MAX_TEXT_SIZE - MIN_TEXT_SIZE) + MIN_TEXT_SIZE);
+		paintText.setTextSize(scale * (MAX_TEXT_SIZE - MIN_TEXT_SIZE)
+				+ MIN_TEXT_SIZE);
 		paintText.setTextAlign(Paint.Align.CENTER);
 		paintText.setAntiAlias(true);
 
@@ -263,9 +287,9 @@ public class MapActivity extends ActionBarActivity {
 
 		int maxBounds = Math.max(boundsText.width(), boundsText.height());
 
-		Bitmap image =
-				Bitmap.createBitmap((int) (maxBounds * 1.75), (int) (maxBounds * 1.75)
-						+ (int) triangleHeight / 2, Bitmap.Config.ARGB_8888);
+		Bitmap image = Bitmap.createBitmap((int) (maxBounds * 1.75),
+				(int) (maxBounds * 1.75) + (int) triangleHeight / 2,
+				Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(image);
 
 		Point trianglePosition = new Point();
@@ -274,31 +298,36 @@ public class MapActivity extends ActionBarActivity {
 
 		Path triangle = new Path();
 		triangle.moveTo(trianglePosition.x, trianglePosition.y);
-		triangle.lineTo(trianglePosition.x + triangleWidth * 1.0f, trianglePosition.y);
-		triangle.lineTo(trianglePosition.x + triangleWidth * 0.5f, trianglePosition.y + triangleHeight);
+		triangle.lineTo(trianglePosition.x + triangleWidth * 1.0f,
+				trianglePosition.y);
+		triangle.lineTo(trianglePosition.x + triangleWidth * 0.5f,
+				trianglePosition.y + triangleHeight);
 
 		Paint paintShape = new Paint();
-		paintShape.setColor(getResources().getColor(R.color.chat_me_background));
+		paintShape
+				.setColor(getResources().getColor(R.color.chat_me_background));
 		paintShape.setAntiAlias(true);
 
 		canvas.drawPath(triangle, paintShape);
-		canvas.drawCircle(canvas.getWidth() / 2, canvas.getWidth() / 2, canvas.getWidth() / 2,
-				paintShape);
-		canvas.drawText(strText, canvas.getWidth() / 2,
-				canvas.getWidth() / 2 + boundsText.height() / 2, paintText);
+		canvas.drawCircle(canvas.getWidth() / 2, canvas.getWidth() / 2,
+				canvas.getWidth() / 2, paintShape);
+		canvas.drawText(strText, canvas.getWidth() / 2, canvas.getWidth() / 2
+				+ boundsText.height() / 2, paintText);
 
 		return image;
 	}
 
 	/**
 	 * Creates a selected marker bitmap for the given chat summary.
-	 * @param chatSummary chat summary for which an icon is created
+	 * 
+	 * @param chatSummary
+	 *            chat summary for which an icon is created
 	 */
-	Bitmap createSelectedMarkerIcon(ChatSummaryForScreen chatSummary)
-	{
+	Bitmap createSelectedMarkerIcon(ChatSummaryForScreen chatSummary) {
 		String nameText = chatSummary.getUserName();
 		String titleText = chatSummary.getTitle();
-		String infoText = chatSummary.getNumMessagesString() + " from " + chatSummary.getTimeString() ;
+		String infoText = chatSummary.getNumMessagesString() + " from "
+				+ chatSummary.getTimeString();
 
 		Log.d("dbConnect", nameText);
 		Log.d("dbConnect", titleText);
@@ -320,35 +349,43 @@ public class MapActivity extends ActionBarActivity {
 		paintInfoText.setAntiAlias(true);
 
 		Paint paintShape = new Paint();
-		paintShape.setColor(getResources().getColor(R.color.chat_me_background));
+		paintShape
+				.setColor(getResources().getColor(R.color.chat_me_background));
 		paintShape.setAntiAlias(true);
 
 		Rect boundsNameText = new Rect();
-		paintNameText.getTextBounds(nameText, 0, nameText.length(), boundsNameText);
+		paintNameText.getTextBounds(nameText, 0, nameText.length(),
+				boundsNameText);
 
 		Rect boundsTitleText = new Rect();
-		paintTitleText.getTextBounds(titleText, 0, titleText.length(), boundsTitleText);
+		paintTitleText.getTextBounds(titleText, 0, titleText.length(),
+				boundsTitleText);
 
 		Rect boundsInfoText = new Rect();
-		paintInfoText.getTextBounds(infoText, 0, infoText.length(), boundsInfoText);
+		paintInfoText.getTextBounds(infoText, 0, infoText.length(),
+				boundsInfoText);
 
-		Log.d("dbConnect", "height: " + boundsTitleText.bottom + ", " + boundsInfoText.bottom);
-		Log.d("dbConnect", "size: " + Math.max(Math.max(boundsNameText.right, boundsTitleText.right), boundsInfoText.right));
+		Log.d("dbConnect", "height: " + boundsTitleText.bottom + ", "
+				+ boundsInfoText.bottom);
+		Log.d("dbConnect",
+				"size: "
+						+ Math.max(Math.max(boundsNameText.right,
+								boundsTitleText.right), boundsInfoText.right));
 
 		Rect boundsText = new Rect();
-		boundsText.set(0, 0, 
-				Math.max(Math.max(boundsNameText.right, boundsTitleText.right), boundsInfoText.right) + 50, 
-				boundsNameText.height() + boundsTitleText.height() + boundsInfoText.height() + 70);
+		boundsText.set(0, 0, Math.max(
+				Math.max(boundsNameText.right, boundsTitleText.right),
+				boundsInfoText.right) + 50, boundsNameText.height()
+				+ boundsTitleText.height() + boundsInfoText.height() + 70);
 
 		float triangleWidth = 30;
 		float triangleHeight = (float) (triangleWidth * Math.sqrt(0.75));
 
 		Log.d("dbConnect", "size 2: " + boundsText.width());
 
-		Bitmap image =
-				Bitmap.createBitmap(boundsText.width(), 
-						boundsText.height() + (int) triangleHeight / 2, 
-						Bitmap.Config.ARGB_8888);
+		Bitmap image = Bitmap.createBitmap(boundsText.width(),
+				boundsText.height() + (int) triangleHeight / 2,
+				Bitmap.Config.ARGB_8888);
 
 		Canvas canvas = new Canvas(image);
 
@@ -358,8 +395,10 @@ public class MapActivity extends ActionBarActivity {
 
 		Path triangle = new Path();
 		triangle.moveTo(trianglePosition.x, trianglePosition.y);
-		triangle.lineTo(trianglePosition.x + triangleWidth * 1.0f, trianglePosition.y);
-		triangle.lineTo(trianglePosition.x + triangleWidth * 0.5f, trianglePosition.y + triangleHeight);
+		triangle.lineTo(trianglePosition.x + triangleWidth * 1.0f,
+				trianglePosition.y);
+		triangle.lineTo(trianglePosition.x + triangleWidth * 0.5f,
+				trianglePosition.y + triangleHeight);
 
 		canvas.drawPath(triangle, paintShape);
 		canvas.drawRect(boundsText, paintShape);
@@ -370,37 +409,37 @@ public class MapActivity extends ActionBarActivity {
 		return image;
 	}
 
-	//	/**
-	//	 * Returns the current location of the user
-	//	 */
-	//	public LatLng getCurrentLocation()
-	//	{
-	//	  locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-	//	  criteria = new Criteria();
-	//	  criteria.setAccuracy(Criteria.ACCURACY_FINE);
-	//	  String provider = locationManager.getBestProvider(criteria, true);
-	//	  
-	//	  location = locationManager.getLastKnownLocation(provider);
-	//	  LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-	//	  return currentLocation;
-	//	}
+	// /**
+	// * Returns the current location of the user
+	// */
+	// public LatLng getCurrentLocation()
+	// {
+	// locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+	// criteria = new Criteria();
+	// criteria.setAccuracy(Criteria.ACCURACY_FINE);
+	// String provider = locationManager.getBestProvider(criteria, true);
+	//
+	// location = locationManager.getLastKnownLocation(provider);
+	// LatLng currentLocation = new LatLng(location.getLatitude(),
+	// location.getLongitude());
+	// return currentLocation;
+	// }
 
 	/**
-	 * Updates the location of the user in 
+	 * Updates the location of the user in
 	 * {@link GlobalSettings#curPhoneLocation}. If the location cannot be
 	 * obtained (i.e. when running through an emulator), it is left as whatever
 	 * is specified in {@link GlobalSettings#curPhoneLocation}.
 	 */
-	public void updateLocation()
-	{
+	public void updateLocation() {
 		locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 		criteria = new Criteria();
 		criteria.setAccuracy(Criteria.ACCURACY_FINE);
 		String provider = locationManager.getBestProvider(criteria, true);
 		location = locationManager.getLastKnownLocation(provider);
-		if(location != null)
-		{
-			GlobalSettings.curPhoneLocation = new LatLng(location.getLatitude(), location.getLongitude());
+		if (location != null) {
+			GlobalSettings.curPhoneLocation = new LatLng(
+					location.getLatitude(), location.getLongitude());
 		}
 	}
 
@@ -408,17 +447,21 @@ public class MapActivity extends ActionBarActivity {
 	 * Save the userName, if it exists, to internal storage.
 	 */
 	@Override
-	protected void onStop(){
+	protected void onStop() {
 		super.onStop();
 
-		SharedPreferences settings = getSharedPreferences(SETTINGS_FILE_NAME, MODE_PRIVATE);
+		SharedPreferences settings = getSharedPreferences(SETTINGS_FILE_NAME,
+				MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 
 		UserIdNamePair userIdAndName = GlobalSettings.userIdAndName;
 		if (userIdAndName != null && !userIdAndName.userName.isEmpty())
-			editor.putString(SETTINGS_KEY_USER_NAME, GlobalSettings.userIdAndName.userName);
-		editor.putStringSet(SETTINGS_KEY_TAGS_TO_FILTER_FOR, new HashSet<String>(GlobalSettings.tagsToFilterFor));
-		editor.putBoolean(SETTINGS_KEY_TAG_FILTERING_IS_ON, GlobalSettings.tagFilteringIsOn);
+			editor.putString(SETTINGS_KEY_USER_NAME,
+					GlobalSettings.userIdAndName.userName);
+		editor.putStringSet(SETTINGS_KEY_TAGS_TO_FILTER_FOR,
+				new HashSet<String>(GlobalSettings.tagsToFilterFor));
+		editor.putBoolean(SETTINGS_KEY_TAG_FILTERING_IS_ON,
+				GlobalSettings.tagFilteringIsOn);
 
 		editor.commit();
 	}
@@ -427,7 +470,7 @@ public class MapActivity extends ActionBarActivity {
 	 * Stop updating the inbox when the app finishes.
 	 */
 	@Override
-	protected void onDestroy(){
+	protected void onDestroy() {
 		super.onDestroy();
 
 		inboxUpdateScheduler.shutdownNow();
@@ -437,83 +480,87 @@ public class MapActivity extends ActionBarActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 		if (requestCode == ActivityRequestCode.CHAT_SCREEN.ordinal()) {
-			if(resultCode == RESULT_OK){
-				ChatSummaryForScreen updatedChatSummary = data.getExtras().getParcelable(MapActivity.CHAT_SUMMARY_STRING);
+			if (resultCode == RESULT_OK) {
+				ChatSummaryForScreen updatedChatSummary = data.getExtras()
+						.getParcelable(MapActivity.CHAT_SUMMARY_STRING);
 
 				chatSummaryMap.remove(selectedMarker.getId());
 				chatSummaryMap.put(selectedMarker.getId(), updatedChatSummary);
 
-				selectedMarker.setIcon(BitmapDescriptorFactory.fromBitmap(createSelectedMarkerIcon(chatSummaryMap.get(selectedMarker.getId()))));
+				selectedMarker.setIcon(BitmapDescriptorFactory
+						.fromBitmap(createSelectedMarkerIcon(chatSummaryMap
+								.get(selectedMarker.getId()))));
 			}
 			if (resultCode == RESULT_CANCELED) {
-				//Do nothing
+				// Do nothing
 			}
-		}
-		else if (requestCode == ActivityRequestCode.SETTINGS_SCREEN.ordinal())
-		{
-			if (resultCode == RESULT_OK)
-			{
+		} else if (requestCode == ActivityRequestCode.SETTINGS_SCREEN.ordinal()) {
+			if (resultCode == RESULT_OK) {
 				inboxUpdateScheduler.shutdown();
 
 				inboxUpdateScheduler = new ScheduledThreadPoolExecutor(1);
-				inboxUpdateScheduler.scheduleWithFixedDelay(new GetInboxTask(), 0, GET_INBOX_DELAY_SECONDS, TimeUnit.SECONDS);
+				inboxUpdateScheduler.scheduleWithFixedDelay(new GetInboxTask(),
+						0, GET_INBOX_DELAY_SECONDS, TimeUnit.SECONDS);
 			}
 		}
 	}
+
 	/**
-	 * Gets the full list of nearby chats from the database, in the background. Then, in the foreground, adds
-	 * their new markers to the map. Makes toast if unsuccessful.
+	 * Gets the full list of nearby chats from the database, in the background.
+	 * Then, in the foreground, adds their new markers to the map. Makes toast
+	 * if unsuccessful.
+	 * 
 	 * @author wsv759
 	 *
 	 */
-	private class GetInboxTask implements Runnable 
-	{
+	private class GetInboxTask implements Runnable {
 		@Override
-		public void run() 
-		{
+		public void run() {
 			updateLocation();
 			LatLng l = GlobalSettings.curPhoneLocation;
 			ArrayList<String> tags = GlobalSettings.tagsToFilterFor;
 			TaskParams_GetInbox queryParams = new TaskParams_GetInbox(l, tags);
 
 			try {
-				String responseString = HttpRequest.get(queryParams, GET_INBOX_URI);
+				String responseString = HttpRequest.get(queryParams,
+						GET_INBOX_URI);
 
 				JSONObject responseJson = new JSONObject(responseString);
 				Log.d("dbConnect", "reached 473");
-				if (responseJson.getInt(TAG_SUCCESS) == HttpRequest.HTTP_RESPONSE_SUCCESS)
-				{	
+				if (responseJson.getInt(TAG_SUCCESS) == HttpRequest.HTTP_RESPONSE_SUCCESS) {
 					final ChatSummaryForScreen[] newChatSummaries;
-					//Even if the server responds successfully, it may not find any new chats.
-					if (responseJson.optJSONArray(TAG_CHATS_ARRAY) == null)
-					{
+					// Even if the server responds successfully, it may not find
+					// any new chats.
+					if (responseJson.optJSONArray(TAG_CHATS_ARRAY) == null) {
 						newChatSummaries = new ChatSummaryForScreen[0];
-					}
-					else
-					{
+					} else {
 						GsonBuilder gsonBuilder = new GsonBuilder();
-						gsonBuilder.registerTypeAdapter(ChatSummariesFromDb.class, new ChatSummariesForScreenDeserializer());
+						gsonBuilder.registerTypeAdapter(
+								ChatSummariesFromDb.class,
+								new ChatSummariesForScreenDeserializer());
 						Gson gson = gsonBuilder.create();
 						Log.d("dbConnect", "reached 479");
-						newChatSummaries = gson.fromJson(responseString, ChatSummariesFromDb.class).chats;
-						Log.d("dbConnect", "reached 481");	
+						newChatSummaries = gson.fromJson(responseString,
+								ChatSummariesFromDb.class).chats;
+						Log.d("dbConnect", "reached 481");
 					}
 
-					// This area could definitely be optimized, but will require significant restructuring
+					// This area could definitely be optimized, but will require
+					// significant restructuring
 					final ArrayList<ChatSummaryForScreen> summaryCreateList = new ArrayList<ChatSummaryForScreen>();
 					final ArrayList<ChatSummaryForScreen> summaryUpdateList = new ArrayList<ChatSummaryForScreen>();
 					final ArrayList<Marker> markerUpdateList = new ArrayList<Marker>();
 					final ArrayList<Marker> markerRemoveList = new ArrayList<Marker>();
 
-					for(int i=0; i<newChatSummaries.length; i++)
-					{
+					for (int i = 0; i < newChatSummaries.length; i++) {
 						boolean match = false;
-						for(int j=0; j<markerList.size(); j++)
-						{
-							ChatSummaryForScreen oldChatSummary = chatSummaryMap.get(markerList.get(j).getId());
-							if (newChatSummaries[i].chatId.creatorId.equals(oldChatSummary.chatId.creatorId)
-									&& newChatSummaries[i].chatId.timeId.equals(oldChatSummary.chatId.timeId))
-							{
+						for (int j = 0; j < markerList.size(); j++) {
+							ChatSummaryForScreen oldChatSummary = chatSummaryMap
+									.get(markerList.get(j).getId());
+							if (newChatSummaries[i].chatId.creatorId
+									.equals(oldChatSummary.chatId.creatorId)
+									&& newChatSummaries[i].chatId.timeId
+											.equals(oldChatSummary.chatId.timeId)) {
 								match = true;
 								oldChatSummary.lastMessageTime = newChatSummaries[i].lastMessageTime;
 								oldChatSummary.numMessages = newChatSummaries[i].numMessages;
@@ -521,24 +568,19 @@ public class MapActivity extends ActionBarActivity {
 								markerUpdateList.add(markerList.get(j));
 							}
 						}
-						if(!match)
-						{
+						if (!match) {
 							summaryCreateList.add(newChatSummaries[i]);
 						}
 					}
 
-					for(int i=0; i<markerList.size(); i++)
-					{
+					for (int i = 0; i < markerList.size(); i++) {
 						boolean match = false;
-						for(int j=0; j<markerUpdateList.size(); j++)
-						{
-							if(markerList.get(i) == markerUpdateList.get(j))
-							{
+						for (int j = 0; j < markerUpdateList.size(); j++) {
+							if (markerList.get(i) == markerUpdateList.get(j)) {
 								match = true;
 							}
 						}
-						if(!match)
-						{
+						if (!match) {
 							markerRemoveList.add(markerList.get(i));
 						}
 					}
@@ -546,16 +588,18 @@ public class MapActivity extends ActionBarActivity {
 					minMessages = Integer.MAX_VALUE;
 					maxMessages = 0;
 
-					for(int i=0; i<summaryCreateList.size(); i++)
-					{
-						minMessages = Math.min(minMessages, summaryCreateList.get(i).numMessages);
-						maxMessages = Math.max(maxMessages, summaryCreateList.get(i).numMessages);
+					for (int i = 0; i < summaryCreateList.size(); i++) {
+						minMessages = Math.min(minMessages,
+								summaryCreateList.get(i).numMessages);
+						maxMessages = Math.max(maxMessages,
+								summaryCreateList.get(i).numMessages);
 					}
 
-					for(int i=0; i<summaryUpdateList.size(); i++)
-					{
-						minMessages = Math.min(minMessages, summaryUpdateList.get(i).numMessages);
-						maxMessages = Math.max(maxMessages, summaryUpdateList.get(i).numMessages);
+					for (int i = 0; i < summaryUpdateList.size(); i++) {
+						minMessages = Math.min(minMessages,
+								summaryUpdateList.get(i).numMessages);
+						maxMessages = Math.max(maxMessages,
+								summaryUpdateList.get(i).numMessages);
 					}
 
 					chatSummaryMap.clear();
@@ -570,79 +614,107 @@ public class MapActivity extends ActionBarActivity {
 						@Override
 						public void run() {
 
-							for(int i=0; i<summaryCreateList.size(); i++)
-							{
-								//create marker
-								Marker marker =
-										map.addMarker(new MarkerOptions()
-										.icon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(summaryCreateList.get(i), minMessages, maxMessages)))
-										.anchor(0.5f, 1.0f) // Anchors the marker on the bottom left
-										.position(summaryCreateList.get(i).location));
+							for (int i = 0; i < summaryCreateList.size(); i++) {
+								// create marker
+								Marker marker = map
+										.addMarker(new MarkerOptions()
+												.icon(BitmapDescriptorFactory
+														.fromBitmap(createMarkerIcon(
+																summaryCreateList
+																		.get(i),
+																minMessages,
+																maxMessages)))
+												.anchor(0.5f, 1.0f) // Anchors
+																	// the
+																	// marker on
+																	// the
+																	// bottom
+																	// left
+												.position(
+														summaryCreateList
+																.get(i).location));
 
-								//add to marker list
+								// add to marker list
 								markerList.add(marker);
 
-								//add summary to hash map
-								chatSummaryMap.put(marker.getId(), summaryCreateList.get(i));
+								// add summary to hash map
+								chatSummaryMap.put(marker.getId(),
+										summaryCreateList.get(i));
 							}
 
-							for(int i=0; i<markerUpdateList.size(); i++)
-							{
+							for (int i = 0; i < markerUpdateList.size(); i++) {
 
-								//add to marker list
+								// add to marker list
 								markerList.add(markerUpdateList.get(i));
 
-								//add summary to hash map
-								chatSummaryMap.put(markerUpdateList.get(i).getId(), summaryUpdateList.get(i));
+								// add summary to hash map
+								chatSummaryMap.put(markerUpdateList.get(i)
+										.getId(), summaryUpdateList.get(i));
 
-								//handle selected
-								if(selectedMarker != null && !markerUpdateList.get(i).getId().equals(selectedMarker.getId()))
-								{
-									//draw marker icon
-									markerUpdateList.get(i).setIcon(BitmapDescriptorFactory.fromBitmap(createMarkerIcon(summaryUpdateList.get(i), minMessages, maxMessages)));
+								// handle selected
+								if (selectedMarker != null
+										&& !markerUpdateList.get(i).getId()
+												.equals(selectedMarker.getId())) {
+									// draw marker icon
+									markerUpdateList
+											.get(i)
+											.setIcon(
+													BitmapDescriptorFactory
+															.fromBitmap(createMarkerIcon(
+																	summaryUpdateList
+																			.get(i),
+																	minMessages,
+																	maxMessages)));
 								}
 							}
 
-							for(int i=0; i<markerRemoveList.size(); i++)
-							{
-								Log.d("dbConnect", "Removing something, shouldn't be... Remove size: " + markerRemoveList.size());
-								//handle selected
-								if(selectedMarker != null && markerRemoveList.get(i).getId().equals(selectedMarker.getId()))
-								{
+							for (int i = 0; i < markerRemoveList.size(); i++) {
+								Log.d("dbConnect",
+										"Removing something, shouldn't be... Remove size: "
+												+ markerRemoveList.size());
+								// handle selected
+								if (selectedMarker != null
+										&& markerRemoveList.get(i).getId()
+												.equals(selectedMarker.getId())) {
 									selectedMarker = null;
 								}
-								//remove marker
+								// remove marker
 								markerRemoveList.get(i).remove();
 							}
 
-							userCircle.setCenter(GlobalSettings.curPhoneLocation);
+							userCircle
+									.setCenter(GlobalSettings.curPhoneLocation);
 
-							Log.i("dbConnect", "Cleared and replaced chat summaries, on the map screen.");
+							Log.i("dbConnect",
+									"Cleared and replaced chat summaries, on the map screen.");
 						}
 					});
 
-				}
-				else
-				{
-					HttpRequest.handleHttpRequestFailure(
-							MapActivity.this, 
-							getResources().getString(R.string.http_data_descriptor_new_inbox), 
-							true, 
-							HttpRequest.ReasonForFailure.REQUEST_REJECTED);
-					Log.e("dbConnect", getResources().getString(R.string.http_request_failure_rejected));
+				} else {
+					HttpRequest
+							.handleHttpRequestFailure(
+									MapActivity.this,
+									getResources()
+											.getString(
+													R.string.http_data_descriptor_new_inbox),
+									true,
+									HttpRequest.ReasonForFailure.REQUEST_REJECTED);
+					Log.e("dbConnect",
+							getResources().getString(
+									R.string.http_request_failure_rejected));
 				}
 			} catch (IOException e) {
 				HttpRequest.handleHttpRequestFailure(
-						MapActivity.this, 
-						getResources().getString(R.string.http_data_descriptor_new_inbox), 
-						true, 
+						MapActivity.this,
+						getResources().getString(
+								R.string.http_data_descriptor_new_inbox), true,
 						HttpRequest.ReasonForFailure.REQUEST_TIMEOUT);
 				Log.e("dbConnect", e.toString());
 			} catch (JSONException e) {
 				HttpRequest.handleHttpRequestFailure(
-						MapActivity.this, 
-						getResources().getString(R.string.http_data_descriptor_new_inbox), 
-						true, 
+						MapActivity.this,
+						getResources().getString(
+								R.string.http_data_descriptor_new_inbox), true,
 						HttpRequest.ReasonForFailure.NO_SERVER_RESPONSE);
 				Log.e("dbConnect", e.toString());
 			}
@@ -650,32 +722,36 @@ public class MapActivity extends ActionBarActivity {
 	}
 
 	/**
-	 * Gets all the tags for the app from the database, in the background. 
-	 * Sets the global tags object if successful, and does nothing otherwise, causing the app to fail.
+	 * Gets all the tags for the app from the database, in the background. Sets
+	 * the global tags object if successful, and does nothing otherwise, causing
+	 * the app to fail.
+	 * 
 	 * @author wsv759
 	 *
 	 */
-	private class GetTagsTask extends AsyncTask<Void, Void, Void>
-	{
+	private class GetTagsTask extends AsyncTask<Void, Void, Void> {
 		@Override
 		protected Void doInBackground(Void... params) {
 			try {
 				String responseString = HttpRequest.get(null, GET_TAGS_URI);
 
 				Gson gson = new Gson();
-				String[] newTags = gson.fromJson(responseString, String[].class);
-				GlobalSettings.allTags = new ArrayList<String>(Arrays.asList(newTags));
+				String[] newTags = gson
+						.fromJson(responseString, String[].class);
+				GlobalSettings.allTags = new ArrayList<String>(
+						Arrays.asList(newTags));
 
 				Log.i("dbConnect", "received tags. First tag: " + newTags[0]);
 			} catch (IOException e) {
 				HttpRequest.handleHttpRequestFailure(
-						MapActivity.this, 
-						getResources().getString(R.string.http_data_descriptor_tags), 
-						true, 
+						MapActivity.this,
+						getResources().getString(
+								R.string.http_data_descriptor_tags), true,
 						HttpRequest.ReasonForFailure.REQUEST_TIMEOUT);
 				Log.e("dbConnect", e.toString());
 
-				//Keep retrying, recursively. There is no reason not to, as the app depends upon this.
+				// Keep retrying, recursively. There is no reason not to, as the
+				// app depends upon this.
 				new GetTagsTask().execute();
 			}
 

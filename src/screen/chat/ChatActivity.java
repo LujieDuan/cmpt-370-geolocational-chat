@@ -42,27 +42,25 @@ import data.comm.chat.ChatMessageToDb;
 import data.comm.chat.ChatMessagesFromDb;
 
 /**
- * The chat activity displays all messages sent for a given chat id. From here
- * a user can both send and recieve messages specific to that chat.
+ * The chat activity displays all messages sent for a given chat id. From here a
+ * user can both send and recieve messages specific to that chat.
  */
-public class ChatActivity extends ActionBarActivity
-{
+public class ChatActivity extends ActionBarActivity {
 	private static final String GET_NEW_MESSAGES_URI = "http://cmpt370duan.byethost10.com/getmess.php";
 	private static final String SEND_NEW_MESSAGE_URI = "http://cmpt370duan.byethost10.com/create_message.php";
 	private static final String TAG_MESSAGE_ARRAY = "messages";
 	public static final String CHAT_SUMMARY_STRING = "chatId";
 
-	private Chat chat = new Chat();  
+	private Chat chat = new Chat();
 
 	private ChatSummaryForScreen chatSummary;
 
 	private ChatItemArrayAdapter adapter;
 
-
 	private static final int GET_MESSAGES_DELAY_SEC = 5;
 
 	private ScheduledThreadPoolExecutor chatUpdateScheduler;
-	
+
 	/**
 	 * Creates a new chat activity
 	 */
@@ -72,7 +70,8 @@ public class ChatActivity extends ActionBarActivity
 
 		setContentView(R.layout.chat_screen);
 
-		chatSummary = getIntent().getExtras().getParcelable(CHAT_SUMMARY_STRING);
+		chatSummary = getIntent().getExtras()
+				.getParcelable(CHAT_SUMMARY_STRING);
 
 		final ListView listView = (ListView) findViewById(R.id.listview);
 
@@ -81,73 +80,77 @@ public class ChatActivity extends ActionBarActivity
 	}
 
 	/**
-	 * Start updating the chat, when the chat starts. (i.e. returns to the phone screen.)
+	 * Start updating the chat, when the chat starts. (i.e. returns to the phone
+	 * screen.)
 	 */
 	@Override
-	public void onStart() 
-	{
+	public void onStart() {
 		super.onStart();
 
 		chatUpdateScheduler = new ScheduledThreadPoolExecutor(1);
-		chatUpdateScheduler.scheduleWithFixedDelay(
-				new GetNewMessagesTask(), 0, GET_MESSAGES_DELAY_SEC, TimeUnit.SECONDS);
+		chatUpdateScheduler.scheduleWithFixedDelay(new GetNewMessagesTask(), 0,
+				GET_MESSAGES_DELAY_SEC, TimeUnit.SECONDS);
 	}
 
 	/**
-	 * Stop updating the chat, when the chat stops. (i.e. vanishes from the phone screen.)
+	 * Stop updating the chat, when the chat stops. (i.e. vanishes from the
+	 * phone screen.)
 	 */
 	@Override
-	public void onStop() 
-	{
+	public void onStop() {
 		super.onStop();
 
 		chatUpdateScheduler.shutdownNow();
-		//Can't use it anymore anyway, so this will help emphasize that...
+		// Can't use it anymore anyway, so this will help emphasize that...
 		chatUpdateScheduler = null;
 	}
 
 	/**
-	 * When the chat is *destroyed*, send its current ChatSummary back to the map screen.
+	 * When the chat is *destroyed*, send its current ChatSummary back to the
+	 * map screen.
 	 */
 	@Override
-	public void onBackPressed()
-	{
+	public void onBackPressed() {
 		int numMessages = chat.numMessages();
-		
-		//Should always be true, but maybe we will include message deletion later.
-		if (numMessages > 0) 
-			chatSummary.lastMessageTime = chat.getChatMessageForScreen(numMessages - 1).time;
+
+		// Should always be true, but maybe we will include message deletion
+		// later.
+		if (numMessages > 0)
+			chatSummary.lastMessageTime = chat
+					.getChatMessageForScreen(numMessages - 1).time;
 		else
 			chatSummary.lastMessageTime = new DateTime();
-		
+
 		chatSummary.numMessages = numMessages;
 		chatSummary.numMessagesRead = numMessages;
 
 		Intent returnIntent = new Intent();
-		
+
 		returnIntent.putExtra(MapActivity.CHAT_SUMMARY_STRING, chatSummary);
-		setResult(RESULT_OK,returnIntent);
+		setResult(RESULT_OK, returnIntent);
 
 		finish();
 	}
-	
+
 	/**
 	 * Sends a message to the database when the send button is clicked by the
 	 * user. This function is directly linked into the layout's XML.
+	 * 
 	 * @param v
 	 */
-	public void sendMessage(View v)
-	{	
+	public void sendMessage(View v) {
 		EditText editText = (EditText) findViewById(R.id.EditText);
 		String message = editText.getText().toString().trim();
 		editText.setText("");
-		if(!message.equals(""))
-		{
-			//TODO implement a dummy message, for immediate viewing.
-			//			chat.addMessages(new ChatMessageForScreen(message,MapActivity.USER_ID_AND_NAME.userId,MapActivity.USER_ID_AND_NAME.userName, FAKE_MESSAGE_ID, new DateTime()));
-			//			onChatUpdated();
+		if (!message.equals("")) {
+			// TODO implement a dummy message, for immediate viewing.
+			// chat.addMessages(new
+			// ChatMessageForScreen(message,MapActivity.USER_ID_AND_NAME.userId,MapActivity.USER_ID_AND_NAME.userName,
+			// FAKE_MESSAGE_ID, new DateTime()));
+			// onChatUpdated();
 
-			new SendNewMessageTask().execute(new ChatMessageToDb(message, GlobalSettings.userIdAndName.userId, chatSummary.chatId));
+			new SendNewMessageTask().execute(new ChatMessageToDb(message,
+					GlobalSettings.userIdAndName.userId, chatSummary.chatId));
 		}
 	}
 
@@ -161,10 +164,13 @@ public class ChatActivity extends ActionBarActivity
 		private final ArrayList<ChatItem> values;
 
 		/**
-		 * Creates a new ChatItemArrayAdapter, used to list messages within
-		 * the chat activity.
-		 * @param context Activity in which it's created
-		 * @param values Messages to adapt to a list view
+		 * Creates a new ChatItemArrayAdapter, used to list messages within the
+		 * chat activity.
+		 * 
+		 * @param context
+		 *            Activity in which it's created
+		 * @param values
+		 *            Messages to adapt to a list view
 		 */
 		public ChatItemArrayAdapter(Context context, ArrayList<ChatItem> values) {
 			super(context, R.layout.chat_item_me, values);
@@ -178,55 +184,62 @@ public class ChatActivity extends ActionBarActivity
 		 */
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			LayoutInflater inflater = (LayoutInflater) context
+					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
 			View itemView;
 
-			if(values.get(position).getUserId().equals(GlobalSettings.userIdAndName.userId))
-			{
-				itemView = inflater.inflate(R.layout.chat_item_me, parent, false);
-				LinearLayout bubbleList = (LinearLayout) itemView.findViewById(R.id.chat_bubble_list);
-				for(int i=0; i<values.get(position).messages.size(); i++)
-				{
-					View bubbleView = inflater.inflate(R.layout.chat_bubble_me, parent, false);
-					TextView textViewMessage = (TextView) bubbleView.findViewById(R.id.textViewMessage);
+			if (values.get(position).getUserId()
+					.equals(GlobalSettings.userIdAndName.userId)) {
+				itemView = inflater.inflate(R.layout.chat_item_me, parent,
+						false);
+				LinearLayout bubbleList = (LinearLayout) itemView
+						.findViewById(R.id.chat_bubble_list);
+				for (int i = 0; i < values.get(position).messages.size(); i++) {
+					View bubbleView = inflater.inflate(R.layout.chat_bubble_me,
+							parent, false);
+					TextView textViewMessage = (TextView) bubbleView
+							.findViewById(R.id.textViewMessage);
 					textViewMessage.setText(values.get(position).getMessage(i));
 					bubbleList.addView(bubbleView);
 				}
-			}
-			else
-			{
-				itemView = inflater.inflate(R.layout.chat_item_them, parent, false);
-				LinearLayout bubbleList = (LinearLayout) itemView.findViewById(R.id.chat_bubble_list);
-				for(int i=0; i<values.get(position).messages.size(); i++)
-				{
-					View bubbleView = inflater.inflate(R.layout.chat_bubble_them, parent, false);
-					TextView textViewMessage = (TextView) bubbleView.findViewById(R.id.textViewMessage);
+			} else {
+				itemView = inflater.inflate(R.layout.chat_item_them, parent,
+						false);
+				LinearLayout bubbleList = (LinearLayout) itemView
+						.findViewById(R.id.chat_bubble_list);
+				for (int i = 0; i < values.get(position).messages.size(); i++) {
+					View bubbleView = inflater.inflate(
+							R.layout.chat_bubble_them, parent, false);
+					TextView textViewMessage = (TextView) bubbleView
+							.findViewById(R.id.textViewMessage);
 					textViewMessage.setText(values.get(position).getMessage(i));
 					bubbleList.addView(bubbleView);
 				}
 			}
 
-			TextView textViewName = (TextView) itemView.findViewById(R.id.textViewName);	
+			TextView textViewName = (TextView) itemView
+					.findViewById(R.id.textViewName);
 			textViewName.setText(values.get(position).getName());
-			TextView textViewTimeLocation = (TextView) itemView.findViewById(R.id.timeAndLocation);
+			TextView textViewTimeLocation = (TextView) itemView
+					.findViewById(R.id.timeAndLocation);
 
 			Location location = new Location("");
 			location.setLatitude(0);
 			location.setLongitude(0);
 
-			textViewTimeLocation.setText(values.get(position).getTimeString(new DateTime()));
+			textViewTimeLocation.setText(values.get(position).getTimeString(
+					new DateTime()));
 
 			return itemView;
 		}
 
-	} 
+	}
 
 	/**
 	 * Update the UI when the underlying chat messages have changed.
 	 */
-	private void onChatUpdated()
-	{
+	private void onChatUpdated() {
 		adapter.notifyDataSetChanged();
 
 		ListView listView = (ListView) findViewById(R.id.listview);
@@ -234,38 +247,41 @@ public class ChatActivity extends ActionBarActivity
 	}
 
 	/**
-	 * Get any new messages for this chat from the database, in the background. 
+	 * Get any new messages for this chat from the database, in the background.
 	 * On success, update the chat. Make toast on failure.
+	 * 
 	 * @author wsv759
 	 *
 	 */
-	private class GetNewMessagesTask implements Runnable 
-	{
+	private class GetNewMessagesTask implements Runnable {
 		@Override
-		public void run() 
-		{
+		public void run() {
 			int lastMessageId = -1;
-			if (chat.numMessages() > 0)
-			{		    		
-				lastMessageId = chat.getChatMessageForScreen(chat.numMessages() - 1).messageId;
+			if (chat.numMessages() > 0) {
+				lastMessageId = chat
+						.getChatMessageForScreen(chat.numMessages() - 1).messageId;
 			}
 
-			TaskParams_GetNewMessages sendParams = new TaskParams_GetNewMessages(chatSummary.chatId, lastMessageId);
+			TaskParams_GetNewMessages sendParams = new TaskParams_GetNewMessages(
+					chatSummary.chatId, lastMessageId);
 
 			try {
-				String responseString = HttpRequest.get(sendParams, GET_NEW_MESSAGES_URI);
+				String responseString = HttpRequest.get(sendParams,
+						GET_NEW_MESSAGES_URI);
 				JSONObject responseJson = new JSONObject(responseString);
 
-				if (responseJson.getInt(MapActivity.TAG_SUCCESS) == HttpRequest.HTTP_RESPONSE_SUCCESS)
-				{
-					//Request Could be successful, but without finding any new messages.
-					if (responseJson.optJSONArray(TAG_MESSAGE_ARRAY) != null)
-					{
-						GsonBuilder gsonBuilder = new GsonBuilder(); 
-						gsonBuilder.registerTypeAdapter(DateTime.class, new DateTimeDeserializer());
+				if (responseJson.getInt(MapActivity.TAG_SUCCESS) == HttpRequest.HTTP_RESPONSE_SUCCESS) {
+					// Request Could be successful, but without finding any new
+					// messages.
+					if (responseJson.optJSONArray(TAG_MESSAGE_ARRAY) != null) {
+						GsonBuilder gsonBuilder = new GsonBuilder();
+						gsonBuilder.registerTypeAdapter(DateTime.class,
+								new DateTimeDeserializer());
 						Gson gson = gsonBuilder.create();
-						ChatMessageForScreen[] newChatMessages = gson.fromJson(responseString, ChatMessagesFromDb.class).messages;
-						Log.i("dbConnect", "num new chat messages: " + newChatMessages.length);
+						ChatMessageForScreen[] newChatMessages = gson.fromJson(
+								responseString, ChatMessagesFromDb.class).messages;
+						Log.i("dbConnect", "num new chat messages: "
+								+ newChatMessages.length);
 
 						chat.addMessages(newChatMessages);
 
@@ -277,74 +293,82 @@ public class ChatActivity extends ActionBarActivity
 							}
 						});
 					}
+				} else {
+					HttpRequest
+							.handleHttpRequestFailure(
+									ChatActivity.this,
+									getResources()
+											.getString(
+													R.string.http_data_descriptor_new_messages),
+									true,
+									HttpRequest.ReasonForFailure.REQUEST_REJECTED);
+					Log.e("dbConnect",
+							getResources().getString(
+									R.string.http_request_failure_rejected));
 				}
-				else
-				{
-					HttpRequest.handleHttpRequestFailure(
-							ChatActivity.this, 
-							getResources().getString(R.string.http_data_descriptor_new_messages), 
-							true, 
-							HttpRequest.ReasonForFailure.REQUEST_REJECTED);
-					Log.e("dbConnect", getResources().getString(R.string.http_request_failure_rejected));
-				}
-			} catch (IOException e) {		
+			} catch (IOException e) {
 				HttpRequest.handleHttpRequestFailure(
-						ChatActivity.this, 
-						getResources().getString(R.string.http_data_descriptor_new_messages), 
-						true, 
-						HttpRequest.ReasonForFailure.REQUEST_TIMEOUT);
+						ChatActivity.this,
+						getResources().getString(
+								R.string.http_data_descriptor_new_messages),
+						true, HttpRequest.ReasonForFailure.REQUEST_TIMEOUT);
 				Log.e("dbConnect", e.toString());
 			} catch (JSONException e) {
 				HttpRequest.handleHttpRequestFailure(
-						ChatActivity.this, 
-						getResources().getString(R.string.http_data_descriptor_new_messages), 
-						true, 
-						HttpRequest.ReasonForFailure.NO_SERVER_RESPONSE);
+						ChatActivity.this,
+						getResources().getString(
+								R.string.http_data_descriptor_new_messages),
+						true, HttpRequest.ReasonForFailure.NO_SERVER_RESPONSE);
 				Log.e("dbConnect", e.toString());
 			}
 		}
 	}
 
 	/**
-	 * Send a new message to the database, in the background. On failure, make toast. 
+	 * Send a new message to the database, in the background. On failure, make
+	 * toast.
+	 * 
 	 * @author wsv759
 	 *
 	 */
-	private class SendNewMessageTask extends AsyncTask<ChatMessageToDb, Void, Void>
-	{	
+	private class SendNewMessageTask extends
+			AsyncTask<ChatMessageToDb, Void, Void> {
 		@Override
 		protected Void doInBackground(ChatMessageToDb... params) {
 			try {
-				String responseString = HttpRequest.post(params[0], SEND_NEW_MESSAGE_URI);
+				String responseString = HttpRequest.post(params[0],
+						SEND_NEW_MESSAGE_URI);
 				JSONObject responseJson = new JSONObject(responseString);
 
-				if (responseJson.getInt(MapActivity.TAG_SUCCESS) != HttpRequest.HTTP_RESPONSE_SUCCESS)
-				{
+				if (responseJson.getInt(MapActivity.TAG_SUCCESS) != HttpRequest.HTTP_RESPONSE_SUCCESS) {
 					HttpRequest.handleHttpRequestFailure(
-							ChatActivity.this, 
-							getResources().getString(R.string.http_data_descriptor_response), 
-							false, 
+							ChatActivity.this,
+							getResources().getString(
+									R.string.http_data_descriptor_response),
+							false,
 							HttpRequest.ReasonForFailure.REQUEST_REJECTED);
-					Log.e("dbConnect", getResources().getString(R.string.http_request_failure_rejected));
+					Log.e("dbConnect",
+							getResources().getString(
+									R.string.http_request_failure_rejected));
 				}
 			} catch (IOException e) {
 				HttpRequest.handleHttpRequestFailure(
-						ChatActivity.this, 
-						getResources().getString(R.string.http_data_descriptor_response), 
-						false, 
+						ChatActivity.this,
+						getResources().getString(
+								R.string.http_data_descriptor_response), false,
 						HttpRequest.ReasonForFailure.REQUEST_TIMEOUT);
 				Log.e("dbConnect", e.toString());
 			} catch (JSONException e) {
 				HttpRequest.handleHttpRequestFailure(
-						ChatActivity.this, 
-						getResources().getString(R.string.http_data_descriptor_response), 
-						false,
+						ChatActivity.this,
+						getResources().getString(
+								R.string.http_data_descriptor_response), false,
 						HttpRequest.ReasonForFailure.NO_SERVER_RESPONSE);
 				Log.e("dbConnect", e.toString());
 			}
 
-			//TODO immediately get new messages.
+			// TODO immediately get new messages.
 			return null;
 		}
 	}
-} 
+}

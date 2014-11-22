@@ -13,16 +13,16 @@ import com.google.gson.JsonParseException;
 
 /**
  * Helps gson to deserialize the incoming json DateTime data from the database.
+ * 
  * @author wsv759
  *
  */
-public class DateTimeDeserializer implements JsonDeserializer<DateTime> 
-{
+public class DateTimeDeserializer implements JsonDeserializer<DateTime> {
 	@Override
 	public DateTime deserialize(JsonElement json, Type typeOfT,
-			JsonDeserializationContext context) throws JsonParseException 
-	{
-		DateTimeFormatter formatter = DateTimeFormat.forPattern(HttpRequest.DATETIME_FORMAT);
+			JsonDeserializationContext context) throws JsonParseException {
+		DateTimeFormatter formatter = DateTimeFormat
+				.forPattern(HttpRequest.DATETIME_FORMAT);
 		return formatter.parseDateTime(json.getAsString());
 	}
 }

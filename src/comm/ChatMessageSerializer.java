@@ -10,18 +10,18 @@ import com.google.gson.JsonSerializer;
 import data.comm.chat.ChatMessageToDb;
 
 /**
- * Helps gson to serialize ChatMessage data into json form, before sending to the database.
+ * Helps gson to serialize ChatMessage data into json form, before sending to
+ * the database.
+ * 
  * @author wsv759
  *
  */
-public class ChatMessageSerializer implements JsonSerializer<ChatMessageToDb> 
-{
+public class ChatMessageSerializer implements JsonSerializer<ChatMessageToDb> {
 	@Override
 	public JsonElement serialize(ChatMessageToDb c, Type typeOfT,
-			JsonSerializationContext context) 
-	{
+			JsonSerializationContext context) {
 		JsonObject json = new JsonObject();
-		
+
 		json.addProperty("creatorId", c.chatId.creatorId);
 		json.addProperty("timeId", c.chatId.getTimeIdString());
 		json.addProperty("userId", c.userId);

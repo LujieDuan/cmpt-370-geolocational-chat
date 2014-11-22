@@ -24,22 +24,23 @@ import android.util.Log;
 import android.widget.Toast;
 
 /**
- * Uninstantiated class; handles all http methods to access the database, as well as toast to make upon failure.
+ * Uninstantiated class; handles all http methods to access the database, as
+ * well as toast to make upon failure.
+ * 
  * @author wsv759
  *
  */
-public class HttpRequest 
-{
+public class HttpRequest {
 	public static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	public static final int TIMEOUT_MILLISEC = 10000;
 	public static final int HTTP_RESPONSE_SUCCESS = 1;
-	
+
 	public static enum ReasonForFailure {
 		REQUEST_REJECTED, REQUEST_TIMEOUT, NO_SERVER_RESPONSE, UNKNOWN
 	}
-	
-	public static String post(HttpPostEntity entity, String uri) throws ClientProtocolException, IOException
-	{
+
+	public static String post(HttpPostEntity entity, String uri)
+			throws ClientProtocolException, IOException {
 		StringEntity se = entity.asJsonStringEntity();
 		se.setContentEncoding("UTF-8");
 		se.setContentType("application/json");
@@ -47,12 +48,13 @@ public class HttpRequest
 		HttpPost request = new HttpPost(uri);
 		request.setEntity(se);
 
-		Log.d("dbConnect", "http post entity: " + request.getEntity().toString());
+		Log.d("dbConnect", "http post entity: "
+				+ request.getEntity().toString());
 		return executeRequest(request);
 	}
 
-	public static String put(HttpPutEntity entity, String uri) throws ClientProtocolException, IOException
-	{
+	public static String put(HttpPutEntity entity, String uri)
+			throws ClientProtocolException, IOException {
 		StringEntity se = entity.asJsonStringEntity();
 		se.setContentEncoding("UTF-8");
 		se.setContentType("application/json");
@@ -64,42 +66,45 @@ public class HttpRequest
 		return executeRequest(request);
 	}
 
-	public static String get(HttpGetParams params, String uri) throws ClientProtocolException, IOException 
-	{
-		//Some requests don't need or use params.
+	public static String get(HttpGetParams params, String uri)
+			throws ClientProtocolException, IOException {
+		// Some requests don't need or use params.
 		if (params != null)
 			uri += "?" + params.getHttpStringForm();
 
 		Log.d("dbConnect", "full http get uri string: " + uri);
-		HttpGet request = new HttpGet(uri);         
+		HttpGet request = new HttpGet(uri);
 		return executeRequest(request);
 	}
 
-	private static String executeRequest(HttpRequestBase request) throws ClientProtocolException, IOException
-	{
+	private static String executeRequest(HttpRequestBase request)
+			throws ClientProtocolException, IOException {
 
 		HttpParams params = request.getParams();
 		HttpConnectionParams.setConnectionTimeout(params, TIMEOUT_MILLISEC);
 		HttpConnectionParams.setSoTimeout(params, TIMEOUT_MILLISEC);
 		HttpClient client = new DefaultHttpClient(params);
 
-		Log.i("dbConnect","sending http request: " + request.toString());
-		HttpResponse response = client.execute(request); 
+		Log.i("dbConnect", "sending http request: " + request.toString());
+		HttpResponse response = client.execute(request);
 
 		HttpEntity entity = response.getEntity();
 		InputStream is = entity.getContent();
 		String responseString = convertStreamToString(is);
 		Log.d("dbConnect", "response string: " + responseString);
 
-		// Check if server response is valid code          
-		Log.i("dbConnect", "reply code: " + Integer.toString(response.getStatusLine().getStatusCode()));
+		// Check if server response is valid code
+		Log.i("dbConnect",
+				"reply code: "
+						+ Integer.toString(response.getStatusLine()
+								.getStatusCode()));
 
 		return responseString;
 	}
 
-	private static String convertStreamToString(InputStream is) 
-	{
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is), 8192);
+	private static String convertStreamToString(InputStream is) {
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is),
+				8192);
 		StringBuilder sb = new StringBuilder();
 
 		String line = null;
@@ -119,30 +124,44 @@ public class HttpRequest
 
 		return sb.toString();
 	}
-	
+
 	/**
-	 * Display a 'toast' message to the current activity indicating the reason for an http request failure.
-	 * It is the Activity's responsibility to call this function, if it so desires. The calling activity must also
-	 * indicate the reason for failure. 
-	 * @param activity the activity on which to display the toast.
-	 * @param dataDescriptor an optional string describing the data that needed to be retrieved. If null,
-	 * @param toastText the text of the toast.
-	 * @param autoRetry true if the task will automatically be retried (e.g. on a schedule), false otherwise.
-	 * @param reasonForFailure code representing the reason for failure, to be selected from the ReasonForFailure enum.
+	 * Display a 'toast' message to the current activity indicating the reason
+	 * for an http request failure. It is the Activity's responsibility to call
+	 * this function, if it so desires. The calling activity must also indicate
+	 * the reason for failure.
+	 * 
+	 * @param activity
+	 *            the activity on which to display the toast.
+	 * @param dataDescriptor
+	 *            an optional string describing the data that needed to be
+	 *            retrieved. If null,
+	 * @param toastText
+	 *            the text of the toast.
+	 * @param autoRetry
+	 *            true if the task will automatically be retried (e.g. on a
+	 *            schedule), false otherwise.
+	 * @param reasonForFailure
+	 *            code representing the reason for failure, to be selected from
+	 *            the ReasonForFailure enum.
 	 */
-	public static void handleHttpRequestFailure(
-			final Activity activity, String dataDescriptor, boolean autoRetry, final ReasonForFailure reasonForFailure)
-	{
+	public static void handleHttpRequestFailure(final Activity activity,
+			String dataDescriptor, boolean autoRetry,
+			final ReasonForFailure reasonForFailure) {
 		final String reasonForError;
 		if (reasonForFailure == ReasonForFailure.REQUEST_REJECTED)
-			reasonForError = activity.getResources().getString(R.string.http_request_failure_rejected);
+			reasonForError = activity.getResources().getString(
+					R.string.http_request_failure_rejected);
 		else if (reasonForFailure == ReasonForFailure.REQUEST_TIMEOUT)
-			reasonForError = activity.getResources().getString(R.string.http_request_failure_timeout);
+			reasonForError = activity.getResources().getString(
+					R.string.http_request_failure_timeout);
 		else if (reasonForFailure == ReasonForFailure.NO_SERVER_RESPONSE)
-			reasonForError = activity.getResources().getString(R.string.http_request_failure_no_response);
+			reasonForError = activity.getResources().getString(
+					R.string.http_request_failure_no_response);
 		else
-			reasonForError = activity.getResources().getString(R.string.http_request_failure_unknown);
-		
+			reasonForError = activity.getResources().getString(
+					R.string.http_request_failure_unknown);
+
 		final String sensibleDataDescriptor;
 		if (dataDescriptor == null || dataDescriptor.isEmpty())
 			sensibleDataDescriptor = "data";
@@ -154,12 +173,14 @@ public class HttpRequest
 			retryString = "Retrying...";
 		else
 			retryString = "Please try again later.";
-		
+
 		activity.runOnUiThread(new Runnable() {
 			@Override
-			public void run() {  	
-				Toast.makeText(activity, 
-						"Unable to retrieve " + sensibleDataDescriptor + "; " + reasonForError + ". " + retryString, 
+			public void run() {
+				Toast.makeText(
+						activity,
+						"Unable to retrieve " + sensibleDataDescriptor + "; "
+								+ reasonForError + ". " + retryString,
 						Toast.LENGTH_LONG).show();
 			}
 		});

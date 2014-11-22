@@ -15,13 +15,14 @@ import com.google.gson.JsonSerializer;
 import data.comm.chatCreation.ChatSummaryToDb;
 
 /**
- * Helps gson to serialize ChatSummary data into json form, before sending to the database.
+ * Helps gson to serialize ChatSummary data into json form, before sending to
+ * the database.
+ * 
  * @author wsv759
  *
  */
 public class ChatSummarySerializer implements JsonSerializer<ChatSummaryToDb> {
 
-	
 	@Override
 	public JsonElement serialize(ChatSummaryToDb c, Type t,
 			JsonSerializationContext context) {
@@ -30,20 +31,20 @@ public class ChatSummarySerializer implements JsonSerializer<ChatSummaryToDb> {
 		json.addProperty("title", c.title);
 		json.addProperty("longitude", c.location.longitude);
 		json.addProperty("latitude", c.location.latitude);
-		
+
 		JsonArray tagsArray = new JsonArray();
-		for(String tag : c.tags)
-		{
+		for (String tag : c.tags) {
 			tagsArray.add(new JsonPrimitive(tag));
 		}
-		
-		json.add("tags",tagsArray);
+
+		json.add("tags", tagsArray);
 		json.addProperty("userId", c.userId);
 		json.addProperty("firstMessage", c.firstMessage);
-		
-		DateTimeFormatter formatter = DateTimeFormat.forPattern(HttpRequest.DATETIME_FORMAT);
+
+		DateTimeFormatter formatter = DateTimeFormat
+				.forPattern(HttpRequest.DATETIME_FORMAT);
 		json.addProperty("maxEndTime", c.maxEndTime.toString(formatter));
-		
+
 		return json;
 	}
 

@@ -8,36 +8,39 @@ import comm.HttpRequest;
 
 /**
  * Encapsulates the unique chatId for each chat, as created by the database.
- * This chatId causes the chat screen to be able to request the right chat messages from the database, for display.
+ * This chatId causes the chat screen to be able to request the right chat
+ * messages from the database, for display.
  * 
- * Must be parcelable, as it has to be passed from the map screen to the chat screen.
+ * Must be parcelable, as it has to be passed from the map screen to the chat
+ * screen.
+ * 
  * @author wsv759
  *
  */
 public class ChatId implements Parcelable {
-	
+
 	public String creatorId;
 	public DateTime timeId;
-	
+
 	/**
 	 * Creates a new {@link ChatId}.
-	 * @param creatorId phone ID of the user which created the chat
-	 * @param timeId The time at which the chat was created
+	 * 
+	 * @param creatorId
+	 *            phone ID of the user which created the chat
+	 * @param timeId
+	 *            The time at which the chat was created
 	 */
-	public ChatId(String creatorId, DateTime timeId) 
-	{
+	public ChatId(String creatorId, DateTime timeId) {
 		this.creatorId = creatorId;
 		this.timeId = timeId;
 	}
-	
-	public ChatId(Parcel in)
-	{
+
+	public ChatId(Parcel in) {
 		creatorId = in.readString();
 		timeId = new DateTime(in.readLong());
 	}
-    
-	public String getTimeIdString()
-	{
+
+	public String getTimeIdString() {
 		return timeId.toString(HttpRequest.DATETIME_FORMAT);
 	}
 
@@ -47,24 +50,22 @@ public class ChatId implements Parcelable {
 	}
 
 	@Override
-	public void writeToParcel(Parcel dest, int flags) 
-	{
+	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(creatorId);
 		dest.writeLong(timeId.getMillis());
 	}
-	
-    public static final Parcelable.Creator<ChatId> CREATOR = new Parcelable.Creator<ChatId>() {
-        public ChatId createFromParcel(Parcel in) {
-            return new ChatId(in);
-        }
 
-        public ChatId[] newArray(int size) {
-            return new ChatId[size];
-        }
-    };
-    
-    public String toString()
-    {
-    	return "creatorId: " + creatorId + ", timeId: " + getTimeIdString();
-    }
+	public static final Parcelable.Creator<ChatId> CREATOR = new Parcelable.Creator<ChatId>() {
+		public ChatId createFromParcel(Parcel in) {
+			return new ChatId(in);
+		}
+
+		public ChatId[] newArray(int size) {
+			return new ChatId[size];
+		}
+	};
+
+	public String toString() {
+		return "creatorId: " + creatorId + ", timeId: " + getTimeIdString();
+	}
 }
