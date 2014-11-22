@@ -46,7 +46,7 @@ if (isset($_GET["latitude"]) && isset($_GET["longitude"]) && isset($_GET["tags"]
 //  $tag = $_GET['tag'];
  
     // get chats from chatss table
-    $result = mysql_query("SELECT chPhoneId, chTimeId, chChatTitle, chLatitude, chLongitude, count(meMessageId)FROM chats, messages WHERE chPhoneId = mePhoneId AND chTimeId = meTimeId GROUP BY mePhoneId, meTimeId;");
+    $result = mysql_query("SELECT userShowName, chPhoneId, chTimeId, chChatTitle, chLatitude, chLongitude, count(meMessageId), max(meMessageTime)FROM chats, messages, users WHERE userPhoneId = chPhoneId AND chPhoneId = mePhoneId AND chTimeId = meTimeId GROUP BY mePhoneId, meTimeId;");
  
     if (!empty($result)) {
         // check for empty result
@@ -58,12 +58,14 @@ if (isset($_GET["latitude"]) && isset($_GET["longitude"]) && isset($_GET["tags"]
             while ($row = mysql_fetch_array($result)) {
                 // temp user array
                 $chat = array();
+                $chat["creatorUserName"] = $row["userShowName"];
                 $chat["creatorId"] = $row["chPhoneId"];
                 $chat["timeId"] = $row["chTimeId"];
                 $chat["title"] = $row["chChatTitle"];
                 $chat["latitude"] = $row["chLatitude"];
                 $chat["longitude"] = $row["chLongitude"];
                 $chat["numMessages"] = $row["count(meMessageId)"];
+                $chat["lastMessageTime"] = $row["max(meMessageTime)"];
                 settype($chat["latitude"], "float");
                 settype($chat["longitude"], "float");
                
