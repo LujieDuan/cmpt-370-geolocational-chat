@@ -5,7 +5,8 @@ import java.io.IOException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import screen.inbox.InboxActivity;
+import screen.map.MapActivity;
+
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -47,7 +48,7 @@ public class SendNewUserNameTask extends AsyncTask<UserIdNamePair, Void, Void>
 			String responseString = HttpRequest.post(newUserIdAndName, SettingsActivity.SEND_NEW_USER_NAME_URI);
 			JSONObject responseJson = new JSONObject(responseString);
 
-			if (responseJson.getInt(InboxActivity.TAG_SUCCESS) == 1)
+			if (responseJson.getInt(MapActivity.TAG_SUCCESS) == 1)
 			{
 				GlobalSettings.userIdAndName = newUserIdAndName;
 			}

@@ -8,7 +8,8 @@ import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import screen.inbox.InboxActivity;
+import screen.map.MapActivity;
+
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -43,7 +44,7 @@ public class ChatCreationActivity extends ActionBarActivity {
 	/**
 	 * Maximum length of a title that can be submitted by a user
 	 */
-    public static final int MAX_TITLE_LENGTH = Integer.MAX_VALUE;
+    public static final int MAX_TITLE_LENGTH = 30;
 	
     /**
      * Minimum length of a message that can be submitted by a user
@@ -146,7 +147,7 @@ public class ChatCreationActivity extends ActionBarActivity {
 				String responseString = HttpRequest.post(newChatSummary, SEND_NEW_CHAT_URI);
 				JSONObject responseJson = new JSONObject(responseString);
 
-				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) != HttpRequest.HTTP_RESPONSE_SUCCESS)
+				if (responseJson.getInt(MapActivity.TAG_SUCCESS) != HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
 					HttpRequest.handleHttpRequestFailure(
 							ChatCreationActivity.this, 

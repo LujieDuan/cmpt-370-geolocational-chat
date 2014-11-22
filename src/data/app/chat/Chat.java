@@ -2,10 +2,18 @@ package data.app.chat;
 
 import java.util.ArrayList;
 
+/**
+ * This object represents a collection of messages which together represent a
+ * chat which can be both viewed and replied to within a {@link ChatActivity}.
+ */
 public class Chat 
 {	
-	public ArrayList<ChatItem> chatItems = new ArrayList<ChatItem>();
+  
+  public ArrayList<ChatItem> chatItems = new ArrayList<ChatItem>();
 
+	/**
+	 * Adds the given messages to the {@link Chat}.
+	 */
 	public void addMessages(ChatMessageForScreen... chatMessages)
 	{
 		for(ChatMessageForScreen message : chatMessages)
@@ -21,6 +29,10 @@ public class Chat
 		}
 	}
 	
+	/**
+	 * Returns an array list of chat items, used by {@link ChatActivity} to
+	 * format how messages are displayed.
+	 */
 	public ArrayList<ChatItem> getChatItems()
 	{
 	  return chatItems;

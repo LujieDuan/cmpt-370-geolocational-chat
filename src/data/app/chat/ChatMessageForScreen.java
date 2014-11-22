@@ -23,6 +23,15 @@ public class ChatMessageForScreen extends ChatMessage
 	public String userName;
 	public DateTime time;
 	
+	/**
+	 * Creates a new {@link ChatMessageForScreen}, taking in a string as
+	 * {@link DateTime} in {@link HttpRequest#DATETIME_FORMAT} format.
+	 * @param message The associated message
+	 * @param userId The phone ID of the user which posted the message
+	 * @param userName The name of the user
+	 * @param messageId The ID of the message
+	 * @param time The time at which it was created
+	 */
 	public ChatMessageForScreen(String message, String userId,
 			String userName, int messageId, String time) 
 	{
@@ -34,6 +43,15 @@ public class ChatMessageForScreen extends ChatMessage
 		this.time = formatter.parseDateTime(time);
 	}
 	
+	/**
+	 * Creates a new {@link ChatMessageForScreen}, taking in a {@link DateTime}
+	 * object.
+     * @param message The associated message
+     * @param userId The phone ID of the user which posted the message
+     * @param userName The name of the user
+     * @param messageId The ID of the message
+     * @param time The time at which it was created
+	 */
 	public ChatMessageForScreen(String message, String userId,
 			String userName, int messageId, DateTime time) 
 	{
@@ -44,6 +62,11 @@ public class ChatMessageForScreen extends ChatMessage
 		this.time = time;
 	}
 
+	/**
+	 * Returns the a string containing the relative time at which the message 
+	 * was posted.
+	 * @param currTime Current time
+	 */
 	public String getTimeString(DateTime currTime)
 	{    
 		int years = Years.yearsBetween(time, currTime).getYears();  

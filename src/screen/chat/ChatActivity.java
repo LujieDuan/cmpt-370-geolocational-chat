@@ -10,7 +10,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import screen.inbox.InboxActivity;
 import screen.map.MapActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -31,11 +30,10 @@ import coderunners.geolocationalchat.R;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
-
 import comm.DateTimeDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetNewMessages;
+
 import data.app.chat.Chat;
 import data.app.chat.ChatItem;
 import data.app.chat.ChatMessageForScreen;
@@ -44,6 +42,10 @@ import data.app.map.ChatSummaryForScreen;
 import data.comm.chat.ChatMessageToDb;
 import data.comm.chat.ChatMessagesFromDb;
 
+/**
+ * The chat activity displays all messages sent for a given chat id. From here
+ * a user can both send and recieve messages specific to that chat.
+ */
 public class ChatActivity extends ActionBarActivity
 {
 	private static final String GET_NEW_MESSAGES_URI = "http://cmpt370duan.byethost10.com/getmess.php";
@@ -52,12 +54,19 @@ public class ChatActivity extends ActionBarActivity
 	public static final String CHAT_SUMMARY_STRING = "chatId";
 
 	private Chat chat = new Chat();  
+
 	private ChatSummaryForScreen chatSummary;
-	private MySimpleArrayAdapter adapter;
+
+	private ChatItemArrayAdapter adapter;
+
 
 	private static final int GET_MESSAGES_DELAY_SEC = 5;
 
 	private ScheduledThreadPoolExecutor chatUpdateScheduler;
+	
+	/**
+	 * Creates a new chat activity
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -68,7 +77,7 @@ public class ChatActivity extends ActionBarActivity
 
 		final ListView listView = (ListView) findViewById(R.id.listview);
 
-		adapter = new MySimpleArrayAdapter(this, chat.getChatItems());
+		adapter = new ChatItemArrayAdapter(this, chat.getChatItems());
 		listView.setAdapter(adapter);
 	}
 
@@ -118,7 +127,12 @@ public class ChatActivity extends ActionBarActivity
 
 		finish();
 	}
-
+	
+	/**
+	 * Sends a message to the database when the send button is clicked by the
+	 * user. This function is directly linked into the layout's XML.
+	 * @param v
+	 */
 	public void sendMessage(View v)
 	{	
 		EditText editText = (EditText) findViewById(R.id.EditText);
@@ -134,17 +148,31 @@ public class ChatActivity extends ActionBarActivity
 		}
 	}
 
-	public class MySimpleArrayAdapter extends ArrayAdapter<ChatItem> {
+	/**
+	 * The chat item array adapter is used to place {@link ChatItem}s within a
+	 * list view in the chat screen, allowing multiple messages to be displayed.
+	 */
+	public class ChatItemArrayAdapter extends ArrayAdapter<ChatItem> {
 
 		private final Context context;
 		private final ArrayList<ChatItem> values;
 
-		public MySimpleArrayAdapter(Context context, ArrayList<ChatItem> values) {
+		/**
+		 * Creates a new ChatItemArrayAdapter, used to list messages within
+		 * the chat activity.
+		 * @param context Activity in which it's created
+		 * @param values Messages to adapt to a list view
+		 */
+		public ChatItemArrayAdapter(Context context, ArrayList<ChatItem> values) {
 			super(context, R.layout.chat_item_me, values);
 			this.context = context;
 			this.values = values;
 		}
 
+		/**
+		 * Returns a list view in which the messages are contained. <br>
+		 * {@inheritDoc}
+		 */
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -225,7 +253,7 @@ public class ChatActivity extends ActionBarActivity
 				String responseString = HttpRequest.get(sendParams, GET_NEW_MESSAGES_URI);
 				JSONObject responseJson = new JSONObject(responseString);
 
-				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) == HttpRequest.HTTP_RESPONSE_SUCCESS)
+				if (responseJson.getInt(MapActivity.TAG_SUCCESS) == HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
 					JSONArray messages = responseJson.optJSONArray(TAG_MESSAGE_ARRAY);
 
@@ -289,7 +317,7 @@ public class ChatActivity extends ActionBarActivity
 				String responseString = HttpRequest.post(params[0], SEND_NEW_MESSAGE_URI);
 				JSONObject responseJson = new JSONObject(responseString);
 
-				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) != HttpRequest.HTTP_RESPONSE_SUCCESS)
+				if (responseJson.getInt(MapActivity.TAG_SUCCESS) != HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
 					HttpRequest.handleHttpRequestFailure(
 							ChatActivity.this, 

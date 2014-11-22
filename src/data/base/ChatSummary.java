@@ -5,9 +5,10 @@ import java.util.ArrayList;
 import com.google.android.gms.maps.model.LatLng;
 
 /**
- * Basic chat summary: Does NOT include the actual chat contents.
+ * Basic chat summary: Does NOT include the actual chat contents. This object
+ * is extended by both {@link ChatSummaryForScreen} and {@link ChatSummaryToDb}
+ * which add additional information about depending on what's needed.
  * @author wsv759
- *
  */
 public class ChatSummary
 {
