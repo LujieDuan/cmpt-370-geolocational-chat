@@ -118,28 +118,26 @@ public class SettingsActivity extends ActionBarActivity {
 		EditText editName = (EditText) findViewById(R.id.edit_name);
 		String name = editName.getText().toString().trim();
 
-		if(name.length() < MIN_NAME_LENGTH)
-		{
-			Toast.makeText(getApplicationContext(), "Please enter a name longer than " + MIN_NAME_LENGTH + " characters", Toast.LENGTH_LONG).show();
-		}
-		else if(name.length() > MAX_NAME_LENGTH) 
+		if(name.length() > MAX_NAME_LENGTH) 
 		{
 			Toast.makeText(getApplicationContext(), "Please enter a name no longer than " + MAX_NAME_LENGTH + " characters", Toast.LENGTH_LONG).show();
 		}
-		else if (!name.equals(GlobalSettings.userIdAndName.userName))
+		else
 		{
-			new SendNewUserNameTask(this).execute(new UserIdNamePair(GlobalSettings.userIdAndName.userId, name));
-			
-			//Wait until the sendNewUserNameTask finishes. If it was unsuccessful, just keep the same name as currently.
-			try {
-				this.wait();
-			} catch (InterruptedException e) {
-				finish();
-			}
-			
-			editName.setHint(GlobalSettings.userIdAndName.userName);
-			editName.setText("");
-			finish();
+		    if(!name.isEmpty())
+		    {
+      			new SendNewUserNameTask(this).execute(new UserIdNamePair(GlobalSettings.userIdAndName.userId, name));
+      			
+      			//Wait until the sendNewUserNameTask finishes. If it was unsuccessful, just keep the same name as currently.
+      			try {
+      				this.wait();
+      			} catch (InterruptedException e) {
+      				finish();
+      			}
+      			
+      			editName.setHint(GlobalSettings.userIdAndName.userName);
+      			editName.setText("");
+		    }
 			
 			CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_filter);
 
@@ -155,6 +153,8 @@ public class SettingsActivity extends ActionBarActivity {
 			    }
 			  }
 			}
+			
+			finish();
 		}
 
 	}
