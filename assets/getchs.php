@@ -43,10 +43,27 @@ function distance($lat1, $lon1, $lat2, $lon2, $unit) {
 if (isset($_GET["latitude"]) && isset($_GET["longitude"]) && isset($_GET["tags"])) {
     $latitude = $_GET['latitude'];
     $longitude = $_GET['longitude'];
-//  $tag = $_GET['tag'];
+    $tags = $_GET['tags'];
  
-    // get chats from chatss table
-    $result = mysql_query("SELECT userShowName, chPhoneId, chTimeId, chChatTitle, chLatitude, chLongitude, count(meMessageId), max(meMessageTime)FROM chats, messages, users WHERE userPhoneId = chPhoneId AND chPhoneId = mePhoneId AND chTimeId = meTimeId GROUP BY mePhoneId, meTimeId;");
+    
+    $arrayLength = count($tags);
+    $tagString = "";
+    for ($x = 0; $x < $arrayLength; $x++) {
+        $tagString .= "\"";
+        $tagString .= $tags[$x];
+        $tagString .= "\"";
+        if($x != $arrayLength - 1){
+            $tagString .= ", ";
+        }
+    }
+    
+    if ($tags[0] == ""){
+        // get chats from chatss table
+        $result = mysql_query("SELECT userShowName, chPhoneId, chTimeId, chChatTitle, chLatitude, chLongitude, max(meMessageId), max(meMessageTime)FROM chats, messages, users WHERE userPhoneId = chPhoneId AND chPhoneId = mePhoneId AND chTimeId = meTimeId GROUP BY mePhoneId, meTimeId;");
+    }else{
+        // get chats from chatss table
+        $result = mysql_query("SELECT userShowName, chPhoneId, chTimeId, chChatTitle, chLatitude, chLongitude, max(meMessageId), max(meMessageTime)FROM chats, messages, users, chatTags WHERE userPhoneId = chPhoneId AND chPhoneId = mePhoneId AND chTimeId = meTimeId AND ctPhoneId = chPhoneId AND ctTimeId = chTimeId AND ctTagName IN ($tagString) GROUP BY mePhoneId, meTimeId;");
+    }
  
     if (!empty($result)) {
         // check for empty result
@@ -56,7 +73,7 @@ if (isset($_GET["latitude"]) && isset($_GET["longitude"]) && isset($_GET["tags"]
             $response["chats"] = array();
  
             while ($row = mysql_fetch_array($result)) {
-                // temp user array
+               
                 $chat = array();
                 $chat["creatorUserName"] = $row["userShowName"];
                 $chat["creatorId"] = $row["chPhoneId"];
@@ -64,8 +81,29 @@ if (isset($_GET["latitude"]) && isset($_GET["longitude"]) && isset($_GET["tags"]
                 $chat["title"] = $row["chChatTitle"];
                 $chat["latitude"] = $row["chLatitude"];
                 $chat["longitude"] = $row["chLongitude"];
-                $chat["numMessages"] = $row["count(meMessageId)"];
+                $chat["numMessages"] = $row["max(meMessageId)"] + 1;
                 $chat["lastMessageTime"] = $row["max(meMessageTime)"];
+                
+                
+                $phoneId = $chat["creatorId"];
+                $timeId = $chat["timeId"];
+                
+                
+                $chat["tags"] = array();
+                // get tags for each chat
+                $tagsResult = mysql_query("SELECT ctTagName FROM chatTags WHERE ctPhoneId = '$phoneId' AND ctTimeId = '$timeId';");
+                if (!empty($tagsResult)) {
+                // check for empty result
+                    if (mysql_num_rows($tagsResult) > 0) {
+                    // looping through all results
+                    // products node
+                        while ($tagsRow = mysql_fetch_array($tagsResult)) {
+                            array_push($chat["tags"], $tagsRow["ctTagName"]);
+                        }
+                    }
+                }
+                
+                
                 settype($chat["latitude"], "float");
                 settype($chat["longitude"], "float");
                
@@ -82,7 +120,7 @@ if (isset($_GET["latitude"]) && isset($_GET["longitude"]) && isset($_GET["tags"]
         echo json_encode($response);
         } else {
             // no products found
-            $response["success"] = 0;
+            $response["success"] = 1;
             $response["message"] = "No chat found";
  
             // echo no users JSON
@@ -90,7 +128,7 @@ if (isset($_GET["latitude"]) && isset($_GET["longitude"]) && isset($_GET["tags"]
         }
     } else {
         // no product found
-        $response["success"] = 0;
+        $response["success"] = 1;
         $response["message"] = "No chat found";
  
         // echo no users JSON
