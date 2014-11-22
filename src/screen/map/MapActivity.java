@@ -50,10 +50,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import comm.ChatSummariesForScreenDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetInbox;
-
 import data.app.global.GlobalSettings;
 import data.app.map.ChatSummaryForScreen;
 import data.base.UserIdNamePair;
@@ -68,6 +68,8 @@ import data.comm.map.ChatSummariesFromDb;
 public class MapActivity extends ActionBarActivity {
 
 	public static final String SETTINGS_FILE_NAME = "GeolocationalChatStoredSettings";
+	private static final String SETTINGS_KEY_TAGS_TO_FILTER_FOR = "tagsToFilterFor";
+	private static final String SETTINGS_KEY_TAG_FILTERING_IS_ON = "tagFilteringIsOn";
 	public static final String SETTINGS_KEY_USER_NAME = "userName";
 
 	private static final String GET_INBOX_URI = "http://cmpt370duan.byethost10.com/getchs.php";
@@ -120,6 +122,10 @@ public class MapActivity extends ActionBarActivity {
 
 		SharedPreferences settings = getSharedPreferences(SETTINGS_FILE_NAME, MODE_PRIVATE);
 		String userName = settings.getString(SETTINGS_KEY_USER_NAME, "");
+		String[] tagsToFilterFor = null;
+		GlobalSettings.tagsToFilterFor = 
+				new ArrayList<String>(Arrays.asList(settings.getStringSet(SETTINGS_KEY_TAGS_TO_FILTER_FOR, null).toArray(tagsToFilterFor)));
+		GlobalSettings.tagFilteringIsOn = settings.getBoolean(SETTINGS_KEY_TAG_FILTERING_IS_ON, false);
 		
 		if (userName.isEmpty())
 		{

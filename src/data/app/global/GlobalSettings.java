@@ -31,6 +31,10 @@ public class GlobalSettings
 	public static ArrayList<String> tagsToFilterFor = new ArrayList<String>();
 	
 	/**
+	 * Is the user filtering the chats they see based on tags?
+	 */
+	public static boolean tagFilteringIsOn = false;
+	/**
 	 * The current location of the phone. This is updated automatically, and should be accessed whenever 
 	 * the current location of the phone is needed.
 	 */
