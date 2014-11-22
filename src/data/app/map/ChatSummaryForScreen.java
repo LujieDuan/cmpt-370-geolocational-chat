@@ -150,6 +150,7 @@ public class ChatSummaryForScreen extends ChatSummary implements Parcelable
 	{
 		this.title = in.readString();
 		this.location = new LatLng(in.readDouble(),in.readDouble());
+		tags = new ArrayList<String>();
 		in.readList(tags, String.class.getClassLoader());
 		this.chatId = new ChatId(in.readString(), new DateTime(in.readLong()));
 		this.creatorUserName = in.readString();

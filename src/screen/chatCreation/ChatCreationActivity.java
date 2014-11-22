@@ -9,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import screen.map.MapActivity;
-
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,9 +20,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import coderunners.geolocationalchat.R;
-
 import comm.HttpRequest;
-
 import data.app.global.GlobalSettings;
 import data.comm.chatCreation.ChatSummaryToDb;
 
@@ -58,6 +55,8 @@ public class ChatCreationActivity extends ActionBarActivity {
 
 	private static final String SEND_NEW_CHAT_URI = "http://cmpt370duan.byethost10.com/createch.php";
 
+	private static final int MAX_NUM_TAGS = 5;
+
 	/**
 	 * Creates a new Chat Creation window.
 	 */
@@ -71,7 +70,7 @@ public class ChatCreationActivity extends ActionBarActivity {
 		LinearLayout tagsList = (LinearLayout) findViewById(R.id.tags_list);
 		int id = Resources.getSystem().getIdentifier("btn_check_holo_light", "drawable", "android");
 		
-		for(int i=0; i<tags.size(); i++)
+		for(int i = 0; i < tags.size(); i++)
 		{
 		  CheckBox checkBox = new CheckBox(getApplicationContext());
 		  checkBox.setText(tags.get(i));
@@ -104,7 +103,17 @@ public class ChatCreationActivity extends ActionBarActivity {
 
 		String title = editTitle.getText().toString().trim();
 		String message = editMessage.getText().toString().trim();
-
+		
+		ArrayList<String> usedTags = new ArrayList<String>();
+		LinearLayout tagsList = (LinearLayout) findViewById(R.id.tags_list);
+		
+		for (int i = 0; i < tagsList.getChildCount(); i++)
+		{
+			CheckBox curCheckBox = (CheckBox) tagsList.getChildAt(i);
+			if (curCheckBox.isChecked())
+				usedTags.add(curCheckBox.getText().toString());
+		}
+		
 		if(title.length() < MIN_TITLE_LENGTH)
 		{
 			Toast.makeText(getApplicationContext(), "Your title must be longer than " + MIN_TITLE_LENGTH + " characeters", Toast.LENGTH_LONG).show();
@@ -121,10 +130,14 @@ public class ChatCreationActivity extends ActionBarActivity {
 		{
 			Toast.makeText(getApplicationContext(), "Your message must be no longer than " + MAX_MESSAGE_LENGTH + " characters", Toast.LENGTH_LONG).show();
 		}
+		else if(usedTags.size() > MAX_NUM_TAGS)
+		{
+			Toast.makeText(getApplicationContext(), "You can use no more than " + MAX_NUM_TAGS + " tags", Toast.LENGTH_LONG).show();
+		}
 		else
 		{
 			new SendNewChatTask().execute(new ChatSummaryToDb(
-					title, GlobalSettings.curPhoneLocation, new ArrayList<String>(), GlobalSettings.userIdAndName.userId, message, new DateTime()));
+					title, GlobalSettings.curPhoneLocation, usedTags, GlobalSettings.userIdAndName.userId, message, new DateTime()));
 
 			finish();
 		}

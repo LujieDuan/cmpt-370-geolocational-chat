@@ -22,6 +22,7 @@ import data.comm.map.ChatSummariesFromDb;
 
 /**
  * Helps gson to deserialize the incoming json ChatSummary data from the database.
+ * 
  * @author wsv759
  *
  */
@@ -50,7 +51,11 @@ public class ChatSummariesForScreenDeserializer implements
 			JsonElement latElement = innerObj.get("latitude");
 			LatLng location = new LatLng(latElement.getAsDouble(), lonElement.getAsDouble());
 			
-			ArrayList<String> tags = new ArrayList<String>();
+			JsonArray tagsJson = innerObj.get("tags").getAsJsonArray();
+			ArrayList<String> tags = new ArrayList<String>(tagsJson.size());
+			
+			for (JsonElement tag : tagsJson) 
+				tags.add(tag.getAsString());
 			
 			String creatorId = innerObj.get("creatorId").getAsString();
 			DateTimeFormatter formatter = DateTimeFormat.forPattern(HttpRequest.DATETIME_FORMAT);
@@ -59,14 +64,13 @@ public class ChatSummariesForScreenDeserializer implements
 			ChatId chatId = new ChatId(creatorId, timeId);
 			
 			//TODO: Get name from database
-			String creatorUserName = "Joseph";
+			String creatorUserName = innerObj.get("creatorUserName").getAsString();
 			
 			int numMessages = innerObj.get("numMessages").getAsInt();
 			
 			int numMessagesRead = 0;
 			
-			//TODO: Get time from database
-			DateTime lastMessageTime = formatter.parseDateTime("2000-01-01 20:20:20");
+			DateTime lastMessageTime = formatter.parseDateTime(innerObj.get("lastMessageTime").getAsString());
 			
 			chats[i] = new ChatSummaryForScreen(title, location, tags, chatId, 
 					creatorUserName, numMessages, numMessagesRead, lastMessageTime); 
