@@ -113,8 +113,13 @@ public class ChatActivity extends ActionBarActivity
 	public void onBackPressed()
 	{
 		int numMessages = chat.numMessages();
-
-		chatSummary.lastMessageTime = chat.getChatMessageForScreen(numMessages - 1).time;
+		
+		//Should always be true, but maybe we will include message deletion later.
+		if (numMessages > 0) 
+			chatSummary.lastMessageTime = chat.getChatMessageForScreen(numMessages - 1).time;
+		else
+			chatSummary.lastMessageTime = new DateTime();
+		
 		chatSummary.numMessages = numMessages;
 		chatSummary.numMessagesRead = numMessages;
 
