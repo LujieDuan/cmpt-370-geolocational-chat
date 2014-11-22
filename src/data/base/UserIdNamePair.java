@@ -23,6 +23,11 @@ public class UserIdNamePair implements HttpPostEntity
 	public String userId;
 	public String userName;
 	
+	/**
+	 * Creates a new {@link UserIdNamePair}.
+	 * @param userId The user's phone ID
+	 * @param userName The user's alias
+	 */
 	public UserIdNamePair(String userId, String userName) 
 	{
 		this.userId = userId;
