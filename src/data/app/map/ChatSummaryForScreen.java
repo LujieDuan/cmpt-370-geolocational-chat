@@ -2,7 +2,6 @@ package data.app.map;
 
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
