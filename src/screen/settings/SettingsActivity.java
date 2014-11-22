@@ -67,6 +67,7 @@ public class SettingsActivity extends ActionBarActivity {
               checkBox.setChecked(true); 
             }
           }
+          checkBox.setEnabled(GlobalSettings.tagFilteringIsOn);
           tagsList.addView(checkBox);
           checkBoxTags.add(checkBox);
         }
@@ -92,6 +93,7 @@ public class SettingsActivity extends ActionBarActivity {
 	    for(int i=0; i<checkBoxTags.size(); i++)
         {
           checkBoxTags.get(i).setEnabled(false);
+          
         }
 	  } 
 	  
