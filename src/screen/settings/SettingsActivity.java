@@ -70,6 +70,9 @@ public class SettingsActivity extends ActionBarActivity {
           tagsList.addView(checkBox);
           checkBoxTags.add(checkBox);
         }
+        
+        CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_filter);
+        checkBox.setChecked(GlobalSettings.tagFilteringIsOn);
 	}
 
 	public void onFilterCheck(View v)
@@ -81,14 +84,14 @@ public class SettingsActivity extends ActionBarActivity {
 	  {
 	    for(int i=0; i<checkBoxTags.size(); i++)
 	    {
-	      checkBoxTags.get(i).setActivated(true);
+	      checkBoxTags.get(i).setEnabled(true);
 	    }
 	  }
 	  else
 	  {
 	    for(int i=0; i<checkBoxTags.size(); i++)
         {
-          checkBoxTags.get(i).setActivated(false);
+          checkBoxTags.get(i).setEnabled(false);
         }
 	  } 
 	  
@@ -143,16 +146,15 @@ public class SettingsActivity extends ActionBarActivity {
 
 			GlobalSettings.tagsToFilterFor.clear();
 			
-			if(checkBox.isChecked())
-			{
-			  for(int i=0; i<checkBoxTags.size(); i++)
-			  {
-			    if(checkBoxTags.get(i).isChecked())
-			    {
-			      GlobalSettings.tagsToFilterFor.add((String) checkBoxTags.get(i).getText());
-			    }
-			  }
-			}
+			for(int i=0; i<checkBoxTags.size(); i++)
+            {
+              if(checkBoxTags.get(i).isChecked())
+              {
+                GlobalSettings.tagsToFilterFor.add((String) checkBoxTags.get(i).getText());
+              }
+            }
+			
+			GlobalSettings.tagFilteringIsOn = checkBox.isChecked();
 			
 			finish();
 		}
