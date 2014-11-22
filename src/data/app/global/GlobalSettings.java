@@ -34,9 +34,10 @@ public class GlobalSettings
 	 * Is the user filtering the chats they see based on tags?
 	 */
 	public static boolean tagFilteringIsOn;
+	
 	/**
 	 * The current location of the phone. This is updated automatically, and should be accessed whenever 
 	 * the current location of the phone is needed.
 	 */
-	public static LatLng curPhoneLocation = new LatLng(52.1310799, -106.6341388); //TODO un-fake the location.
+	public static LatLng curPhoneLocation = new LatLng(52.1310799, -106.6341388);
 }

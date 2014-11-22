@@ -6,7 +6,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.joda.time.DateTime;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -119,9 +118,8 @@ public class ChatActivity extends ActionBarActivity
 		chatSummary.numMessages = numMessages;
 		chatSummary.numMessagesRead = numMessages;
 
-		Log.d("intents", "trying to send intent back from chat");
 		Intent returnIntent = new Intent();
-		//TODO could passing the actual chatSummary be a problem? Do I need a duplicate?
+		
 		returnIntent.putExtra(MapActivity.CHAT_SUMMARY_STRING, chatSummary);
 		setResult(RESULT_OK,returnIntent);
 
@@ -255,10 +253,8 @@ public class ChatActivity extends ActionBarActivity
 
 				if (responseJson.getInt(MapActivity.TAG_SUCCESS) == HttpRequest.HTTP_RESPONSE_SUCCESS)
 				{
-					JSONArray messages = responseJson.optJSONArray(TAG_MESSAGE_ARRAY);
-
 					//Request Could be successful, but without finding any new messages.
-					if (messages != null)
+					if (responseJson.optJSONArray(TAG_MESSAGE_ARRAY) != null)
 					{
 						GsonBuilder gsonBuilder = new GsonBuilder(); 
 						gsonBuilder.registerTypeAdapter(DateTime.class, new DateTimeDeserializer());

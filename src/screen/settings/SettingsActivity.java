@@ -7,7 +7,6 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -24,7 +23,6 @@ import data.base.UserIdNamePair;
  */
 public class SettingsActivity extends ActionBarActivity {
 
-	//TODO: Limit name sizes?
 	/**
 	 * Minimum name length which may be entered by a user
 	 */
@@ -108,6 +106,7 @@ public class SettingsActivity extends ActionBarActivity {
 	 */
 	public void onCancel(View v)
 	{
+		setResult(RESULT_CANCELED);
 		finish();
 	}
 
@@ -157,7 +156,8 @@ public class SettingsActivity extends ActionBarActivity {
             }
 			
 			GlobalSettings.tagFilteringIsOn = checkBox.isChecked();
-			
+
+			setResult(RESULT_OK);
 			finish();
 		}
 

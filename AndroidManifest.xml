@@ -54,7 +54,8 @@
         
         <activity
             android:name="screen.settings.SettingsActivity"
-            android:label="@string/settings_title">
+            android:label="@string/settings_title"
+            android:windowSoftInputMode="stateHidden">
         </activity>
         
         <activity

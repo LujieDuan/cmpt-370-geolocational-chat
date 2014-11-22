@@ -30,10 +30,10 @@ public class ChatSummariesForScreenDeserializer implements
 		JsonDeserializer<ChatSummariesFromDb> {
 
 	@Override
-	public ChatSummariesFromDb deserialize(JsonElement arg0, Type arg1,
+	public ChatSummariesFromDb deserialize(JsonElement json, Type arg1,
 			JsonDeserializationContext arg2) throws JsonParseException {
 	
-		JsonObject obj = arg0.getAsJsonObject();
+		JsonObject obj = json.getAsJsonObject();
 		JsonArray arr = obj.getAsJsonArray("chats");
 		
 		ChatSummaryForScreen[] chats = new ChatSummaryForScreen[arr.size()];
