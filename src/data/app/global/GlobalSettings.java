@@ -28,12 +28,12 @@ public class GlobalSettings
 	 * E.g. If a user only wants to see sports-related chats, this might contain only "sports".
 	 * This defaults to empty, in which case the chats are not filtered at all.
 	 */
-	public static ArrayList<String> tagsToFilterFor = new ArrayList<String>();
+	public static ArrayList<String> tagsToFilterFor;
 	
 	/**
 	 * Is the user filtering the chats they see based on tags?
 	 */
-	public static boolean tagFilteringIsOn = false;
+	public static boolean tagFilteringIsOn;
 	/**
 	 * The current location of the phone. This is updated automatically, and should be accessed whenever 
 	 * the current location of the phone is needed.

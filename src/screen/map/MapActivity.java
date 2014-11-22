@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -50,10 +51,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import comm.ChatSummariesForScreenDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetInbox;
+
 import data.app.global.GlobalSettings;
 import data.app.map.ChatSummaryForScreen;
 import data.base.UserIdNamePair;
@@ -122,9 +123,10 @@ public class MapActivity extends ActionBarActivity {
 
 		SharedPreferences settings = getSharedPreferences(SETTINGS_FILE_NAME, MODE_PRIVATE);
 		String userName = settings.getString(SETTINGS_KEY_USER_NAME, "");
+		//This is just required to pass Set<String>.toArray() the right type of array.
 		String[] tagsToFilterFor = null;
 		GlobalSettings.tagsToFilterFor = 
-				new ArrayList<String>(Arrays.asList(settings.getStringSet(SETTINGS_KEY_TAGS_TO_FILTER_FOR, null).toArray(tagsToFilterFor)));
+				new ArrayList<String>(Arrays.asList(settings.getStringSet(SETTINGS_KEY_TAGS_TO_FILTER_FOR, new HashSet<String>()).toArray(tagsToFilterFor)));
 		GlobalSettings.tagFilteringIsOn = settings.getBoolean(SETTINGS_KEY_TAG_FILTERING_IS_ON, false);
 		
 		if (userName.isEmpty())
@@ -414,6 +416,8 @@ public class MapActivity extends ActionBarActivity {
 		UserIdNamePair userIdAndName = GlobalSettings.userIdAndName;
 		if (userIdAndName != null && !userIdAndName.userName.isEmpty())
 			editor.putString(SETTINGS_KEY_USER_NAME, GlobalSettings.userIdAndName.userName);
+		editor.putStringSet(SETTINGS_KEY_TAGS_TO_FILTER_FOR, new HashSet<String>(GlobalSettings.tagsToFilterFor));
+		editor.putBoolean(SETTINGS_KEY_TAG_FILTERING_IS_ON, GlobalSettings.tagFilteringIsOn);
 			
 		editor.commit();
 	}
