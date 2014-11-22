@@ -11,7 +11,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import screen.inbox.InboxActivity;
+import screen.map.MapActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,15 +32,15 @@ import coderunners.geolocationalchat.R;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+
 import comm.DateTimeDeserializer;
 import comm.HttpRequest;
 import comm.TaskParams_GetNewMessages;
-
 import data.app.chat.Chat;
 import data.app.chat.ChatItem;
 import data.app.chat.ChatMessageForScreen;
 import data.app.global.GlobalSettings;
-import data.base.ChatId;
+import data.app.map.ChatSummaryForScreen;
 import data.comm.chat.ChatMessageToDb;
 import data.comm.chat.ChatMessagesFromDb;
 
@@ -47,10 +49,10 @@ public class ChatActivity extends ActionBarActivity
 	private static final String GET_NEW_MESSAGES_URI = "http://cmpt370duan.byethost10.com/getmess.php";
 	private static final String SEND_NEW_MESSAGE_URI = "http://cmpt370duan.byethost10.com/create_message.php";
 	private static final String TAG_MESSAGE_ARRAY = "messages";
-	public static final String CHATID_STRING = "chatId";
+	public static final String CHAT_SUMMARY_STRING = "chatId";
 
 	private Chat chat = new Chat();  
-	private ChatId chatId;
+	private ChatSummaryForScreen chatSummary;
 	private MySimpleArrayAdapter adapter;
 
 	private static final int GET_MESSAGES_DELAY_SEC = 5;
@@ -62,7 +64,7 @@ public class ChatActivity extends ActionBarActivity
 
 		setContentView(R.layout.chat_screen);
 
-		chatId = getIntent().getExtras().getParcelable(CHATID_STRING);
+		chatSummary = getIntent().getExtras().getParcelable(CHAT_SUMMARY_STRING);
 
 		final ListView listView = (ListView) findViewById(R.id.listview);
 
@@ -96,6 +98,27 @@ public class ChatActivity extends ActionBarActivity
 		chatUpdateScheduler = null;
 	}
 
+	/**
+	 * When the chat is *destroyed*, send its current ChatSummary back to the map screen.
+	 */
+	@Override
+	public void onBackPressed()
+	{
+		int numMessages = chat.numMessages();
+
+		chatSummary.lastMessageTime = chat.getChatMessageForScreen(numMessages - 1).time;
+		chatSummary.numMessages = numMessages;
+		chatSummary.numMessagesRead = numMessages;
+
+		Log.d("intents", "trying to send intent back from chat");
+		Intent returnIntent = new Intent();
+		//TODO could passing the actual chatSummary be a problem? Do I need a duplicate?
+		returnIntent.putExtra(MapActivity.CHAT_SUMMARY_STRING, chatSummary);
+		setResult(RESULT_OK,returnIntent);
+
+		finish();
+	}
+
 	public void sendMessage(View v)
 	{	
 		EditText editText = (EditText) findViewById(R.id.EditText);
@@ -107,7 +130,7 @@ public class ChatActivity extends ActionBarActivity
 			//			chat.addMessages(new ChatMessageForScreen(message,MapActivity.USER_ID_AND_NAME.userId,MapActivity.USER_ID_AND_NAME.userName, FAKE_MESSAGE_ID, new DateTime()));
 			//			onChatUpdated();
 
-			new SendNewMessageTask().execute(new ChatMessageToDb(message, GlobalSettings.userIdAndName.userId, chatId));
+			new SendNewMessageTask().execute(new ChatMessageToDb(message, GlobalSettings.userIdAndName.userId, chatSummary.chatId));
 		}
 	}
 
@@ -196,7 +219,7 @@ public class ChatActivity extends ActionBarActivity
 				lastMessageId = chat.getChatMessageForScreen(chat.numMessages() - 1).messageId;
 			}
 
-			TaskParams_GetNewMessages sendParams = new TaskParams_GetNewMessages(chatId, lastMessageId);
+			TaskParams_GetNewMessages sendParams = new TaskParams_GetNewMessages(chatSummary.chatId, lastMessageId);
 
 			try {
 				String responseString = HttpRequest.get(sendParams, GET_NEW_MESSAGES_URI);
@@ -242,7 +265,7 @@ public class ChatActivity extends ActionBarActivity
 						true, 
 						HttpRequest.ReasonForFailure.REQUEST_TIMEOUT);
 				Log.e("dbConnect", e.toString());
-			} catch (JSONException | JsonSyntaxException e) {
+			} catch (JSONException e) {
 				HttpRequest.handleHttpRequestFailure(
 						ChatActivity.this, 
 						getResources().getString(R.string.http_data_descriptor_new_messages), 
@@ -262,10 +285,8 @@ public class ChatActivity extends ActionBarActivity
 	{	
 		@Override
 		protected Void doInBackground(ChatMessageToDb... params) {
-			ChatMessageToDb newChatMessage = params[0];
-
 			try {
-				String responseString = HttpRequest.post(newChatMessage, SEND_NEW_MESSAGE_URI);
+				String responseString = HttpRequest.post(params[0], SEND_NEW_MESSAGE_URI);
 				JSONObject responseJson = new JSONObject(responseString);
 
 				if (responseJson.getInt(InboxActivity.TAG_SUCCESS) != HttpRequest.HTTP_RESPONSE_SUCCESS)

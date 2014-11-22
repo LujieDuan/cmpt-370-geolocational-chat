@@ -14,7 +14,6 @@ import screen.chat.ChatActivity;
 import screen.chatCreation.ChatCreationActivity;
 import screen.settings.SendNewUserNameTask;
 import screen.settings.SettingsActivity;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -58,7 +57,6 @@ import comm.TaskParams_GetInbox;
 
 import data.app.global.GlobalSettings;
 import data.app.map.ChatSummaryForScreen;
-import data.base.ChatId;
 import data.base.UserIdNamePair;
 import data.comm.map.ChatSummariesFromDb;
 
@@ -71,7 +69,13 @@ public class MapActivity extends ActionBarActivity {
 	private static final String GET_TAGS_URI = "http://cmpt370duan.byethost10.com/getalltags.php";
 	
 	public static final String TAG_SUCCESS = "success";
-
+	
+	public static enum ActivityRequestCode
+	{
+		CHAT_SCREEN,SETTINGS_SCREEN,CHAT_CREATION_SCREEN
+	}
+	
+	public static final String CHAT_SUMMARY_STRING = "chatSummary";
 	private static final int GET_INBOX_DELAY_SECONDS = 30;
 	
 	static GoogleMap map;
@@ -154,10 +158,10 @@ public class MapActivity extends ActionBarActivity {
 			public boolean onMarkerClick(Marker marker) {
 				if (selectedMarker != null && selectedMarker.getId().equals(marker.getId())) {
 					Intent chatScreenIntent = new Intent(MapActivity.this, ChatActivity.class);
-					ChatId curChatId = chatSummaryMap.get(marker.getId()).chatId;
-
-					chatScreenIntent.putExtra(ChatActivity.CHATID_STRING,curChatId);
-					startActivity(chatScreenIntent);
+					ChatSummaryForScreen curChatSummary = chatSummaryMap.get(marker.getId());
+					
+					chatScreenIntent.putExtra(ChatActivity.CHAT_SUMMARY_STRING, curChatSummary);
+					startActivityForResult(chatScreenIntent, ActivityRequestCode.CHAT_SCREEN.ordinal());
 				} else if (selectionAvailable) {
 					selectMarker(marker);
 				}        
@@ -417,6 +421,23 @@ public class MapActivity extends ActionBarActivity {
 		inboxUpdateScheduler = null;
 	}
 	
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+	    if (requestCode == ActivityRequestCode.CHAT_SCREEN.ordinal()) {
+	        if(resultCode == RESULT_OK){
+	            ChatSummaryForScreen updatedChatSummary = data.getExtras().getParcelable(MapActivity.CHAT_SUMMARY_STRING);
+	            
+	            Log.d("intents", "got intent from exiting chat activity.");
+	            chatSummaryMap.remove(selectedMarker.getId());
+	            chatSummaryMap.put(selectedMarker.getId(), updatedChatSummary);
+	            
+	            selectedMarker.setIcon(BitmapDescriptorFactory.fromBitmap(createSelectedMarkerIcon(chatSummaryMap.get(selectedMarker.getId()))));
+	        }
+	        if (resultCode == RESULT_CANCELED) {
+	            //Do nothing
+	        }
+	    }
+	}
 	/**
 	 * Gets the full list of nearby chats from the database, in the background. Then, in the foreground, adds
 	 * their new markers to the map. Makes toast if unsuccessful.
@@ -584,7 +605,7 @@ public class MapActivity extends ActionBarActivity {
 						true, 
 						HttpRequest.ReasonForFailure.REQUEST_TIMEOUT);
 				Log.e("dbConnect", e.toString());
-			} catch (JSONException | JsonSyntaxException e) {
+			} catch (JSONException e) {
 				HttpRequest.handleHttpRequestFailure(
 						MapActivity.this, 
 						getResources().getString(R.string.http_data_descriptor_new_inbox), 

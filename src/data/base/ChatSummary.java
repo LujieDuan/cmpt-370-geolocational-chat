@@ -27,4 +27,6 @@ public class ChatSummary
 		this.location = location;
 		this.tags = tags;
 	}
+	
+	protected ChatSummary(){}
 }

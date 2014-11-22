@@ -80,7 +80,7 @@ public class InboxActivity extends ListActivity {
     	Intent chatScreenIntent = new Intent(InboxActivity.this, ChatActivity.class);
     	ChatId curChatId = chatSummaries.get(position).chatId;
     	Log.d("intents", "chatId1: " + curChatId.toString());
-    	chatScreenIntent.putExtra(ChatActivity.CHATID_STRING,curChatId);
+    	chatScreenIntent.putExtra(ChatActivity.CHAT_SUMMARY_STRING,curChatId);
     	startActivity(chatScreenIntent);
     }
 
