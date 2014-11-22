@@ -12,6 +12,11 @@ public class ChatItem {
 
     public ArrayList<ChatMessageForScreen> messages = new ArrayList<ChatMessageForScreen>();
   
+    /**
+     * Constructs a new {@link ChatItem} from the given chat messages.
+     * @param chatMessages A series of messages which belong to a single
+     * user.
+     */
     public ChatItem(ChatMessageForScreen... chatMessages)
     {
       for(ChatMessageForScreen message: chatMessages)
@@ -20,46 +25,83 @@ public class ChatItem {
       }
     }
     
+    /**
+     * Returns the number of messages contained within this chat item.
+     */
     public int numMessages()
     {
       return messages.size();
     }
     
+    /**
+     * Returns the ith {@link ChatMessageForScreen} in the chat item
+     * @param i index of the chat item to be returned.
+     */
     public ChatMessageForScreen getChatMessageForScreen(int i)
     {
       return messages.get(i);
     }
     
+    /**
+     * Returns the name of the user whose messages are contained within this
+     * chat item.
+     */
 	public String getName()
 	{
 	  return messages.get(0).userName;
 	}
 	
+	/**
+	 * Returns the phone ID of the user whose messages are contained within
+	 * this chat item.
+	 */
 	public String getUserId()
 	{
 		return messages.get(0).userId;
 	}
 	
+	/**
+	 * Returns the ith message in the chat item
+	 * @param i index of the chat item to be returned.
+	 */
 	public String getMessage(int i)
 	{
 	  return messages.get(i).message;
 	}
 	
+	/**
+	 * Returns the time at which the most recent message was sent.
+	 */
 	public DateTime getTime()
     {
       return messages.get(messages.size() - 1).time;
     }
 	
+	/**
+	 * Returns a string representing the time of the most recent message,
+	 * relative to current time.
+	 * @param currTime Current time
+	 */
 	public String getTimeString(DateTime currTime)
 	{
 	  return messages.get(messages.size() - 1).getTimeString(currTime);
 	}
 	
+	/**
+	 * Returns true if the given chat message can be added to the chat item,
+	 * meaning that the chat item is either empty or has a matching user id.
+	 * Otherwise, false is returned.
+	 * @param chatMessage Chat message to check
+	 */
 	public boolean isAddable(ChatMessageForScreen chatMessage)
 	{
 	  return messages.isEmpty() || messages.get(0).userId.equals(chatMessage.userId);
 	}
 	
+	/**
+	 * Adds the given message to the chat item
+	 * @param chatMessage chat message to be added
+	 */
 	public void addMessage(ChatMessageForScreen chatMessage)
 	{
 	  if(!isAddable(chatMessage))
