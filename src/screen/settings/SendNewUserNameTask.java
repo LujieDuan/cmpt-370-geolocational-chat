@@ -63,7 +63,6 @@ public class SendNewUserNameTask extends AsyncTask<UserIdNamePair, Void, Void> {
 								R.string.http_request_failure_rejected));
 			}
 
-			activity.notify();
 			Log.i("dbConnect", "Sent new user name to db.");
 		} catch (IOException e) {
 			HttpRequest.handleHttpRequestFailure(
