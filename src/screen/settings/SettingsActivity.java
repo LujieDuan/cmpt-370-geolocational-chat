@@ -125,11 +125,12 @@ public class SettingsActivity extends ActionBarActivity {
 
 				// Wait until the sendNewUserNameTask finishes. If it was
 				// unsuccessful, just keep the same name as currently.
-				try {
-					this.wait();
-				} catch (InterruptedException e) {
-					finish();
-				}
+				// TODO (this doesn't work currently)
+//				try {
+//					this.wait();
+//				} catch (InterruptedException e) {
+//					finish();
+//				}
 
 				editName.setHint(GlobalSettings.userIdAndName.userName);
 				editName.setText("");

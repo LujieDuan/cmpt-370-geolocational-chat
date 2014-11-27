@@ -118,10 +118,12 @@ public class MapActivity extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.map_activity);
-
+		
+		//TODO check for internet connection, and exit if none.
+		
 		String deviceId = Secure.getString(getBaseContext()
 				.getContentResolver(), Secure.ANDROID_ID);
-
+		
 		SharedPreferences settings = getSharedPreferences(SETTINGS_FILE_NAME,
 				MODE_PRIVATE);
 		String userName = settings.getString(SETTINGS_KEY_USER_NAME, "");
@@ -143,7 +145,7 @@ public class MapActivity extends ActionBarActivity {
 			GlobalSettings.userIdAndName = new UserIdNamePair(deviceId,
 					userName);
 		}
-
+		
 		new GetTagsTask().execute();
 
 		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
@@ -752,7 +754,9 @@ public class MapActivity extends ActionBarActivity {
 
 				// Keep retrying, recursively. There is no reason not to, as the
 				// app depends upon this.
-				new GetTagsTask().execute();
+				// TODO implement this, as calling recursively DOES NOT WORK; the app just keeps going and going 
+				// forever!
+//				new GetTagsTask().execute();
 			}
 
 			return null;
