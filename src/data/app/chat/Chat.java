@@ -53,7 +53,7 @@ public class Chat {
 		int j = 0;
 		int k = 0;
 
-		while (j + chatItems.get(k).numMessages() < i) {
+		while (j + chatItems.get(k).numMessages() <= i) {
 			j += chatItems.get(k).numMessages();
 			k += 1;
 		}
