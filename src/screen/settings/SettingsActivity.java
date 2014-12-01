@@ -132,7 +132,7 @@ public class SettingsActivity extends ActionBarActivity {
 //					finish();
 //				}
 
-				editName.setHint(GlobalSettings.userIdAndName.userName);
+				editName.setHint(name);
 				editName.setText("");
 			}
 
