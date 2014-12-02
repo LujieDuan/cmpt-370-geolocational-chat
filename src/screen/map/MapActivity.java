@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -13,10 +12,9 @@ import org.json.JSONObject;
 
 import screen.chat.ChatActivity;
 import screen.chatCreation.ChatCreationActivity;
-import screen.settings.SendNewUserNameTask;
 import screen.settings.SettingsActivity;
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -27,15 +25,16 @@ import android.graphics.Rect;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.AsyncTask;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings.Secure;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 import coderunners.geolocationalchat.R;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -51,13 +50,13 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import comm.ChatSummariesForScreenDeserializer;
+import com.google.gson.JsonSyntaxException;
 import comm.HttpRequest;
-import comm.TaskParams_GetInbox;
+import comm.gsonHelper.ChatSummariesForScreenDeserializer;
+import comm.httpParams.TaskParams_GetInbox;
 
 import data.app.global.GlobalSettings;
 import data.app.map.ChatSummaryForScreen;
-import data.base.UserIdNamePair;
 import data.comm.map.ChatSummariesFromDb;
 
 /**
@@ -68,15 +67,11 @@ import data.comm.map.ChatSummariesFromDb;
  */
 public class MapActivity extends ActionBarActivity {
 
-	public static final String SETTINGS_FILE_NAME = "GeolocationalChatStoredSettings";
-	private static final String SETTINGS_KEY_TAGS_TO_FILTER_FOR = "tagsToFilterFor";
-	private static final String SETTINGS_KEY_TAG_FILTERING_IS_ON = "tagFilteringIsOn";
-	public static final String SETTINGS_KEY_USER_NAME = "userName";
-
 	private static final String GET_INBOX_URI = "http://cmpt370duan.byethost10.com/getchs.php";
 	private static final String GET_TAGS_URI = "http://cmpt370duan.byethost10.com/getalltags.php";
 
 	public static final String TAG_SUCCESS = "success";
+	public static final String TAG_MESSAGE = "message";
 	public static final String TAG_CHATS_ARRAY = "chats";
 
 	public static enum ActivityRequestCode {
@@ -103,6 +98,8 @@ public class MapActivity extends ActionBarActivity {
 	static final float MAX_TEXT_SIZE = 60;
 
 	Handler handler = new Handler();
+
+	private ScheduledThreadPoolExecutor getTagsTaskScheduler;
 	private ScheduledThreadPoolExecutor inboxUpdateScheduler;
 
 	Location location;
@@ -118,35 +115,17 @@ public class MapActivity extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.map_activity);
-		
-		//TODO check for internet connection, and exit if none.
-		
-		String deviceId = Secure.getString(getBaseContext()
-				.getContentResolver(), Secure.ANDROID_ID);
-		
-		SharedPreferences settings = getSharedPreferences(SETTINGS_FILE_NAME,
-				MODE_PRIVATE);
-		String userName = settings.getString(SETTINGS_KEY_USER_NAME, "");
-		// This is just required to pass Set<String>.toArray() the right type of
-		// array.
-		String[] tagsToFilterFor = new String[0];
-		GlobalSettings.tagsToFilterFor = new ArrayList<String>(
-				Arrays.asList(settings.getStringSet(
-						SETTINGS_KEY_TAGS_TO_FILTER_FOR, new HashSet<String>())
-						.toArray(tagsToFilterFor)));
-		GlobalSettings.tagFilteringIsOn = settings.getBoolean(
-				SETTINGS_KEY_TAG_FILTERING_IS_ON, false);
 
-		if (userName.isEmpty()) {
-			// The SendNewUserNameTask changes the global userIdAndName for us.
-			new SendNewUserNameTask(this).execute(new UserIdNamePair(deviceId,
-					getResources().getString(R.string.unknown_user_name)));
-		} else {
-			GlobalSettings.userIdAndName = new UserIdNamePair(deviceId,
-					userName);
+		//check for Internet connection, and do nothing if there is none.
+		if (!isOnline())
+		{
+			Toast.makeText(this, "This device is not connected to the internet!", Toast.LENGTH_LONG).show();
+			return;
 		}
-		
-		new GetTagsTask().execute();
+
+		GlobalSettings.initialize(this);
+		getTagsTaskScheduler = new ScheduledThreadPoolExecutor(1);
+		getTagsTaskScheduler.scheduleWithFixedDelay(new GetTagsTask(), 0, 5, TimeUnit.SECONDS);
 
 		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
 				.getMap();
@@ -307,7 +286,7 @@ public class MapActivity extends ActionBarActivity {
 
 		Paint paintShape = new Paint();
 		paintShape
-				.setColor(getResources().getColor(R.color.chat_me_background));
+		.setColor(getResources().getColor(R.color.chat_me_background));
 		paintShape.setAntiAlias(true);
 
 		canvas.drawPath(triangle, paintShape);
@@ -352,7 +331,7 @@ public class MapActivity extends ActionBarActivity {
 
 		Paint paintShape = new Paint();
 		paintShape
-				.setColor(getResources().getColor(R.color.chat_me_background));
+		.setColor(getResources().getColor(R.color.chat_me_background));
 		paintShape.setAntiAlias(true);
 
 		Rect boundsNameText = new Rect();
@@ -452,20 +431,7 @@ public class MapActivity extends ActionBarActivity {
 	protected void onStop() {
 		super.onStop();
 
-		SharedPreferences settings = getSharedPreferences(SETTINGS_FILE_NAME,
-				MODE_PRIVATE);
-		SharedPreferences.Editor editor = settings.edit();
-
-		UserIdNamePair userIdAndName = GlobalSettings.userIdAndName;
-		if (userIdAndName != null && !userIdAndName.userName.isEmpty())
-			editor.putString(SETTINGS_KEY_USER_NAME,
-					GlobalSettings.userIdAndName.userName);
-		editor.putStringSet(SETTINGS_KEY_TAGS_TO_FILTER_FOR,
-				new HashSet<String>(GlobalSettings.tagsToFilterFor));
-		editor.putBoolean(SETTINGS_KEY_TAG_FILTERING_IS_ON,
-				GlobalSettings.tagFilteringIsOn);
-
-		editor.commit();
+		GlobalSettings.saveChanges(this);
 	}
 
 	/**
@@ -474,9 +440,17 @@ public class MapActivity extends ActionBarActivity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		if (getTagsTaskScheduler != null)
+		{
+			getTagsTaskScheduler.shutdownNow();
+			getTagsTaskScheduler = null;
+		}
 
-		inboxUpdateScheduler.shutdownNow();
-		inboxUpdateScheduler = null;
+		if (inboxUpdateScheduler != null)
+		{
+			inboxUpdateScheduler.shutdownNow();
+			inboxUpdateScheduler = null;
+		}
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -507,6 +481,13 @@ public class MapActivity extends ActionBarActivity {
 		}
 	}
 
+	public boolean isOnline() {
+		ConnectivityManager cm =
+				(ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netInfo = cm.getActiveNetworkInfo();
+		return netInfo != null && netInfo.isConnectedOrConnecting();
+	}
+
 	/**
 	 * Gets the full list of nearby chats from the database, in the background.
 	 * Then, in the foreground, adds their new markers to the map. Makes toast
@@ -528,7 +509,7 @@ public class MapActivity extends ActionBarActivity {
 						GET_INBOX_URI);
 
 				JSONObject responseJson = new JSONObject(responseString);
-				Log.d("dbConnect", "reached 473");
+
 				if (responseJson.getInt(TAG_SUCCESS) == HttpRequest.HTTP_RESPONSE_SUCCESS) {
 					final ChatSummaryForScreen[] newChatSummaries;
 					// Even if the server responds successfully, it may not find
@@ -541,10 +522,10 @@ public class MapActivity extends ActionBarActivity {
 								ChatSummariesFromDb.class,
 								new ChatSummariesForScreenDeserializer());
 						Gson gson = gsonBuilder.create();
-						Log.d("dbConnect", "reached 479");
+
 						newChatSummaries = gson.fromJson(responseString,
 								ChatSummariesFromDb.class).chats;
-						Log.d("dbConnect", "reached 481");
+
 					}
 
 					// This area could definitely be optimized, but will require
@@ -562,7 +543,7 @@ public class MapActivity extends ActionBarActivity {
 							if (newChatSummaries[i].chatId.creatorId
 									.equals(oldChatSummary.chatId.creatorId)
 									&& newChatSummaries[i].chatId.timeId
-											.equals(oldChatSummary.chatId.timeId)) {
+									.equals(oldChatSummary.chatId.timeId)) {
 								match = true;
 								oldChatSummary.lastMessageTime = newChatSummaries[i].lastMessageTime;
 								oldChatSummary.numMessages = newChatSummaries[i].numMessages;
@@ -620,20 +601,20 @@ public class MapActivity extends ActionBarActivity {
 								// create marker
 								Marker marker = map
 										.addMarker(new MarkerOptions()
-												.icon(BitmapDescriptorFactory
-														.fromBitmap(createMarkerIcon(
-																summaryCreateList
-																		.get(i),
-																minMessages,
-																maxMessages)))
-												.anchor(0.5f, 1.0f) // Anchors
-																	// the
-																	// marker on
-																	// the
-																	// bottom
-																	// left
-												.position(
+										.icon(BitmapDescriptorFactory
+												.fromBitmap(createMarkerIcon(
 														summaryCreateList
+														.get(i),
+														minMessages,
+														maxMessages)))
+														.anchor(0.5f, 1.0f) // Anchors
+														// the
+														// marker on
+														// the
+														// bottom
+														// left
+														.position(
+																summaryCreateList
 																.get(i).location));
 
 								// add to marker list
@@ -656,17 +637,17 @@ public class MapActivity extends ActionBarActivity {
 								// handle selected
 								if (selectedMarker != null
 										&& !markerUpdateList.get(i).getId()
-												.equals(selectedMarker.getId())) {
+										.equals(selectedMarker.getId())) {
 									// draw marker icon
 									markerUpdateList
-											.get(i)
-											.setIcon(
-													BitmapDescriptorFactory
-															.fromBitmap(createMarkerIcon(
-																	summaryUpdateList
-																			.get(i),
-																	minMessages,
-																	maxMessages)));
+									.get(i)
+									.setIcon(
+											BitmapDescriptorFactory
+											.fromBitmap(createMarkerIcon(
+													summaryUpdateList
+													.get(i),
+													minMessages,
+													maxMessages)));
 								}
 							}
 
@@ -677,7 +658,7 @@ public class MapActivity extends ActionBarActivity {
 								// handle selected
 								if (selectedMarker != null
 										&& markerRemoveList.get(i).getId()
-												.equals(selectedMarker.getId())) {
+										.equals(selectedMarker.getId())) {
 									selectedMarker = null;
 								}
 								// remove marker
@@ -685,39 +666,39 @@ public class MapActivity extends ActionBarActivity {
 							}
 
 							userCircle
-									.setCenter(GlobalSettings.curPhoneLocation);
+							.setCenter(GlobalSettings.curPhoneLocation);
 
 							Log.i("dbConnect",
 									"Cleared and replaced chat summaries, on the map screen.");
 						}
+						//TODO
 					});
-
 				} else {
 					HttpRequest
-							.handleHttpRequestFailure(
-									MapActivity.this,
-									getResources()
-											.getString(
-													R.string.http_data_descriptor_new_inbox),
+					.handleHttpRequestFailure(
+							MapActivity.this,
+							getResources()
+							.getString(
+									R.string.http_data_descriptor_new_inbox),
 									true,
 									HttpRequest.ReasonForFailure.REQUEST_REJECTED);
 					Log.e("dbConnect",
 							getResources().getString(
-									R.string.http_request_failure_rejected));
+									R.string.http_request_failure_rejected) + ": " + responseJson.getString(TAG_MESSAGE));
 				}
 			} catch (IOException e) {
 				HttpRequest.handleHttpRequestFailure(
 						MapActivity.this,
 						getResources().getString(
 								R.string.http_data_descriptor_new_inbox), true,
-						HttpRequest.ReasonForFailure.REQUEST_TIMEOUT);
+								HttpRequest.ReasonForFailure.REQUEST_TIMEOUT);
 				Log.e("dbConnect", e.toString());
 			} catch (JSONException e) {
 				HttpRequest.handleHttpRequestFailure(
 						MapActivity.this,
 						getResources().getString(
 								R.string.http_data_descriptor_new_inbox), true,
-						HttpRequest.ReasonForFailure.NO_SERVER_RESPONSE);
+								HttpRequest.ReasonForFailure.NO_SERVER_RESPONSE);
 				Log.e("dbConnect", e.toString());
 			}
 		}
@@ -731,9 +712,9 @@ public class MapActivity extends ActionBarActivity {
 	 * @author wsv759
 	 *
 	 */
-	private class GetTagsTask extends AsyncTask<Void, Void, Void> {
+	private class GetTagsTask implements Runnable {
 		@Override
-		protected Void doInBackground(Void... params) {
+		public void run() {
 			try {
 				String responseString = HttpRequest.get(null, GET_TAGS_URI);
 
@@ -742,24 +723,27 @@ public class MapActivity extends ActionBarActivity {
 						.fromJson(responseString, String[].class);
 				GlobalSettings.allTags = new ArrayList<String>(
 						Arrays.asList(newTags));
-
+				
+				//We don't need to get tags anymore!
+				getTagsTaskScheduler.shutdown();
+				getTagsTaskScheduler = null;
+				
 				Log.i("dbConnect", "received tags. First tag: " + newTags[0]);
 			} catch (IOException e) {
 				HttpRequest.handleHttpRequestFailure(
 						MapActivity.this,
 						getResources().getString(
 								R.string.http_data_descriptor_tags), true,
-						HttpRequest.ReasonForFailure.REQUEST_TIMEOUT);
+								HttpRequest.ReasonForFailure.REQUEST_TIMEOUT);
 				Log.e("dbConnect", e.toString());
-
-				// Keep retrying, recursively. There is no reason not to, as the
-				// app depends upon this.
-				// TODO implement this, as calling recursively DOES NOT WORK; the app just keeps going and going 
-				// forever!
-//				new GetTagsTask().execute();
-			}
-
-			return null;
+			} catch (JsonSyntaxException e) {
+				HttpRequest.handleHttpRequestFailure(
+						MapActivity.this,
+						getResources().getString(
+								R.string.http_data_descriptor_tags), true,
+								HttpRequest.ReasonForFailure.NO_SERVER_RESPONSE);
+				Log.e("dbConnect", e.toString());
+			} 
 		}
 	}
 }

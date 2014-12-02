@@ -29,10 +29,10 @@ import coderunners.geolocationalchat.R;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import comm.DateTimeDeserializer;
-import comm.HttpRequest;
-import comm.TaskParams_GetNewMessages;
 
+import comm.HttpRequest;
+import comm.gsonHelper.DateTimeDeserializer;
+import comm.httpParams.TaskParams_GetNewMessages;
 import data.app.chat.Chat;
 import data.app.chat.ChatItem;
 import data.app.chat.ChatMessageForScreen;
@@ -304,7 +304,7 @@ public class ChatActivity extends ActionBarActivity {
 									HttpRequest.ReasonForFailure.REQUEST_REJECTED);
 					Log.e("dbConnect",
 							getResources().getString(
-									R.string.http_request_failure_rejected));
+									R.string.http_request_failure_rejected) + ": " + responseJson.getString(MapActivity.TAG_MESSAGE));
 				}
 			} catch (IOException e) {
 				HttpRequest.handleHttpRequestFailure(
@@ -349,7 +349,7 @@ public class ChatActivity extends ActionBarActivity {
 							HttpRequest.ReasonForFailure.REQUEST_REJECTED);
 					Log.e("dbConnect",
 							getResources().getString(
-									R.string.http_request_failure_rejected));
+									R.string.http_request_failure_rejected) + ": " + responseJson.getString(MapActivity.TAG_MESSAGE));
 				}
 			} catch (IOException e) {
 				HttpRequest.handleHttpRequestFailure(

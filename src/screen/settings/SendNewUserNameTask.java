@@ -60,7 +60,7 @@ public class SendNewUserNameTask extends AsyncTask<UserIdNamePair, Void, Void> {
 						HttpRequest.ReasonForFailure.REQUEST_REJECTED);
 				Log.e("dbConnect",
 						activity.getResources().getString(
-								R.string.http_request_failure_rejected));
+								R.string.http_request_failure_rejected) + ": " + responseJson.getString(MapActivity.TAG_MESSAGE));
 			}
 
 			Log.i("dbConnect", "Sent new user name to db.");

@@ -12,8 +12,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import comm.ChatSummarySerializer;
-import comm.HttpPostEntity;
+import comm.gsonHelper.ChatSummarySerializer;
+import comm.httpEntity.HttpPostEntity;
 import data.base.ChatSummary;
 
 /**

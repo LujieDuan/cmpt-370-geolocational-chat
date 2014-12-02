@@ -8,7 +8,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
-import comm.HttpPostEntity;
+import comm.httpEntity.HttpPostEntity;
 
 /**
  * Each user of this app is uniquely identified by their userId string. They can

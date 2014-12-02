@@ -174,7 +174,7 @@ public class ChatCreationActivity extends ActionBarActivity {
 							HttpRequest.ReasonForFailure.REQUEST_REJECTED);
 					Log.e("dbConnect",
 							getResources().getString(
-									R.string.http_request_failure_rejected));
+									R.string.http_request_failure_rejected) + ": " + responseJson.getString(MapActivity.TAG_MESSAGE));
 				}
 			} catch (IOException e) {
 				HttpRequest.handleHttpRequestFailure(
