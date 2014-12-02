@@ -21,7 +21,8 @@ import data.base.ChatMessage;
  *
  */
 public class ChatMessageToDb extends ChatMessage implements HttpPostEntity {
-	public ChatId chatId;
+	
+  protected ChatId chatId;
 
 	public ChatMessageToDb(String message, String userId, ChatId chatId) {
 		super(message, userId);
@@ -29,6 +30,10 @@ public class ChatMessageToDb extends ChatMessage implements HttpPostEntity {
 		this.chatId = chatId;
 	}
 
+    public ChatId getChatId() {
+      return chatId;
+    }
+	
 	public StringEntity asJsonStringEntity() {
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(ChatMessageToDb.class,

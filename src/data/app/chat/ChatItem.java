@@ -54,7 +54,7 @@ public class ChatItem {
 	 * chat item.
 	 */
 	public String getUserId() {
-		return messages.get(0).userId;
+		return messages.get(0).getUserId();
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class ChatItem {
 	 *            index of the chat item to be returned.
 	 */
 	public String getMessage(int i) {
-		return messages.get(i).message;
+		return messages.get(i).getMessage();
 	}
 
 	/**
@@ -84,7 +84,7 @@ public class ChatItem {
 	 */
 	public boolean isAddable(ChatMessageForScreen chatMessage) {
 		return messages.isEmpty()
-				|| messages.get(0).userId.equals(chatMessage.userId);
+				|| messages.get(0).getUserId().equals(chatMessage.getUserId());
 	}
 
 	/**

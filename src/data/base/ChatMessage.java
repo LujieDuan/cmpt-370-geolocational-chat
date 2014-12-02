@@ -9,8 +9,8 @@ package data.base;
  */
 public class ChatMessage {
 
-	public String message;
-	public String userId;
+	protected String message;
+	protected String userId;
 
 	/**
 	 * Constructs a new {@link ChatMessage}
@@ -23,5 +23,15 @@ public class ChatMessage {
 	public ChatMessage(String message, String userId) {
 		this.message = message;
 		this.userId = userId;
+	}
+	
+	public String getUserId()
+	{
+	  return userId;
+	}
+	
+	public String getMessage()
+	{
+	  return message;
 	}
 }
