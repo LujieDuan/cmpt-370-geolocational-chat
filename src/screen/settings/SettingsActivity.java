@@ -47,28 +47,30 @@ public class SettingsActivity extends ActionBarActivity {
 		editName.setHint(GlobalSettings.userIdAndName.userName);
 
 		ArrayList<String> tags = GlobalSettings.allTags;
+		if (tags != null)
+		{
+			LinearLayout tagsList = (LinearLayout) findViewById(R.id.filter_list);
+			int id = Resources.getSystem().getIdentifier("btn_check_holo_light",
+					"drawable", "android");
 
-		LinearLayout tagsList = (LinearLayout) findViewById(R.id.filter_list);
-		int id = Resources.getSystem().getIdentifier("btn_check_holo_light",
-				"drawable", "android");
-
-		for (int i = 0; i < tags.size(); i++) {
-			CheckBox checkBox = new CheckBox(getApplicationContext());
-			checkBox.setText(tags.get(i));
-			checkBox.setTextColor(getResources().getColor(R.color.black));
-			checkBox.setButtonDrawable(id);
-			for (int j = 0; j < GlobalSettings.tagsToFilterFor.size(); j++) {
-				if (tags.get(i).equals(GlobalSettings.tagsToFilterFor.get(j))) {
-					checkBox.setChecked(true);
+			for (int i = 0; i < tags.size(); i++) {
+				CheckBox checkBox = new CheckBox(getApplicationContext());
+				checkBox.setText(tags.get(i));
+				checkBox.setTextColor(getResources().getColor(R.color.black));
+				checkBox.setButtonDrawable(id);
+				for (int j = 0; j < GlobalSettings.tagsToFilterFor.size(); j++) {
+					if (tags.get(i).equals(GlobalSettings.tagsToFilterFor.get(j))) {
+						checkBox.setChecked(true);
+					}
 				}
+				checkBox.setEnabled(GlobalSettings.tagFilteringIsOn);
+				tagsList.addView(checkBox);
+				checkBoxTags.add(checkBox);
 			}
-			checkBox.setEnabled(GlobalSettings.tagFilteringIsOn);
-			tagsList.addView(checkBox);
-			checkBoxTags.add(checkBox);
-		}
 
-		CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_filter);
-		checkBox.setChecked(GlobalSettings.tagFilteringIsOn);
+			CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_filter);
+			checkBox.setChecked(GlobalSettings.tagFilteringIsOn);
+		}
 	}
 
 	public void onFilterCheck(View v) {
@@ -117,15 +119,14 @@ public class SettingsActivity extends ActionBarActivity {
 			Toast.makeText(
 					getApplicationContext(),
 					"Please enter a name no longer than " + MAX_NAME_LENGTH
-							+ " characters", Toast.LENGTH_LONG).show();
+					+ " characters", Toast.LENGTH_LONG).show();
 		} else {
-			if (!name.isEmpty()) {
+			if (!name.isEmpty() && !name.equals(GlobalSettings.userIdAndName.userName)) {
 				new SendNewUserNameTask(this).execute(new UserIdNamePair(
 						GlobalSettings.userIdAndName.userId, name));
 
 				// Wait until the sendNewUserNameTask finishes. If it was
 				// unsuccessful, just keep the same name as currently.
-				// TODO (this doesn't work currently)
 				try {
 					synchronized(this)
 					{
@@ -134,7 +135,8 @@ public class SettingsActivity extends ActionBarActivity {
 				} catch (InterruptedException e) {
 					finish();
 				}
-
+				
+				//TODO make it wait here for a moment when the task is done.
 				editName.setHint(GlobalSettings.userIdAndName.userName);
 				editName.setText("");
 			}

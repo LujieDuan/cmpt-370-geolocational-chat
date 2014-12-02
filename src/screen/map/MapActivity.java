@@ -115,7 +115,7 @@ public class MapActivity extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.map_activity);
-
+		
 		//check for Internet connection, and do nothing if there is none.
 		if (!isOnline())
 		{
@@ -178,7 +178,6 @@ public class MapActivity extends ActionBarActivity {
 			}
 
 		});
-
 	}
 
 	@Override
@@ -428,7 +427,7 @@ public class MapActivity extends ActionBarActivity {
 	 * Update the markers on the map display to reflect the new chat summaries provided.
 	 * @param newChatSummaries the new total set of chat summaries to display.
 	 */
-	public void updateMapMarkers(ChatSummaryForScreen[] newChatSummaries)
+	public void replaceMapMarkers(ChatSummaryForScreen[] newChatSummaries)
 	{
 		// This area could definitely be optimized, but will require
 		// significant restructuring
@@ -575,6 +574,7 @@ public class MapActivity extends ActionBarActivity {
 			}
 		});
 	}
+	
 	/**
 	 * Save the userName, if it exists, to internal storage.
 	 */
@@ -677,7 +677,7 @@ public class MapActivity extends ActionBarActivity {
 						newChatSummaries = gson.fromJson(responseString,
 								ChatSummariesFromDb.class).chats;
 						
-						updateMapMarkers(newChatSummaries);
+						replaceMapMarkers(newChatSummaries);
 					}
 
 

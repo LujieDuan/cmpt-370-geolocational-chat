@@ -14,20 +14,20 @@
 
         <Button
             android:id="@+id/button_cancel"
-            android:onClick="onCancel"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".50"
+            android:onClick="onCancel"
             android:text="@string/button_cancel" />
 
         <Button
             android:id="@+id/button_submit"
-            android:onClick="onSubmit"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".50"
+            android:onClick="onSubmit"
             android:text="@string/button_submit" />
     </LinearLayout>
 
@@ -63,33 +63,33 @@
 
             <CheckBox
                 android:id="@+id/checkbox_filter"
-                android:onClick="onFilterCheck"
                 android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_marginLeft="10dp"
-	            android:layout_marginRight="16dp"
-	            android:layout_marginTop="14dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="14dp"
+                android:onClick="onFilterCheck"
                 android:text="@string/filter"
                 android:textSize="22sp" />
 
             <LinearLayout
                 android:id="@+id/filter_list"
                 android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_marginLeft="16dp"
-	            android:layout_marginRight="16dp"
-	            android:orientation="vertical" >
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:orientation="vertical" >
             </LinearLayout>
-            
+
             <TextView
-	            android:id="@+id/textView3"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_marginLeft="16dp"
-	            android:layout_marginRight="16dp"
-	            android:layout_marginTop="14dp"
-	            android:text="@string/notifications"
-	            android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:id="@+id/textView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="14dp"
+                android:text="@string/notifications"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <RadioButton
                 android:id="@+id/radioButton_notification_none"
@@ -108,7 +108,7 @@
                 android:layout_marginRight="16dp"
                 android:enabled="false"
                 android:text="@string/notification_created" />
-            
+
             <RadioButton
                 android:id="@+id/radioButton_notification_replied"
                 android:layout_width="wrap_content"
@@ -117,7 +117,7 @@
                 android:layout_marginRight="16dp"
                 android:enabled="false"
                 android:text="@string/notification_replied" />
-            
+
             <RadioButton
                 android:id="@+id/radioButton_notification_read"
                 android:layout_width="wrap_content"
@@ -126,7 +126,7 @@
                 android:layout_marginRight="16dp"
                 android:enabled="false"
                 android:text="@string/notification_read" />
-            
+
             <RadioButton
                 android:id="@+id/radioButton_notification_all"
                 android:layout_width="wrap_content"
@@ -135,9 +135,7 @@
                 android:layout_marginRight="16dp"
                 android:enabled="false"
                 android:text="@string/notification_all" />
-            
         </LinearLayout>
-        
     </ScrollView>
 
 </RelativeLayout>
