@@ -9,6 +9,7 @@ import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import screen.OutputStrings;
 import screen.map.MapActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -228,8 +229,7 @@ public class ChatActivity extends ActionBarActivity {
 			location.setLatitude(0);
 			location.setLongitude(0);
 
-			textViewTimeLocation.setText(values.get(position).getTimeString(
-					new DateTime()));
+			textViewTimeLocation.setText(OutputStrings.getRelativeTimeString(values.get(position).getTime()));
 
 			return itemView;
 		}

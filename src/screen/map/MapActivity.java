@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import screen.OutputStrings;
 import screen.chat.ChatActivity;
 import screen.chatCreation.ChatCreationActivity;
 import screen.settings.SettingsActivity;
@@ -308,7 +309,7 @@ public class MapActivity extends ActionBarActivity {
 		String nameText = chatSummary.getUserName();
 		String titleText = chatSummary.getTitle();
 		String infoText = chatSummary.getNumMessagesString() + " from "
-				+ chatSummary.getTimeString();
+				+ OutputStrings.getRelativeTimeString(chatSummary.getTime());
 
 		Log.d("dbConnect", nameText);
 		Log.d("dbConnect", titleText);

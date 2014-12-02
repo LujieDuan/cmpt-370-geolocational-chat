@@ -73,18 +73,7 @@ public class ChatItem {
 	public DateTime getTime() {
 		return messages.get(messages.size() - 1).getTime();
 	}
-
-	/**
-	 * Returns a string representing the time of the most recent message,
-	 * relative to current time.
-	 * 
-	 * @param currTime
-	 *            Current time
-	 */
-	public String getTimeString(DateTime currTime) {
-		return messages.get(messages.size() - 1).getTimeString(currTime);
-	}
-
+	
 	/**
 	 * Returns true if the given chat message can be added to the chat item,
 	 * meaning that the chat item is either empty or has a matching user id.
