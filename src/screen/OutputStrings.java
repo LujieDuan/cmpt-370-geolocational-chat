@@ -1,11 +1,14 @@
 package screen;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.Hours;
 import org.joda.time.Minutes;
 import org.joda.time.Months;
 import org.joda.time.Years;
+
+import android.util.Log;
 
 public class OutputStrings {
 
@@ -16,7 +19,10 @@ public class OutputStrings {
    */
   public static String getRelativeTimeString(DateTime time)
   {
-    DateTime currTime = new DateTime();
+    DateTime currTime = DateTime.now(DateTimeZone.forID("Canada/Saskatchewan"));
+    
+    Log.d("string", currTime.toString());
+    Log.d("string", time.toString());
     
     int years = Years.yearsBetween(time, currTime).getYears();
     int months = Months.monthsBetween(time, currTime).getMonths();
