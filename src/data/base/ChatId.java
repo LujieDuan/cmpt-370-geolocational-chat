@@ -68,4 +68,17 @@ public class ChatId implements Parcelable {
 	public String toString() {
 		return "creatorId: " + creatorId + ", timeId: " + getTimeIdString();
 	}
+	
+	public boolean equals(Object other)
+	{
+	  if(!(other instanceof ChatId))
+	  {
+	    return false;
+	  }
+	  else
+	  {
+	    return creatorId.equals(((ChatId) other).creatorId) 
+	        && timeId.equals(((ChatId) other).timeId);
+	  }
+	}
 }

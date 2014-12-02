@@ -112,22 +112,23 @@ public class ChatActivity extends ActionBarActivity {
 	 */
 	@Override
 	public void onBackPressed() {
-		int numMessages = chat.numMessages();
-
-		// Should always be true, but maybe we will include message deletion
-		// later.
-		if (numMessages > 0)
-			chatSummary.lastMessageTime = chat
-					.getChatMessageForScreen(numMessages - 1).getTime();
-		else
-			chatSummary.lastMessageTime = new DateTime();
-
-		chatSummary.numMessages = numMessages;
-		chatSummary.numMessagesRead = numMessages;
+	  
+	  int numMessages = chat.numMessages();  
+	  
+	  ChatSummaryForScreen newChatSummary = new ChatSummaryForScreen(
+	        chatSummary.getTitle(), 
+	        chatSummary.getLocation(), 
+	        chatSummary.getTags(), 
+	        chatSummary.getChatId(), 
+	        chatSummary.getCreatorName(),
+	        numMessages, 
+	        numMessages, 
+	        chat.getChatMessageForScreen(numMessages - 1).getTime());
+	 
 
 		Intent returnIntent = new Intent();
 
-		returnIntent.putExtra(MapActivity.CHAT_SUMMARY_STRING, chatSummary);
+		returnIntent.putExtra(MapActivity.CHAT_SUMMARY_STRING, newChatSummary);
 		setResult(RESULT_OK, returnIntent);
 
 		finish();
@@ -151,7 +152,7 @@ public class ChatActivity extends ActionBarActivity {
 			// onChatUpdated();
 
 			new SendNewMessageTask().execute(new ChatMessageToDb(message,
-					GlobalSettings.userIdAndName.userId, chatSummary.chatId));
+					GlobalSettings.userIdAndName.userId, chatSummary.getChatId()));
 		}
 	}
 
@@ -263,7 +264,7 @@ public class ChatActivity extends ActionBarActivity {
 			}
 
 			TaskParams_GetNewMessages sendParams = new TaskParams_GetNewMessages(
-					chatSummary.chatId, lastMessageId);
+					chatSummary.getChatId(), lastMessageId);
 
 			try {
 				String responseString = HttpRequest.get(sendParams,

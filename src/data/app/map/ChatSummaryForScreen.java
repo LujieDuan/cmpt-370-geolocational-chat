@@ -22,11 +22,11 @@ import data.base.ChatSummary;
  */
 public class ChatSummaryForScreen extends ChatSummary implements Parcelable {
 	
-  public ChatId chatId;
-	public String creatorUserName;
-	public int numMessages;
-	public DateTime lastMessageTime;
-	public int numMessagesRead;
+    private ChatId chatId;
+	private String creatorUserName;
+	private int numMessages;
+	private DateTime lastMessageTime;
+	private int numMessagesRead;
 
 	/**
 	 * Create a new chat summary, containing all the info necessary for an inbox
@@ -152,5 +152,42 @@ public class ChatSummaryForScreen extends ChatSummary implements Parcelable {
 	 */
     public DateTime getTime() {
       return lastMessageTime;
+    }
+
+    public ChatId getChatId() {
+      return chatId;
+    }
+  
+    public ArrayList<String> getTags() {
+      return tags;
+    }
+  
+    public LatLng getLocation() {
+      return location;
+    }
+    
+    @Override
+    public boolean equals(Object other)
+    {
+      if(!(other instanceof ChatSummaryForScreen))
+      {
+        return false;
+      }
+      else
+      {
+        return this.chatId.equals(((ChatSummaryForScreen) other).chatId);
+      }
+    }
+
+    public void setNumMessages(int numMessages) {
+      this.numMessages = numMessages;
+    }
+
+    public DateTime getLastMessageTime() {
+      return lastMessageTime;
+    }
+
+    public void setLastMessageTime(DateTime lastMessageTime) {
+      this.lastMessageTime = lastMessageTime;
     }
 }

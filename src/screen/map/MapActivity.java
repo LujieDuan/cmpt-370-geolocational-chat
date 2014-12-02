@@ -443,13 +443,11 @@ public class MapActivity extends ActionBarActivity {
 			for (int j = 0; j < markerList.size(); j++) {
 				ChatSummaryForScreen oldChatSummary = chatSummaryMap
 						.get(markerList.get(j).getId());
-				if (newChatSummaries[i].chatId.creatorId
-						.equals(oldChatSummary.chatId.creatorId)
-						&& newChatSummaries[i].chatId.timeId
-						.equals(oldChatSummary.chatId.timeId)) {
+				if (newChatSummaries[i].equals(oldChatSummary)) 
+				{
 					match = true;
-					oldChatSummary.lastMessageTime = newChatSummaries[i].lastMessageTime;
-					oldChatSummary.numMessages = newChatSummaries[i].numMessages;
+					oldChatSummary.setLastMessageTime(newChatSummaries[i].getLastMessageTime());
+					oldChatSummary.setNumMessages(newChatSummaries[i].getNumMessages());
 					summaryUpdateList.add(oldChatSummary);
 					markerUpdateList.add(markerList.get(j));
 				}
@@ -476,16 +474,16 @@ public class MapActivity extends ActionBarActivity {
 
 		for (int i = 0; i < summaryCreateList.size(); i++) {
 			minMessages = Math.min(minMessages,
-					summaryCreateList.get(i).numMessages);
+					summaryCreateList.get(i).getNumMessages());
 			maxMessages = Math.max(maxMessages,
-					summaryCreateList.get(i).numMessages);
+					summaryCreateList.get(i).getNumMessages());
 		}
 
 		for (int i = 0; i < summaryUpdateList.size(); i++) {
 			minMessages = Math.min(minMessages,
-					summaryUpdateList.get(i).numMessages);
+					summaryUpdateList.get(i).getNumMessages());
 			maxMessages = Math.max(maxMessages,
-					summaryUpdateList.get(i).numMessages);
+					summaryUpdateList.get(i).getNumMessages());
 		}
 
 		chatSummaryMap.clear();
