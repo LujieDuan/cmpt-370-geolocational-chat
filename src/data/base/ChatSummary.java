@@ -12,9 +12,10 @@ import com.google.android.gms.maps.model.LatLng;
  * @author wsv759
  */
 public class ChatSummary {
-	public String title;
-	public LatLng location;
-	public ArrayList<String> tags;
+  	
+    protected String title;
+  	protected LatLng location;
+  	protected ArrayList<String> tags;
 
 	/**
 	 * Create a new chat summary, containing all the info necessary for an inbox
@@ -35,4 +36,25 @@ public class ChatSummary {
 
 	protected ChatSummary() {
 	}
+	
+    /**
+     * Returns a list of tags
+     */
+    public ArrayList<String> getTags() {
+        return tags;
+    }
+  
+    /**
+     * Returns the location of the chat to which this chat summary corresponds
+     */
+    public LatLng getLocation() {
+        return location;
+    }
+    
+    /**
+     * Returns the title of the chat to which this chat summary corresponds
+     */
+    public String getTitle() {
+        return title;
+    }
 }

@@ -19,8 +19,8 @@ import comm.HttpRequest;
  */
 public class ChatId implements Parcelable {
 
-	public String creatorId;
-	public DateTime timeId;
+	protected String creatorId;
+	protected DateTime timeId;
 
 	/**
 	 * Creates a new {@link ChatId}.
@@ -81,4 +81,18 @@ public class ChatId implements Parcelable {
 	        && timeId.equals(((ChatId) other).timeId);
 	  }
 	}
+
+	/**
+	 * Returns the creator portion of a chat ID
+	 */
+    public String getCreatorId() {
+      return creatorId;
+    }
+  
+    /**
+     * Returns the time portion of a chat ID
+     */
+    public DateTime getTimeId() {
+      return timeId;
+    }
 }

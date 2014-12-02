@@ -29,12 +29,12 @@ public class ChatSummarySerializer implements JsonSerializer<ChatSummaryToDb> {
 			JsonSerializationContext context) {
 		JsonObject json = new JsonObject();
 
-		json.addProperty("title", c.title);
-		json.addProperty("longitude", c.location.longitude);
-		json.addProperty("latitude", c.location.latitude);
+		json.addProperty("title", c.getTitle());
+		json.addProperty("longitude", c.getLocation().longitude);
+		json.addProperty("latitude", c.getLocation().latitude);
 
 		JsonArray tagsArray = new JsonArray();
-		for (String tag : c.tags) {
+		for (String tag : c.getTags()) {
 			tagsArray.add(new JsonPrimitive(tag));
 		}
 

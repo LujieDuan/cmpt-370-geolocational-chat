@@ -22,7 +22,7 @@ public class ChatMessageSerializer implements JsonSerializer<ChatMessageToDb> {
 			JsonSerializationContext context) {
 		JsonObject json = new JsonObject();
 
-		json.addProperty("creatorId", c.chatId.creatorId);
+		json.addProperty("creatorId", c.chatId.getCreatorId());
 		json.addProperty("timeId", c.chatId.getTimeIdString());
 		json.addProperty("userId", c.userId);
 		json.addProperty("message", c.message);

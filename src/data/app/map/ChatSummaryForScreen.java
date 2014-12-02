@@ -95,12 +95,7 @@ public class ChatSummaryForScreen extends ChatSummary implements Parcelable {
 		return creatorUserName;
 	}
 
-	/**
-	 * Returns the title of the chat to which this chat summary corresponds
-	 */
-	public String getTitle() {
-		return title;
-	}
+
 	
 	/**
      * Returns the time at which the most recent message was sent within the
@@ -116,21 +111,6 @@ public class ChatSummaryForScreen extends ChatSummary implements Parcelable {
     public ChatId getChatId() {
         return chatId;
     }
-  
-    /**
-     * Returns a list of tags
-     */
-    public ArrayList<String> getTags() {
-        return tags;
-    }
-  
-    /**
-     * Returns the location of the chat to which this chat summary corresponds
-     */
-    public LatLng getLocation() {
-        return location;
-    }
-
     
     /**
      * Returns the time of the most recent message within the chat to which this
@@ -186,8 +166,8 @@ public class ChatSummaryForScreen extends ChatSummary implements Parcelable {
         dest.writeDouble(location.latitude);
         dest.writeDouble(location.longitude);
         dest.writeList(tags);
-        dest.writeString(chatId.creatorId);
-        dest.writeLong(chatId.timeId.getMillis());
+        dest.writeString(chatId.getCreatorId());
+        dest.writeLong(chatId.getTimeId().getMillis());
         dest.writeString(creatorUserName);
         dest.writeInt(numMessages);
         dest.writeInt(numMessagesRead);

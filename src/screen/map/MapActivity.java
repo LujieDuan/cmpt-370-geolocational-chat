@@ -516,7 +516,7 @@ public class MapActivity extends ActionBarActivity {
 											// left
 											.position(
 													summaryCreateList
-													.get(i).location));
+													.get(i).getLocation()));
 
 					// add to marker list
 					markerList.add(marker);
