@@ -44,7 +44,7 @@ public class SettingsActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.settings_activity);
 		EditText editName = (EditText) findViewById(R.id.edit_name);
-		editName.setHint(GlobalSettings.userIdAndName.userName);
+		editName.setHint(GlobalSettings.userIdAndName.getUserName());
 
 		ArrayList<String> tags = GlobalSettings.allTags;
 
@@ -121,7 +121,7 @@ public class SettingsActivity extends ActionBarActivity {
 		} else {
 			if (!name.isEmpty()) {
 				new SendNewUserNameTask(this).execute(new UserIdNamePair(
-						GlobalSettings.userIdAndName.userId, name));
+						GlobalSettings.userIdAndName.getUserId(), name));
 
 				// Wait until the sendNewUserNameTask finishes. If it was
 				// unsuccessful, just keep the same name as currently.
@@ -135,7 +135,7 @@ public class SettingsActivity extends ActionBarActivity {
 					finish();
 				}
 
-				editName.setHint(GlobalSettings.userIdAndName.userName);
+				editName.setHint(GlobalSettings.userIdAndName.getUserId());
 				editName.setText("");
 			}
 

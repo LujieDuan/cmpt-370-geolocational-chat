@@ -138,7 +138,7 @@ public class ChatCreationActivity extends ActionBarActivity {
 		} else {
 			new SendNewChatTask().execute(new ChatSummaryToDb(title,
 					GlobalSettings.curPhoneLocation, usedTags,
-					GlobalSettings.userIdAndName.userId, message,
+					GlobalSettings.userIdAndName.getUserId(), message,
 					new DateTime()));
 
 			finish();

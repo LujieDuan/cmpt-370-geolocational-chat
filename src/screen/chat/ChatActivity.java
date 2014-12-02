@@ -152,7 +152,7 @@ public class ChatActivity extends ActionBarActivity {
 			// onChatUpdated();
 
 			new SendNewMessageTask().execute(new ChatMessageToDb(message,
-					GlobalSettings.userIdAndName.userId, chatSummary.getChatId()));
+					GlobalSettings.userIdAndName.getUserId(), chatSummary.getChatId()));
 		}
 	}
 
@@ -192,7 +192,7 @@ public class ChatActivity extends ActionBarActivity {
 			View itemView;
 
 			if (values.get(position).getUserId()
-					.equals(GlobalSettings.userIdAndName.userId)) {
+					.equals(GlobalSettings.userIdAndName.getUserId())) {
 				itemView = inflater.inflate(R.layout.chat_item_me, parent,
 						false);
 				LinearLayout bubbleList = (LinearLayout) itemView

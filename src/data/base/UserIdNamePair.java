@@ -20,8 +20,9 @@ import comm.httpEntity.HttpPostEntity;
  *
  */
 public class UserIdNamePair implements HttpPostEntity {
-	public String userId;
-	public String userName;
+	
+    protected String userId;
+	protected String userName;
 
 	/**
 	 * Creates a new {@link UserIdNamePair}.
@@ -34,6 +35,16 @@ public class UserIdNamePair implements HttpPostEntity {
 	public UserIdNamePair(String userId, String userName) {
 		this.userId = userId;
 		this.userName = userName;
+	}
+	
+	public String getUserId()
+	{
+	  return userId;
+	}
+	
+	public String getUserName()
+	{
+	  return userName;
 	}
 
 	public StringEntity asJsonStringEntity() {

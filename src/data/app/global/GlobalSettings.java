@@ -92,9 +92,9 @@ public class GlobalSettings {
 		SharedPreferences.Editor editor = settings.edit();
 
 		UserIdNamePair userIdAndName = GlobalSettings.userIdAndName;
-		if (userIdAndName != null && !userIdAndName.userName.isEmpty())
+		if (userIdAndName != null && !userIdAndName.getUserName().isEmpty())
 			editor.putString(SETTINGS_KEY_USER_NAME,
-					GlobalSettings.userIdAndName.userName);
+					GlobalSettings.userIdAndName.getUserName());
 		editor.putStringSet(SETTINGS_KEY_TAGS_TO_FILTER_FOR,
 				new HashSet<String>(GlobalSettings.tagsToFilterFor));
 		editor.putBoolean(SETTINGS_KEY_TAG_FILTERING_IS_ON,
