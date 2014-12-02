@@ -423,7 +423,158 @@ public class MapActivity extends ActionBarActivity {
 					location.getLatitude(), location.getLongitude());
 		}
 	}
+	
+	/**
+	 * Update the markers on the map display to reflect the new chat summaries provided.
+	 * @param newChatSummaries the new total set of chat summaries to display.
+	 */
+	public void updateMapMarkers(ChatSummaryForScreen[] newChatSummaries)
+	{
+		// This area could definitely be optimized, but will require
+		// significant restructuring
+		final ArrayList<ChatSummaryForScreen> summaryCreateList = new ArrayList<ChatSummaryForScreen>();
+		final ArrayList<ChatSummaryForScreen> summaryUpdateList = new ArrayList<ChatSummaryForScreen>();
+		final ArrayList<Marker> markerUpdateList = new ArrayList<Marker>();
+		final ArrayList<Marker> markerRemoveList = new ArrayList<Marker>();
 
+		for (int i = 0; i < newChatSummaries.length; i++) {
+			boolean match = false;
+			for (int j = 0; j < markerList.size(); j++) {
+				ChatSummaryForScreen oldChatSummary = chatSummaryMap
+						.get(markerList.get(j).getId());
+				if (newChatSummaries[i].chatId.creatorId
+						.equals(oldChatSummary.chatId.creatorId)
+						&& newChatSummaries[i].chatId.timeId
+						.equals(oldChatSummary.chatId.timeId)) {
+					match = true;
+					oldChatSummary.lastMessageTime = newChatSummaries[i].lastMessageTime;
+					oldChatSummary.numMessages = newChatSummaries[i].numMessages;
+					summaryUpdateList.add(oldChatSummary);
+					markerUpdateList.add(markerList.get(j));
+				}
+			}
+			if (!match) {
+				summaryCreateList.add(newChatSummaries[i]);
+			}
+		}
+
+		for (int i = 0; i < markerList.size(); i++) {
+			boolean match = false;
+			for (int j = 0; j < markerUpdateList.size(); j++) {
+				if (markerList.get(i) == markerUpdateList.get(j)) {
+					match = true;
+				}
+			}
+			if (!match) {
+				markerRemoveList.add(markerList.get(i));
+			}
+		}
+
+		minMessages = Integer.MAX_VALUE;
+		maxMessages = 0;
+
+		for (int i = 0; i < summaryCreateList.size(); i++) {
+			minMessages = Math.min(minMessages,
+					summaryCreateList.get(i).numMessages);
+			maxMessages = Math.max(maxMessages,
+					summaryCreateList.get(i).numMessages);
+		}
+
+		for (int i = 0; i < summaryUpdateList.size(); i++) {
+			minMessages = Math.min(minMessages,
+					summaryUpdateList.get(i).numMessages);
+			maxMessages = Math.max(maxMessages,
+					summaryUpdateList.get(i).numMessages);
+		}
+
+		chatSummaryMap.clear();
+		markerList.clear();
+
+		Log.i("dbConnect", "create: " + summaryCreateList.size());
+		Log.i("dbConnect", "update: " + markerUpdateList.size());
+		Log.i("dbConnect", "remove: " + markerRemoveList.size());
+
+		runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+
+				for (int i = 0; i < summaryCreateList.size(); i++) {
+					// create marker
+					Marker marker = map
+							.addMarker(new MarkerOptions()
+							.icon(BitmapDescriptorFactory
+									.fromBitmap(createMarkerIcon(
+											summaryCreateList
+											.get(i),
+											minMessages,
+											maxMessages)))
+											.anchor(0.5f, 1.0f) // Anchors
+											// the
+											// marker on
+											// the
+											// bottom
+											// left
+											.position(
+													summaryCreateList
+													.get(i).location));
+
+					// add to marker list
+					markerList.add(marker);
+
+					// add summary to hash map
+					chatSummaryMap.put(marker.getId(),
+							summaryCreateList.get(i));
+				}
+
+				for (int i = 0; i < markerUpdateList.size(); i++) {
+
+					// add to marker list
+					markerList.add(markerUpdateList.get(i));
+
+					// add summary to hash map
+					chatSummaryMap.put(markerUpdateList.get(i)
+							.getId(), summaryUpdateList.get(i));
+
+					// handle selected
+					if (selectedMarker != null
+							&& !markerUpdateList.get(i).getId()
+							.equals(selectedMarker.getId())) {
+						// draw marker icon
+						markerUpdateList
+						.get(i)
+						.setIcon(
+								BitmapDescriptorFactory
+								.fromBitmap(createMarkerIcon(
+										summaryUpdateList
+										.get(i),
+										minMessages,
+										maxMessages)));
+					}
+				}
+
+				for (int i = 0; i < markerRemoveList.size(); i++) {
+					Log.d("dbConnect",
+							"Removing something, shouldn't be... Remove size: "
+									+ markerRemoveList.size());
+					// handle selected
+					if (selectedMarker != null
+							&& markerRemoveList.get(i).getId()
+							.equals(selectedMarker.getId())) {
+						selectedMarker = null;
+					}
+					// remove marker
+					markerRemoveList.get(i).remove();
+				}
+
+				userCircle
+				.setCenter(GlobalSettings.curPhoneLocation);
+
+				Log.i("dbConnect",
+						"Cleared and replaced chat summaries, on the map screen.");
+			}
+		});
+	}
 	/**
 	 * Save the userName, if it exists, to internal storage.
 	 */
@@ -525,154 +676,11 @@ public class MapActivity extends ActionBarActivity {
 
 						newChatSummaries = gson.fromJson(responseString,
 								ChatSummariesFromDb.class).chats;
-
+						
+						updateMapMarkers(newChatSummaries);
 					}
 
-					// This area could definitely be optimized, but will require
-					// significant restructuring
-					final ArrayList<ChatSummaryForScreen> summaryCreateList = new ArrayList<ChatSummaryForScreen>();
-					final ArrayList<ChatSummaryForScreen> summaryUpdateList = new ArrayList<ChatSummaryForScreen>();
-					final ArrayList<Marker> markerUpdateList = new ArrayList<Marker>();
-					final ArrayList<Marker> markerRemoveList = new ArrayList<Marker>();
 
-					for (int i = 0; i < newChatSummaries.length; i++) {
-						boolean match = false;
-						for (int j = 0; j < markerList.size(); j++) {
-							ChatSummaryForScreen oldChatSummary = chatSummaryMap
-									.get(markerList.get(j).getId());
-							if (newChatSummaries[i].chatId.creatorId
-									.equals(oldChatSummary.chatId.creatorId)
-									&& newChatSummaries[i].chatId.timeId
-									.equals(oldChatSummary.chatId.timeId)) {
-								match = true;
-								oldChatSummary.lastMessageTime = newChatSummaries[i].lastMessageTime;
-								oldChatSummary.numMessages = newChatSummaries[i].numMessages;
-								summaryUpdateList.add(oldChatSummary);
-								markerUpdateList.add(markerList.get(j));
-							}
-						}
-						if (!match) {
-							summaryCreateList.add(newChatSummaries[i]);
-						}
-					}
-
-					for (int i = 0; i < markerList.size(); i++) {
-						boolean match = false;
-						for (int j = 0; j < markerUpdateList.size(); j++) {
-							if (markerList.get(i) == markerUpdateList.get(j)) {
-								match = true;
-							}
-						}
-						if (!match) {
-							markerRemoveList.add(markerList.get(i));
-						}
-					}
-
-					minMessages = Integer.MAX_VALUE;
-					maxMessages = 0;
-
-					for (int i = 0; i < summaryCreateList.size(); i++) {
-						minMessages = Math.min(minMessages,
-								summaryCreateList.get(i).numMessages);
-						maxMessages = Math.max(maxMessages,
-								summaryCreateList.get(i).numMessages);
-					}
-
-					for (int i = 0; i < summaryUpdateList.size(); i++) {
-						minMessages = Math.min(minMessages,
-								summaryUpdateList.get(i).numMessages);
-						maxMessages = Math.max(maxMessages,
-								summaryUpdateList.get(i).numMessages);
-					}
-
-					chatSummaryMap.clear();
-					markerList.clear();
-
-					Log.i("dbConnect", "create: " + summaryCreateList.size());
-					Log.i("dbConnect", "update: " + markerUpdateList.size());
-					Log.i("dbConnect", "remove: " + markerRemoveList.size());
-
-					runOnUiThread(new Runnable() {
-
-						@Override
-						public void run() {
-
-							for (int i = 0; i < summaryCreateList.size(); i++) {
-								// create marker
-								Marker marker = map
-										.addMarker(new MarkerOptions()
-										.icon(BitmapDescriptorFactory
-												.fromBitmap(createMarkerIcon(
-														summaryCreateList
-														.get(i),
-														minMessages,
-														maxMessages)))
-														.anchor(0.5f, 1.0f) // Anchors
-														// the
-														// marker on
-														// the
-														// bottom
-														// left
-														.position(
-																summaryCreateList
-																.get(i).location));
-
-								// add to marker list
-								markerList.add(marker);
-
-								// add summary to hash map
-								chatSummaryMap.put(marker.getId(),
-										summaryCreateList.get(i));
-							}
-
-							for (int i = 0; i < markerUpdateList.size(); i++) {
-
-								// add to marker list
-								markerList.add(markerUpdateList.get(i));
-
-								// add summary to hash map
-								chatSummaryMap.put(markerUpdateList.get(i)
-										.getId(), summaryUpdateList.get(i));
-
-								// handle selected
-								if (selectedMarker != null
-										&& !markerUpdateList.get(i).getId()
-										.equals(selectedMarker.getId())) {
-									// draw marker icon
-									markerUpdateList
-									.get(i)
-									.setIcon(
-											BitmapDescriptorFactory
-											.fromBitmap(createMarkerIcon(
-													summaryUpdateList
-													.get(i),
-													minMessages,
-													maxMessages)));
-								}
-							}
-
-							for (int i = 0; i < markerRemoveList.size(); i++) {
-								Log.d("dbConnect",
-										"Removing something, shouldn't be... Remove size: "
-												+ markerRemoveList.size());
-								// handle selected
-								if (selectedMarker != null
-										&& markerRemoveList.get(i).getId()
-										.equals(selectedMarker.getId())) {
-									selectedMarker = null;
-								}
-								// remove marker
-								markerRemoveList.get(i).remove();
-							}
-
-							userCircle
-							.setCenter(GlobalSettings.curPhoneLocation);
-
-							Log.i("dbConnect",
-									"Cleared and replaced chat summaries, on the map screen.");
-						}
-						//TODO
-					});
 				} else {
 					HttpRequest
 					.handleHttpRequestFailure(
@@ -723,11 +731,11 @@ public class MapActivity extends ActionBarActivity {
 						.fromJson(responseString, String[].class);
 				GlobalSettings.allTags = new ArrayList<String>(
 						Arrays.asList(newTags));
-				
+
 				//We don't need to get tags anymore!
 				getTagsTaskScheduler.shutdown();
 				getTagsTaskScheduler = null;
-				
+
 				Log.i("dbConnect", "received tags. First tag: " + newTags[0]);
 			} catch (IOException e) {
 				HttpRequest.handleHttpRequestFailure(
