@@ -79,7 +79,12 @@ public class SendNewUserNameTask extends AsyncTask<UserIdNamePair, Void, Void> {
 					HttpRequest.ReasonForFailure.NO_SERVER_RESPONSE);
 			Log.e("dbConnect", e.toString());
 		}
-
+		
+		synchronized(activity)
+		{
+			activity.notify();
+		}
+		
 		return null;
 	}
 }
