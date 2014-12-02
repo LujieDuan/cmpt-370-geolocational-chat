@@ -61,6 +61,10 @@ public class ChatSummaryForScreen extends ChatSummary implements Parcelable {
 	public int getNumMessages() {
 		return numMessages;
 	}
+	
+    public void setNumMessages(int numMessages) {
+      this.numMessages = numMessages;
+    }
 
 	/**
 	 * Returns the number of messages which have been read
@@ -83,13 +87,67 @@ public class ChatSummaryForScreen extends ChatSummary implements Parcelable {
 		numMessagesRead = numMessages;
 	}
 
+	/**
+	 * Returns the name of the user which created the chat to which this chat
+	 * summary corresponds
+	 */
 	public String getCreatorName() {
 		return creatorUserName;
 	}
 
+	/**
+	 * Returns the title of the chat to which this chat summary corresponds
+	 */
 	public String getTitle() {
 		return title;
 	}
+	
+	/**
+     * Returns the time at which the most recent message was sent within the
+     * chat
+     */
+    public DateTime getTime() {
+      return lastMessageTime;
+    }
+
+    /**
+     * Returns the ID of the chat to which this chat summary corresponds
+     */
+    public ChatId getChatId() {
+        return chatId;
+    }
+  
+    /**
+     * Returns a list of tags
+     */
+    public ArrayList<String> getTags() {
+        return tags;
+    }
+  
+    /**
+     * Returns the location of the chat to which this chat summary corresponds
+     */
+    public LatLng getLocation() {
+        return location;
+    }
+
+    
+    /**
+     * Returns the time of the most recent message within the chat to which this
+     * chat summary corresponds
+     * @return
+     */
+    public DateTime getLastMessageTime() {
+        return lastMessageTime;
+    }
+
+    /**
+     * Sets the time of the most recent message to the given DateTime
+     * @param lastMessageTime
+     */
+    public void setLastMessageTime(DateTime lastMessageTime) {
+        this.lastMessageTime = lastMessageTime;
+    }
 
 	/**
 	 * Returns a string representation which describes the number of messages
@@ -104,67 +162,47 @@ public class ChatSummaryForScreen extends ChatSummary implements Parcelable {
 					+ " unread";
 		}
 	}
-
-	public ChatSummaryForScreen(Parcel in) {
-		this.title = in.readString();
-		this.location = new LatLng(in.readDouble(), in.readDouble());
-		tags = new ArrayList<String>();
-		in.readList(tags, String.class.getClassLoader());
-		this.chatId = new ChatId(in.readString(), new DateTime(in.readLong()));
-		this.creatorUserName = in.readString();
-		this.numMessages = in.readInt();
-		this.numMessagesRead = in.readInt();
-		this.lastMessageTime = new DateTime(in.readLong());
-	}
-
-	@Override
-	public int describeContents() {
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeString(title);
-		dest.writeDouble(location.latitude);
-		dest.writeDouble(location.longitude);
-		dest.writeList(tags);
-		dest.writeString(chatId.creatorId);
-		dest.writeLong(chatId.timeId.getMillis());
-		dest.writeString(creatorUserName);
-		dest.writeInt(numMessages);
-		dest.writeInt(numMessagesRead);
-		dest.writeLong(lastMessageTime.getMillis());
-	}
-
-	public static final Parcelable.Creator<ChatSummaryForScreen> CREATOR = new Parcelable.Creator<ChatSummaryForScreen>() {
-		public ChatSummaryForScreen createFromParcel(Parcel in) {
-			return new ChatSummaryForScreen(in);
-		}
-
-		public ChatSummaryForScreen[] newArray(int size) {
-			return new ChatSummaryForScreen[size];
-		}
-	};
-
-	/**
-	 * Returns the time at which the most recent message was sent within the
-	 * chat
-	 */
-    public DateTime getTime() {
-      return lastMessageTime;
-    }
-
-    public ChatId getChatId() {
-      return chatId;
+    
+    public ChatSummaryForScreen(Parcel in) {
+        this.title = in.readString();
+        this.location = new LatLng(in.readDouble(), in.readDouble());
+        tags = new ArrayList<String>();
+        in.readList(tags, String.class.getClassLoader());
+        this.chatId = new ChatId(in.readString(), new DateTime(in.readLong()));
+        this.creatorUserName = in.readString();
+        this.numMessages = in.readInt();
+        this.numMessagesRead = in.readInt();
+        this.lastMessageTime = new DateTime(in.readLong());
     }
   
-    public ArrayList<String> getTags() {
-      return tags;
+    @Override
+    public int describeContents() {
+        return 0;
     }
   
-    public LatLng getLocation() {
-      return location;
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(title);
+        dest.writeDouble(location.latitude);
+        dest.writeDouble(location.longitude);
+        dest.writeList(tags);
+        dest.writeString(chatId.creatorId);
+        dest.writeLong(chatId.timeId.getMillis());
+        dest.writeString(creatorUserName);
+        dest.writeInt(numMessages);
+        dest.writeInt(numMessagesRead);
+        dest.writeLong(lastMessageTime.getMillis());
     }
+  
+    public static final Parcelable.Creator<ChatSummaryForScreen> CREATOR = new Parcelable.Creator<ChatSummaryForScreen>() {
+        public ChatSummaryForScreen createFromParcel(Parcel in) {
+            return new ChatSummaryForScreen(in);
+        }
+  
+        public ChatSummaryForScreen[] newArray(int size) {
+            return new ChatSummaryForScreen[size];
+        }
+    };
     
     @Override
     public boolean equals(Object other)
@@ -177,17 +215,5 @@ public class ChatSummaryForScreen extends ChatSummary implements Parcelable {
       {
         return this.chatId.equals(((ChatSummaryForScreen) other).chatId);
       }
-    }
-
-    public void setNumMessages(int numMessages) {
-      this.numMessages = numMessages;
-    }
-
-    public DateTime getLastMessageTime() {
-      return lastMessageTime;
-    }
-
-    public void setLastMessageTime(DateTime lastMessageTime) {
-      this.lastMessageTime = lastMessageTime;
     }
 }
