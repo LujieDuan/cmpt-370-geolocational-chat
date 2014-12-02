@@ -117,7 +117,7 @@ public class ChatActivity extends ActionBarActivity {
 		// later.
 		if (numMessages > 0)
 			chatSummary.lastMessageTime = chat
-					.getChatMessageForScreen(numMessages - 1).time;
+					.getChatMessageForScreen(numMessages - 1).getTime();
 		else
 			chatSummary.lastMessageTime = new DateTime();
 
@@ -195,7 +195,7 @@ public class ChatActivity extends ActionBarActivity {
 						false);
 				LinearLayout bubbleList = (LinearLayout) itemView
 						.findViewById(R.id.chat_bubble_list);
-				for (int i = 0; i < values.get(position).messages.size(); i++) {
+				for (int i = 0; i < values.get(position).numMessages(); i++) {
 					View bubbleView = inflater.inflate(R.layout.chat_bubble_me,
 							parent, false);
 					TextView textViewMessage = (TextView) bubbleView
@@ -208,7 +208,7 @@ public class ChatActivity extends ActionBarActivity {
 						false);
 				LinearLayout bubbleList = (LinearLayout) itemView
 						.findViewById(R.id.chat_bubble_list);
-				for (int i = 0; i < values.get(position).messages.size(); i++) {
+				for (int i = 0; i < values.get(position).numMessages(); i++) {
 					View bubbleView = inflater.inflate(
 							R.layout.chat_bubble_them, parent, false);
 					TextView textViewMessage = (TextView) bubbleView
@@ -259,7 +259,7 @@ public class ChatActivity extends ActionBarActivity {
 			int lastMessageId = -1;
 			if (chat.numMessages() > 0) {
 				lastMessageId = chat
-						.getChatMessageForScreen(chat.numMessages() - 1).messageId;
+						.getChatMessageForScreen(chat.numMessages() - 1).getMessageId();
 			}
 
 			TaskParams_GetNewMessages sendParams = new TaskParams_GetNewMessages(

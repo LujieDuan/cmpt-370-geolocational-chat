@@ -8,7 +8,7 @@ import java.util.ArrayList;
  */
 public class Chat {
 
-	public ArrayList<ChatItem> chatItems = new ArrayList<ChatItem>();
+	private ArrayList<ChatItem> chatItems = new ArrayList<ChatItem>();
 
 	/**
 	 * Adds the given messages to the {@link Chat}.

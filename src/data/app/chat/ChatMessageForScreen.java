@@ -20,9 +20,12 @@ import data.base.ChatMessage;
  *
  */
 public class ChatMessageForScreen extends ChatMessage {
-	public int messageId;
-	public String userName;
-	public DateTime time;
+	
+    private int messageId;
+	
+    private String userName;
+	
+	private DateTime time;
 
 	/**
 	 * Creates a new {@link ChatMessageForScreen}, taking in a string as
@@ -120,5 +123,26 @@ public class ChatMessageForScreen extends ChatMessage {
 
 		return str;
 	}
+
+	/**
+	 * Returns the name of the user which sent this message
+	 */
+    public String getName() {
+      return userName;
+    }
+
+    /**
+     * Returns the date and time at which this message was sent
+     */
+    public DateTime getTime() {
+      return time;
+    }
+    
+    /**
+     * Returns the id of the message
+     */
+    public int getMessageId() {
+      return messageId;
+    }
 
 }

@@ -10,7 +10,7 @@ import org.joda.time.DateTime;
  */
 public class ChatItem {
 
-	public ArrayList<ChatMessageForScreen> messages = new ArrayList<ChatMessageForScreen>();
+	private ArrayList<ChatMessageForScreen> messages = new ArrayList<ChatMessageForScreen>();
 
 	/**
 	 * Constructs a new {@link ChatItem} from the given chat messages.
@@ -46,7 +46,7 @@ public class ChatItem {
 	 * chat item.
 	 */
 	public String getName() {
-		return messages.get(0).userName;
+		return messages.get(0).getName();
 	}
 
 	/**
@@ -71,7 +71,7 @@ public class ChatItem {
 	 * Returns the time at which the most recent message was sent.
 	 */
 	public DateTime getTime() {
-		return messages.get(messages.size() - 1).time;
+		return messages.get(messages.size() - 1).getTime();
 	}
 
 	/**
