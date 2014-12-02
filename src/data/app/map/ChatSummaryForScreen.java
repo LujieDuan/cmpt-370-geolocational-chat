@@ -83,7 +83,7 @@ public class ChatSummaryForScreen extends ChatSummary implements Parcelable {
 		numMessagesRead = numMessages;
 	}
 
-	public String getUserName() {
+	public String getCreatorName() {
 		return creatorUserName;
 	}
 

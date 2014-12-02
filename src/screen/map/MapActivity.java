@@ -306,7 +306,7 @@ public class MapActivity extends ActionBarActivity {
 	 *            chat summary for which an icon is created
 	 */
 	Bitmap createSelectedMarkerIcon(ChatSummaryForScreen chatSummary) {
-		String nameText = chatSummary.getUserName();
+		String nameText = chatSummary.getCreatorName();
 		String titleText = chatSummary.getTitle();
 		String infoText = chatSummary.getNumMessagesString() + " from "
 				+ OutputStrings.getRelativeTimeString(chatSummary.getTime());
