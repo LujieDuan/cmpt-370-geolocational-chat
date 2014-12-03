@@ -49,7 +49,7 @@ public class Chat {
 	 * @param i
 	 *            Index number of the message to be returned
 	 */
-	public ChatMessageForScreen getChatMessageForScreen(int i) {
+	public ChatMessageForScreen getChatMessage(int i) {
 		int j = 0;
 		int k = 0;
 

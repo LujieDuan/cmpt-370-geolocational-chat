@@ -103,10 +103,6 @@ public class MapActivity extends ActionBarActivity {
 	private ScheduledThreadPoolExecutor getTagsTaskScheduler;
 	private ScheduledThreadPoolExecutor inboxUpdateScheduler;
 
-	Location location;
-	Criteria criteria;
-	LocationManager locationManager;
-
 	/**
 	 * Sets up the map screen, and grabs various user settings needed for the
 	 * application such as the user's location, and display name. After this, a
@@ -413,11 +409,11 @@ public class MapActivity extends ActionBarActivity {
 	 * is specified in {@link GlobalSettings#curPhoneLocation}.
 	 */
 	public void updateLocation() {
-		locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-		criteria = new Criteria();
+		LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.ACCURACY_FINE);
 		String provider = locationManager.getBestProvider(criteria, true);
-		location = locationManager.getLastKnownLocation(provider);
+		Location location = locationManager.getLastKnownLocation(provider);
 		if (location != null) {
 			GlobalSettings.curPhoneLocation = new LatLng(
 					location.getLatitude(), location.getLongitude());

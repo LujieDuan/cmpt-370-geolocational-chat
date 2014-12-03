@@ -123,7 +123,7 @@ public class ChatActivity extends ActionBarActivity {
 	        chatSummary.getCreatorName(),
 	        numMessages, 
 	        numMessages, 
-	        chat.getChatMessageForScreen(numMessages - 1).getTime());
+	        chat.getChatMessage(numMessages - 1).getTime());
 	 
 
 		Intent returnIntent = new Intent();
@@ -260,7 +260,7 @@ public class ChatActivity extends ActionBarActivity {
 			int lastMessageId = -1;
 			if (chat.numMessages() > 0) {
 				lastMessageId = chat
-						.getChatMessageForScreen(chat.numMessages() - 1).getMessageId();
+						.getChatMessage(chat.numMessages() - 1).getMessageId();
 			}
 
 			TaskParams_GetNewMessages sendParams = new TaskParams_GetNewMessages(
