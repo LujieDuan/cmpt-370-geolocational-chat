@@ -58,6 +58,6 @@ public class Chat {
 			k += 1;
 		}
 
-		return chatItems.get(k).getChatMessageForScreen(i - j);
+		return chatItems.get(k).getChatMessage(i - j);
 	}
 }

@@ -37,7 +37,7 @@ public class ChatItem {
 	 * @param i
 	 *            index of the chat item to be returned.
 	 */
-	public ChatMessageForScreen getChatMessageForScreen(int i) {
+	public ChatMessageForScreen getChatMessage(int i) {
 		return messages.get(i);
 	}
 
