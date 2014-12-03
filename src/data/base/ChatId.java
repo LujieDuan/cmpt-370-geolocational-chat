@@ -4,6 +4,7 @@ import org.joda.time.DateTime;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import comm.HttpRequest;
 
 /**

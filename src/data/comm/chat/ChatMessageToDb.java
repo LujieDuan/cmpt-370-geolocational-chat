@@ -8,9 +8,9 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import comm.gsonHelper.ChatMessageSerializer;
 import comm.httpEntity.HttpPostEntity;
+
 import data.base.ChatId;
 import data.base.ChatMessage;
 

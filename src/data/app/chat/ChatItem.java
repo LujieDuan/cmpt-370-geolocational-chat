@@ -1,6 +1,7 @@
 package data.app.chat;
 
 import java.util.ArrayList;
+
 import org.joda.time.DateTime;
 
 /**

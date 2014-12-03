@@ -30,10 +30,10 @@ import coderunners.geolocationalchat.R;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import comm.HttpRequest;
 import comm.gsonHelper.DateTimeDeserializer;
 import comm.httpParams.TaskParams_GetNewMessages;
+
 import data.app.chat.Chat;
 import data.app.chat.ChatItem;
 import data.app.chat.ChatMessageForScreen;

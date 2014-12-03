@@ -19,7 +19,9 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import coderunners.geolocationalchat.R;
+
 import comm.HttpRequest;
+
 import data.app.global.GlobalSettings;
 import data.comm.chatCreation.ChatSummaryToDb;
 
@@ -85,6 +87,7 @@ public class ChatCreationActivity extends ActionBarActivity {
 	 * @param v
 	 */
 	public void onCancel(View v) {
+		setResult(RESULT_CANCELED);
 		finish();
 	}
 
@@ -140,7 +143,8 @@ public class ChatCreationActivity extends ActionBarActivity {
 					GlobalSettings.curPhoneLocation, usedTags,
 					GlobalSettings.userIdAndName.getUserId(), message,
 					new DateTime()));
-
+			
+			setResult(RESULT_OK);
 			finish();
 		}
 	}

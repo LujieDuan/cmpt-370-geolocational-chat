@@ -2,6 +2,8 @@ package data.app.chat;
 
 import java.util.ArrayList;
 
+import screen.chat.ChatActivity;
+
 /**
  * This object represents a collection of messages which together represent a
  * chat which can be both viewed and replied to within a {@link ChatActivity}.

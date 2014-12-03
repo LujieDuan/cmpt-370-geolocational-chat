@@ -1,5 +1,8 @@
 package data.base;
 
+import data.app.chat.ChatMessageForScreen;
+import data.comm.chat.ChatMessageToDb;
+
 /**
  * Basic chat message. This is extended by both {@link ChatMessageForScreen} and
  * {@link ChatMessageToDb} which add additional information to the object

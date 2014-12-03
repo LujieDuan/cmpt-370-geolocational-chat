@@ -6,7 +6,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import screen.map.MapActivity;
-
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.util.Log;

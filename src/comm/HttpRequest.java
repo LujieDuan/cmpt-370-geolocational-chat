@@ -18,13 +18,14 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-import comm.httpEntity.HttpPostEntity;
-import comm.httpEntity.HttpPutEntity;
-import comm.httpParams.HttpGetParams;
-import coderunners.geolocationalchat.R;
 import android.app.Activity;
 import android.util.Log;
 import android.widget.Toast;
+import coderunners.geolocationalchat.R;
+
+import comm.httpEntity.HttpPostEntity;
+import comm.httpEntity.HttpPutEntity;
+import comm.httpParams.HttpGetParams;
 
 /**
  * Uninstantiated class; handles all http methods to access the database, as

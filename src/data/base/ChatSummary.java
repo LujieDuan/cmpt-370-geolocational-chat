@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import data.app.map.ChatSummaryForScreen;
+import data.comm.chatCreation.ChatSummaryToDb;
+
 /**
  * Basic chat summary: Does NOT include the actual chat contents. This object is
  * extended by both {@link ChatSummaryForScreen} and {@link ChatSummaryToDb}

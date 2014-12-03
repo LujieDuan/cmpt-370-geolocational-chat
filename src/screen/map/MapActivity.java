@@ -598,7 +598,10 @@ public class MapActivity extends ActionBarActivity {
 			inboxUpdateScheduler = null;
 		}
 	}
-
+	
+	/**
+	 * Handle the results of returning from Chat or Settings screens.
+	 */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 		if (requestCode == ActivityRequestCode.CHAT_SCREEN.ordinal()) {
@@ -616,7 +619,8 @@ public class MapActivity extends ActionBarActivity {
 			if (resultCode == RESULT_CANCELED) {
 				// Do nothing
 			}
-		} else if (requestCode == ActivityRequestCode.SETTINGS_SCREEN.ordinal()) {
+		} else if (requestCode == ActivityRequestCode.SETTINGS_SCREEN.ordinal() 
+		|| requestCode == ActivityRequestCode.CHAT_CREATION_SCREEN.ordinal()) {
 			if (resultCode == RESULT_OK) {
 				inboxUpdateScheduler.shutdown();
 
@@ -626,7 +630,10 @@ public class MapActivity extends ActionBarActivity {
 			}
 		}
 	}
-
+	
+	/**
+	 * @return true if the phone is currently connected to the Internet; or false otherwise.
+	 */
 	public boolean isOnline() {
 		ConnectivityManager cm =
 				(ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
