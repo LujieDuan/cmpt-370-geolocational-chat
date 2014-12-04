@@ -11,7 +11,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -24,7 +23,6 @@ import android.widget.Toast;
 import coderunners.geolocationalchat.R;
 
 import comm.httpEntity.HttpPostEntity;
-import comm.httpEntity.HttpPutEntity;
 import comm.httpParams.HttpGetParams;
 
 /**
@@ -42,31 +40,22 @@ public class HttpRequest {
 	public static enum ReasonForFailure {
 		REQUEST_REJECTED, REQUEST_TIMEOUT, NO_SERVER_RESPONSE, UNKNOWN
 	}
-
+	
+	public static void setEncodingAndType(StringEntity se)
+	{
+		se.setContentEncoding("UTF-8");
+		se.setContentType("application/json");
+	}
+	
 	public static String post(HttpPostEntity entity, String uri)
 			throws ClientProtocolException, IOException {
 		StringEntity se = entity.asJsonStringEntity();
-		se.setContentEncoding("UTF-8");
-		se.setContentType("application/json");
 
 		HttpPost request = new HttpPost(uri);
 		request.setEntity(se);
 
 		Log.d("dbConnect", "http post entity: "
 				+ request.getEntity().toString());
-		return executeRequest(request);
-	}
-
-	public static String put(HttpPutEntity entity, String uri)
-			throws ClientProtocolException, IOException {
-		StringEntity se = entity.asJsonStringEntity();
-		se.setContentEncoding("UTF-8");
-		se.setContentType("application/json");
-
-		HttpPut request = new HttpPut(uri);
-		request.setEntity(se);
-
-		Log.d("dbConnect", "http put entity: " + request.getEntity().toString());
 		return executeRequest(request);
 	}
 

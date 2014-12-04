@@ -14,7 +14,6 @@ import screen.OutputStrings;
 import screen.chat.ChatActivity;
 import screen.chatCreation.ChatCreationActivity;
 import screen.settings.SettingsActivity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -23,11 +22,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
@@ -80,7 +74,7 @@ public class MapActivity extends ActionBarActivity {
 	}
 
 	public static final String CHAT_SUMMARY_STRING = "chatSummary";
-	private static final int GET_INBOX_DELAY_SECONDS = 30;
+	public static final int GET_INBOX_DELAY_SECONDS = 30;
 
 	static GoogleMap map;
 
@@ -114,13 +108,14 @@ public class MapActivity extends ActionBarActivity {
 		setContentView(R.layout.map_activity);
 		
 		//check for Internet connection, and do nothing if there is none.
-		if (!isOnline())
+		if (!GlobalSettings.isOnline(this))
 		{
 			Toast.makeText(this, "This device is not connected to the internet!", Toast.LENGTH_LONG).show();
 			return;
 		}
 
 		GlobalSettings.initialize(this);
+		
 		getTagsTaskScheduler = new ScheduledThreadPoolExecutor(1);
 		getTagsTaskScheduler.scheduleWithFixedDelay(new GetTagsTask(), 0, 5, TimeUnit.SECONDS);
 
@@ -130,7 +125,7 @@ public class MapActivity extends ActionBarActivity {
 		// TODO: Might have issues with emulator
 		// map.setMyLocationEnabled(true);
 
-		updateLocation();
+		GlobalSettings.updateLocation(this);
 
 		LatLng curPhoneLocation = GlobalSettings.curPhoneLocation;
 
@@ -142,7 +137,6 @@ public class MapActivity extends ActionBarActivity {
 				.center(GlobalSettings.curPhoneLocation));
 
 		inboxUpdateScheduler = new ScheduledThreadPoolExecutor(1);
-
 		inboxUpdateScheduler.scheduleWithFixedDelay(new GetInboxTask(), 0,
 				GET_INBOX_DELAY_SECONDS, TimeUnit.SECONDS);
 
@@ -386,40 +380,6 @@ public class MapActivity extends ActionBarActivity {
 		return image;
 	}
 
-	// /**
-	// * Returns the current location of the user
-	// */
-	// public LatLng getCurrentLocation()
-	// {
-	// locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-	// criteria = new Criteria();
-	// criteria.setAccuracy(Criteria.ACCURACY_FINE);
-	// String provider = locationManager.getBestProvider(criteria, true);
-	//
-	// location = locationManager.getLastKnownLocation(provider);
-	// LatLng currentLocation = new LatLng(location.getLatitude(),
-	// location.getLongitude());
-	// return currentLocation;
-	// }
-
-	/**
-	 * Updates the location of the user in
-	 * {@link GlobalSettings#curPhoneLocation}. If the location cannot be
-	 * obtained (i.e. when running through an emulator), it is left as whatever
-	 * is specified in {@link GlobalSettings#curPhoneLocation}.
-	 */
-	public void updateLocation() {
-		LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-		Criteria criteria = new Criteria();
-		criteria.setAccuracy(Criteria.ACCURACY_FINE);
-		String provider = locationManager.getBestProvider(criteria, true);
-		Location location = locationManager.getLastKnownLocation(provider);
-		if (location != null) {
-			GlobalSettings.curPhoneLocation = new LatLng(
-					location.getLatitude(), location.getLongitude());
-		}
-	}
-	
 	/**
 	 * Update the markers on the map display to reflect the new chat summaries provided.
 	 * @param newChatSummaries the new total set of chat summaries to display.
@@ -630,16 +590,6 @@ public class MapActivity extends ActionBarActivity {
 			}
 		}
 	}
-	
-	/**
-	 * @return true if the phone is currently connected to the Internet; or false otherwise.
-	 */
-	public boolean isOnline() {
-		ConnectivityManager cm =
-				(ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo netInfo = cm.getActiveNetworkInfo();
-		return netInfo != null && netInfo.isConnectedOrConnecting();
-	}
 
 	/**
 	 * Gets the full list of nearby chats from the database, in the background.
@@ -652,7 +602,7 @@ public class MapActivity extends ActionBarActivity {
 	private class GetInboxTask implements Runnable {
 		@Override
 		public void run() {
-			updateLocation();
+			GlobalSettings.updateLocation(MapActivity.this);
 			LatLng l = GlobalSettings.curPhoneLocation;
 			ArrayList<String> tags = GlobalSettings.tagsToFilterFor;
 			TaskParams_GetInbox queryParams = new TaskParams_GetInbox(l, tags);

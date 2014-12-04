@@ -7,6 +7,7 @@ import org.apache.http.entity.StringEntity;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import comm.HttpRequest;
 import comm.httpEntity.HttpPostEntity;
 
 /**
@@ -59,6 +60,8 @@ public class UserIdNamePair implements HttpPostEntity {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
+		
+		HttpRequest.setEncodingAndType(se);
 
 		return se;
 	}

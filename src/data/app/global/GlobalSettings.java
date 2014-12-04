@@ -8,6 +8,11 @@ import screen.settings.SendNewUserNameTask;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.provider.Settings.Secure;
 import coderunners.geolocationalchat.R;
 
@@ -102,4 +107,34 @@ public class GlobalSettings {
 
 		editor.commit();
 	}
+	
+	/**
+	 * Updates the location of the user in
+	 * {@link GlobalSettings#curPhoneLocation}. If the location cannot be
+	 * obtained (i.e. when running through an emulator), it is left as whatever
+	 * is specified in {@link GlobalSettings#curPhoneLocation}.
+	 */
+	public static void updateLocation(Activity activity) {
+		LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+		Criteria criteria = new Criteria();
+		criteria.setAccuracy(Criteria.ACCURACY_FINE);
+		String provider = locationManager.getBestProvider(criteria, true);
+		Location location = locationManager.getLastKnownLocation(provider);
+		if (location != null) {
+			GlobalSettings.curPhoneLocation = new LatLng(
+					location.getLatitude(), location.getLongitude());
+		}
+	}
+	
+	
+	/**
+	 * @return true if the phone is currently connected to the Internet; or false otherwise.
+	 */
+	public static boolean isOnline(Activity activity) {
+		ConnectivityManager cm =
+				(ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netInfo = cm.getActiveNetworkInfo();
+		return netInfo != null && netInfo.isConnectedOrConnecting();
+	}
+
 }
