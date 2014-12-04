@@ -21,7 +21,6 @@ import android.app.Activity;
 import android.util.Log;
 import android.widget.Toast;
 import coderunners.geolocationalchat.R;
-
 import comm.httpEntity.HttpPostEntity;
 import comm.httpParams.HttpGetParams;
 
@@ -50,6 +49,8 @@ public class HttpRequest {
 	public static String post(HttpPostEntity entity, String uri)
 			throws ClientProtocolException, IOException {
 		StringEntity se = entity.asJsonStringEntity();
+				
+		HttpRequest.setEncodingAndType(se);
 
 		HttpPost request = new HttpPost(uri);
 		request.setEntity(se);

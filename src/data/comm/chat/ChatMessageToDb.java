@@ -8,10 +8,9 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import comm.HttpRequest;
 import comm.gsonHelper.ChatMessageSerializer;
 import comm.httpEntity.HttpPostEntity;
+
 import data.base.ChatId;
 import data.base.ChatMessage;
 
@@ -50,8 +49,6 @@ public class ChatMessageToDb extends ChatMessage implements HttpPostEntity {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-
-		HttpRequest.setEncodingAndType(se);
 		
 		return se;
 	}
